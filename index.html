@@ -707,18 +707,31 @@ let pendingQueue = JSON.parse(localStorage.getItem('mob_pend') || '[]');
 //  SUPABASE
 // ══════════════════════════════════════════════
 async function sbFetch(path, opts={}) {
-  const res = await fetch(`${SB_URL}/rest/v1/${path}`, {
-    ...opts,
-    headers: {
-      'apikey': SB_KEY,
-      'Authorization': `Bearer ${SB_KEY}`,
-      'Content-Type': 'application/json',
-      'Prefer': 'return=representation',
-      ...opts.headers,
-    },
-  });
-  if (!res.ok) throw new Error(await res.text() || res.statusText);
-  return res.status === 204 ? null : res.json();
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), 12000);
+  try {
+    const res = await fetch(`${SB_URL}/rest/v1/${path}`, {
+      ...opts,
+      signal: controller.signal,
+      headers: {
+        'apikey': SB_KEY,
+        'Authorization': `Bearer ${SB_KEY}`,
+        'Content-Type': 'application/json',
+        'Prefer': 'return=representation',
+        ...opts.headers,
+      },
+    });
+    clearTimeout(timer);
+    if (!res.ok) {
+      const errText = await res.text();
+      throw new Error(`HTTP ${res.status}: ${errText||res.statusText}`);
+    }
+    return res.status === 204 ? null : res.json();
+  } catch(e) {
+    clearTimeout(timer);
+    if (e.name==='AbortError') throw new Error('Timeout — Supabase unreachable. Check your network.');
+    throw e;
+  }
 }
 
 // ══════════════════════════════════════════════
@@ -861,7 +874,13 @@ async function loadDashboard() {
     });
     setOnline(true);
   } catch(e) {
-    grid.innerHTML=`<div class="empty"><div class="empty-icon">⚠️</div>Connection error<br><small>${e.message}</small></div>`;
+    grid.innerHTML=`
+      <div class="empty">
+        <div class="empty-icon">⚠️</div>
+        <div style="font-size:17px;font-weight:700;color:var(--red);margin-bottom:8px">Connection Error</div>
+        <div style="font-size:14px;color:var(--text2);word-break:break-all;max-width:320px;margin:0 auto">${e.message}</div>
+        <button class="btn btn-secondary" style="margin-top:16px;width:auto;padding:10px 24px" onclick="loadDashboard()">🔄 Retry</button>
+      </div>`;
     setOnline(false);
   }
 }
@@ -1241,10 +1260,45 @@ async function loadScoreboard() {
 // ══════════════════════════════════════════════
 //  INIT
 // ══════════════════════════════════════════════
+async function testConnection() {
+  // Quick ping to verify Supabase is reachable before full load
+  try {
+    const res = await fetch(`${SB_URL}/rest/v1/capacity_entries?limit=1`, {
+      signal: AbortSignal.timeout(8000),
+      headers: { 'apikey': SB_KEY, 'Authorization': `Bearer ${SB_KEY}` }
+    });
+    if (!res.ok) {
+      const txt = await res.text();
+      return { ok: false, msg: `HTTP ${res.status}: ${txt}` };
+    }
+    return { ok: true };
+  } catch(e) {
+    return { ok: false, msg: e.name==='TimeoutError'||e.name==='AbortError'
+      ? 'Supabase did not respond in 8s — possible network block or wrong URL'
+      : e.message };
+  }
+}
+
 function init() {
   setOnline(navigator.onLine);
   initForm();
-  loadDashboard();
+  // Show connecting status
+  document.getElementById('deptGrid').innerHTML =
+    '<div style="text-align:center;padding:30px;color:var(--text2);font-size:16px">🔌 Connecting to Supabase…</div>';
+  testConnection().then(result => {
+    if (!result.ok) {
+      document.getElementById('deptGrid').innerHTML = `
+        <div class="empty">
+          <div class="empty-icon">🔌</div>
+          <div style="font-size:17px;font-weight:700;color:var(--red);margin-bottom:8px">Cannot reach Supabase</div>
+          <div style="font-size:14px;color:var(--text2);word-break:break-all;max-width:340px;margin:0 auto;line-height:1.5">${result.msg}</div>
+          <button class="btn btn-secondary" style="margin-top:16px;width:auto;padding:10px 24px" onclick="init()">🔄 Retry</button>
+        </div>`;
+      setOnline(false);
+    } else {
+      loadDashboard();
+    }
+  });
   if(isOnline && pendingQueue.length) flushQueue();
 }
 document.addEventListener('DOMContentLoaded', init);
