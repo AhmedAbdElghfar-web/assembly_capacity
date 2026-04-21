@@ -707,31 +707,20 @@ let pendingQueue = JSON.parse(localStorage.getItem('mob_pend') || '[]');
 //  SUPABASE
 // ══════════════════════════════════════════════
 async function sbFetch(path, opts={}) {
-  const controller = new AbortController();
-  const timer = setTimeout(() => controller.abort(), 12000);
-  try {
-    const res = await fetch(`${SB_URL}/rest/v1/${path}`, {
-      ...opts,
-      signal: controller.signal,
-      headers: {
-        'apikey': SB_KEY,
-        'Authorization': `Bearer ${SB_KEY}`,
-        'Content-Type': 'application/json',
-        'Prefer': 'return=representation',
-        ...opts.headers,
-      },
-    });
-    clearTimeout(timer);
-    if (!res.ok) {
-      const errText = await res.text();
-      throw new Error(`HTTP ${res.status}: ${errText||res.statusText}`);
-    }
-    return res.status === 204 ? null : res.json();
-  } catch(e) {
-    clearTimeout(timer);
-    if (e.name==='AbortError') throw new Error('Timeout — Supabase unreachable. Check your network.');
-    throw e;
+  const url = `${SB_URL}/rest/v1/${path}`;
+  const headers = {
+    'apikey': SB_KEY,
+    'Authorization': `Bearer ${SB_KEY}`,
+    'Content-Type': 'application/json',
+    'Prefer': 'return=representation',
+    ...(opts.headers||{}),
+  };
+  const res = await fetch(url, { ...opts, headers });
+  if (!res.ok) {
+    const errText = await res.text();
+    throw new Error(`HTTP ${res.status}: ${errText||res.statusText}`);
   }
+  return res.status === 204 ? null : res.json();
 }
 
 // ══════════════════════════════════════════════
@@ -917,7 +906,12 @@ function initForm() {
   }
   document.getElementById('histMonth').value=monthStr();
   // live recalc triggers
-  ['fAvail','fOT','fAllIn','fAllOut'].forEach(id=>document.getElementById(id).addEventListener('input',liveRecalc));
+  // fAvail and fOT — direct ID inputs
+  ['fAvail','fOT'].forEach(id=>{
+    const el=document.getElementById(id);
+    if(el) el.addEventListener('input',liveRecalc);
+  });
+  // fAllIn / fAllOut no longer exist as single inputs — handled via oninput on transfer-qty elements
 }
 
 function selectDept(code) {
@@ -973,26 +967,35 @@ function getModelRows() {
 }
 
 function liveRecalc() {
-  const rows=getModelRows();
-  const needed=calcNeeded(rows);
-  const avail=(Number(document.getElementById('fAvail').value)||0)*1
-             +(Number(document.getElementById('fOT').value)||0);
-  const allIn  = collectTransfers('in').reduce((s,t)=>s+t.qty,0);
-  const allOut = collectTransfers('out').reduce((s,t)=>s+t.qty,0);
-  const ach=needed>0?calcAchieve(avail,allIn,needed,allOut):null;
-  const pen=calcPenalty(ach);
-  const cls=achClass(ach);
+  try {
+    const rows=getModelRows();
+    const needed=calcNeeded(rows);
+    const availEl=document.getElementById('fAvail');
+    const otEl=document.getElementById('fOT');
+    const avail=(availEl?Number(availEl.value)||0:0)+(otEl?Number(otEl.value)||0:0);
+    const allIn  = collectTransfers('in').reduce((s,t)=>s+t.qty,0);
+    const allOut = collectTransfers('out').reduce((s,t)=>s+t.qty,0);
+    const ach=needed>0?calcAchieve(avail,allIn,needed,allOut):null;
+    const pen=calcPenalty(ach);
+    const cls=achClass(ach);
 
-  document.getElementById('mNeeded').textContent=fmtN(needed);
-  document.getElementById('mAvail').textContent=fmtN(avail);
-  const achEl=document.getElementById('mAch');
-  achEl.textContent=fmtAch(ach); achEl.className=`meter-val ${cls}`;
-  document.getElementById('mPen').textContent=pen!==0?pen.toFixed(0):'0';
+    const mN=document.getElementById('mNeeded');
+    const mA=document.getElementById('mAvail');
+    const mAch=document.getElementById('mAch');
+    const mP=document.getElementById('mPen');
+    const bar=document.getElementById('achBar');
 
-  const pct=ach!==null?Math.min(ach*100,115):0;
-  const color=cls==='ok'?'var(--green)':cls==='warn'?'var(--warn)':cls==='crit'?'var(--red)':'var(--border)';
-  const bar=document.getElementById('achBar');
-  bar.style.width=pct+'%'; bar.style.background=color;
+    if(mN) mN.textContent=fmtN(needed);
+    if(mA) mA.textContent=fmtN(avail);
+    if(mAch){ mAch.textContent=fmtAch(ach); mAch.className=`meter-val ${cls}`; }
+    if(mP) mP.textContent=pen!==0?pen.toFixed(0):'0';
+
+    if(bar){
+      const pct=ach!==null?Math.min(ach*100,115):0;
+      const color=cls==='ok'?'var(--green)':cls==='warn'?'var(--warn)':cls==='crit'?'var(--red)':'var(--border)';
+      bar.style.width=pct+'%'; bar.style.background=color;
+    }
+  } catch(err){ /* silent during init */ }
 }
 
 function resetForm() {
@@ -1050,11 +1053,14 @@ function addTransferRow(dir) {
 
 function collectTransfers(dir) {
   const container=document.getElementById(dir==='in'?'allInRows':'allOutRows');
+  if(!container) return [];
   const result=[];
   container.querySelectorAll('.transfer-item').forEach(item=>{
-    const dept=item.querySelector('select').value;
-    const qty =Number(item.querySelector('input').value)||0;
-    if(qty>0) result.push({dept: dept||'Unknown', qty});
+    const sel=item.querySelector('select');
+    const inp=item.querySelector('input');
+    if(!sel||!inp) return;
+    const qty=Number(inp.value)||0;
+    if(qty>0) result.push({dept: sel.value||'Unknown', qty});
   });
   return result;
 }
@@ -1260,45 +1266,10 @@ async function loadScoreboard() {
 // ══════════════════════════════════════════════
 //  INIT
 // ══════════════════════════════════════════════
-async function testConnection() {
-  // Quick ping to verify Supabase is reachable before full load
-  try {
-    const res = await fetch(`${SB_URL}/rest/v1/capacity_entries?limit=1`, {
-      signal: AbortSignal.timeout(8000),
-      headers: { 'apikey': SB_KEY, 'Authorization': `Bearer ${SB_KEY}` }
-    });
-    if (!res.ok) {
-      const txt = await res.text();
-      return { ok: false, msg: `HTTP ${res.status}: ${txt}` };
-    }
-    return { ok: true };
-  } catch(e) {
-    return { ok: false, msg: e.name==='TimeoutError'||e.name==='AbortError'
-      ? 'Supabase did not respond in 8s — possible network block or wrong URL'
-      : e.message };
-  }
-}
-
 function init() {
   setOnline(navigator.onLine);
   initForm();
-  // Show connecting status
-  document.getElementById('deptGrid').innerHTML =
-    '<div style="text-align:center;padding:30px;color:var(--text2);font-size:16px">🔌 Connecting to Supabase…</div>';
-  testConnection().then(result => {
-    if (!result.ok) {
-      document.getElementById('deptGrid').innerHTML = `
-        <div class="empty">
-          <div class="empty-icon">🔌</div>
-          <div style="font-size:17px;font-weight:700;color:var(--red);margin-bottom:8px">Cannot reach Supabase</div>
-          <div style="font-size:14px;color:var(--text2);word-break:break-all;max-width:340px;margin:0 auto;line-height:1.5">${result.msg}</div>
-          <button class="btn btn-secondary" style="margin-top:16px;width:auto;padding:10px 24px" onclick="init()">🔄 Retry</button>
-        </div>`;
-      setOnline(false);
-    } else {
-      loadDashboard();
-    }
-  });
+  loadDashboard();
   if(isOnline && pendingQueue.length) flushQueue();
 }
 document.addEventListener('DOMContentLoaded', init);
