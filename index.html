@@ -1,0 +1,1245 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<meta name="theme-color" content="#f5f7fa">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="MOBICA Capacity">
+<title>MOBICA Assembly Capacity</title>
+<link rel="manifest" id="manifest-placeholder">
+<style>
+  /* ── LIGHT THEME VARIABLES ── */
+  :root {
+    --bg:       #f0f2f5;
+    --bg2:      #ffffff;
+    --bg3:      #e8ecf0;
+    --border:   #d0d7de;
+    --text:     #1a1f2e;
+    --text2:    #5a6270;
+    --amber:    #c8880a;
+    --amber2:   #f0a500;
+    --amberBg:  #fff8e6;
+    --green:    #1a7f37;
+    --greenBg:  #dff0d8;
+    --red:      #cf222e;
+    --redBg:    #fce8e8;
+    --warn:     #9a6700;
+    --warnBg:   #fff3cd;
+    --blue:     #0969da;
+    --shadow:   0 1px 3px rgba(0,0,0,.10), 0 1px 8px rgba(0,0,0,.06);
+    --radius:   10px;
+    --font-mono: 'JetBrains Mono', 'Courier New', monospace;
+    --font-ui:   'Barlow Condensed', 'Arial Narrow', Arial, sans-serif;
+  }
+  @import url('https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap');
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { height: 100%; background: var(--bg); color: var(--text); font-family: var(--font-ui); overflow: hidden; }
+
+  /* ── LAYOUT ── */
+  #app { display: flex; flex-direction: column; height: 100dvh; }
+  #header {
+    background: var(--bg2);
+    border-bottom: 2px solid var(--border);
+    padding: 10px 16px;
+    display: flex; align-items: center; justify-content: space-between;
+    flex-shrink: 0;
+    box-shadow: 0 2px 8px rgba(0,0,0,.08);
+  }
+  .logo { display: flex; align-items: center; gap: 0; }
+  .logo img {
+    height: 44px;
+    width: auto;
+    object-fit: contain;
+    display: block;
+  }
+  .logo-divider {
+    width: 1px; height: 32px; background: var(--border);
+    margin: 0 12px;
+  }
+  .logo-sub-block { display: flex; flex-direction: column; justify-content: center; }
+  .logo-sub-title { font-size: 16px; font-weight: 700; letter-spacing: 1px; color: var(--text); line-height: 1; }
+  .logo-sub-label { font-size: 10px; color: var(--text2); letter-spacing: 0.5px; margin-top: 3px; text-transform: uppercase; }
+
+  .sync-badge {
+    font-family: var(--font-mono); font-size: 13px; padding: 5px 11px;
+    border-radius: 20px; border: 1px solid var(--border); color: var(--text2);
+    background: var(--bg3);
+    display: flex; align-items: center; gap: 6px; cursor: pointer;
+  }
+  .sync-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--green); animation: pulse 2s infinite; }
+  .sync-dot.offline { background: var(--red); animation: none; }
+  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.4} }
+
+  /* ── CONTENT AREA ── */
+  #content { flex: 1; overflow-y: auto; overflow-x: hidden; -webkit-overflow-scrolling: touch; }
+
+  /* ── NAV ── */
+  #nav {
+    background: var(--bg2);
+    border-top: 2px solid var(--border);
+    display: grid; grid-template-columns: repeat(4, 1fr);
+    flex-shrink: 0;
+    box-shadow: 0 -2px 8px rgba(0,0,0,.06);
+  }
+  .nav-btn {
+    background: none; border: none; color: var(--text2); padding: 12px 4px 14px;
+    font-family: var(--font-ui); font-size: 14px; font-weight: 600; letter-spacing: .5px;
+    display: flex; flex-direction: column; align-items: center; gap: 5px; cursor: pointer;
+    transition: color .2s; text-transform: uppercase;
+  }
+  .nav-btn svg { width: 26px; height: 26px; stroke: currentColor; fill: none; stroke-width: 2; }
+  .nav-btn.active { color: var(--amber); }
+  .nav-btn.active svg { stroke: var(--amber); }
+
+  /* ── VIEWS ── */
+  .view { display: none; padding: 14px; animation: fadeIn .2s; }
+  .view.active { display: block; }
+  @keyframes fadeIn { from{opacity:0;transform:translateY(4px)} to{opacity:1;transform:translateY(0)} }
+
+  /* ── SECTION HEADER ── */
+  .sec-hdr {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 14px;
+  }
+  .sec-title { font-size: 27px; font-weight: 700; letter-spacing: 1px; color: var(--amber); text-transform: uppercase; }
+  .sec-sub { font-size: 16px; color: var(--text2); margin-top: 2px; }
+
+  /* ── DEPARTMENT CARDS (Dashboard) ── */
+  .dept-grid { display: flex; flex-direction: column; gap: 10px; }
+  .dept-card {
+    background: var(--bg2); border: 1px solid var(--border); border-radius: var(--radius);
+    padding: 14px; cursor: pointer; transition: border-color .2s, box-shadow .2s;
+    border-left: 4px solid var(--border);
+    box-shadow: var(--shadow);
+  }
+  .dept-card:hover { box-shadow: 0 4px 12px rgba(0,0,0,.12); border-color: var(--amber2); }
+  .dept-card.ok     { border-left-color: var(--green); }
+  .dept-card.warn   { border-left-color: var(--warn); }
+  .dept-card.crit   { border-left-color: var(--red); }
+  .dept-card.nodata { border-left-color: var(--border); }
+  .dept-card-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 10px; }
+  .dept-name { font-size: 21px; font-weight: 700; letter-spacing: .5px; color: var(--text); }
+  .dept-code { font-size: 14px; color: var(--text2); margin-top: 2px; }
+  .ach-badge {
+    font-family: var(--font-mono); font-size: 22px; font-weight: 700;
+    padding: 3px 10px; border-radius: 6px;
+  }
+  .ach-badge.ok   { color: var(--green); background: var(--greenBg); }
+  .ach-badge.warn { color: var(--warn);  background: var(--warnBg); }
+  .ach-badge.crit { color: var(--red);   background: var(--redBg); }
+  .ach-badge.nd   { color: var(--text2); background: var(--bg3); font-size: 16px; }
+  .dept-stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+  .stat-item { background: var(--bg3); border-radius: 6px; padding: 8px 10px; border: 1px solid var(--border); }
+  .stat-label { font-size: 12px; color: var(--text2); text-transform: uppercase; letter-spacing: .4px; }
+  .stat-val   { font-family: var(--font-mono); font-size: 19px; font-weight: 700; color: var(--text); margin-top: 3px; }
+  .penalty-row { margin-top: 8px; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+  .penalty-tag {
+    font-size: 14px; font-family: var(--font-mono);
+    background: var(--redBg); color: var(--red);
+    padding: 3px 9px; border-radius: 4px; border: 1px solid #f8514944;
+    font-weight: 600;
+  }
+  .vacation-tag {
+    font-size: 14px; font-family: var(--font-mono);
+    background: var(--warnBg); color: var(--warn);
+    padding: 3px 9px; border-radius: 4px; border: 1px solid #d2992244;
+    font-weight: 600;
+  }
+
+  /* ── SUMMARY TOTALS BAR ── */
+  .summary-bar {
+    background: linear-gradient(135deg, #fff8e6, #fff3cd);
+    border: 1px solid #f0c060; border-radius: var(--radius);
+    padding: 14px; margin-bottom: 14px; display: grid; grid-template-columns: repeat(3,1fr); gap: 10px;
+    box-shadow: var(--shadow);
+  }
+  .sum-item { text-align: center; }
+  .sum-label { font-size: 13px; color: var(--warn); text-transform: uppercase; letter-spacing: .5px; font-weight: 600; }
+  .sum-val   { font-family: var(--font-mono); font-size: 27px; font-weight: 700; color: var(--amber); }
+
+  /* ── ENTRY FORM ── */
+  .form-dept-selector {
+    display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; margin-bottom: 14px;
+  }
+  .dept-sel-btn {
+    background: var(--bg2); border: 1px solid var(--border);
+    border-radius: 8px; padding: 11px 10px; cursor: pointer;
+    font-family: var(--font-ui); font-size: 16px; font-weight: 600;
+    color: var(--text2); text-align: center; transition: all .15s;
+    letter-spacing: .3px; box-shadow: var(--shadow);
+  }
+  .dept-sel-btn:hover { border-color: var(--amber2); color: var(--text); }
+  .dept-sel-btn.active { background: var(--amber2); color: #000; border-color: var(--amber2); }
+
+  .form-section {
+    background: var(--bg2); border: 1px solid var(--border);
+    border-radius: var(--radius); margin-bottom: 12px;
+    box-shadow: var(--shadow);
+  }
+  .form-section-hdr {
+    padding: 12px 16px; border-bottom: 1px solid var(--border);
+    font-size: 15px; font-weight: 700; letter-spacing: 1px;
+    color: var(--amber); text-transform: uppercase; display: flex;
+    align-items: center; gap: 8px;
+    background: var(--amberBg); border-radius: var(--radius) var(--radius) 0 0;
+  }
+  .form-section-hdr span { color: var(--text2); font-weight: 400; }
+  .form-body { padding: 14px; }
+  .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px; }
+  .form-row.single { grid-template-columns: 1fr; }
+  .form-row.three  { grid-template-columns: 1fr 1fr 1fr; }
+  .field { display: flex; flex-direction: column; gap: 5px; }
+  .field label { font-size: 14px; color: var(--text2); text-transform: uppercase; letter-spacing: .4px; font-weight: 600; }
+  .field input, .field select {
+    background: var(--bg3); border: 1px solid var(--border);
+    border-radius: 6px; padding: 10px 12px; color: var(--text);
+    font-family: var(--font-mono); font-size: 18px;
+    transition: border-color .15s, box-shadow .15s; -webkit-appearance: none;
+  }
+  .field input:focus, .field select:focus {
+    outline: none; border-color: var(--amber2);
+    box-shadow: 0 0 0 3px rgba(240,165,0,.15);
+    background: #fff;
+  }
+  .field input[type=number] { text-align: right; }
+
+  /* Model table in form */
+  .model-table-wrap { overflow-x: auto; margin-top: 4px; }
+  .model-table {
+    width: 100%; border-collapse: collapse; font-size: 15px;
+    font-family: var(--font-mono);
+  }
+  .model-table th {
+    background: var(--bg3); padding: 8px 10px;
+    text-align: center; color: var(--text2);
+    font-size: 13px; letter-spacing: .5px; text-transform: uppercase;
+    border-bottom: 2px solid var(--border); white-space: nowrap;
+    font-weight: 700;
+  }
+  .model-table td { padding: 5px 4px; border-bottom: 1px solid var(--border); }
+  .model-table td:first-child { color: var(--text); font-size: 14px; padding-left: 10px; white-space: nowrap; }
+  .model-table input.tbl-inp {
+    width: 80px; background: var(--bg3); border: 1px solid var(--border);
+    border-radius: 4px; padding: 5px 8px; color: var(--text);
+    font-family: var(--font-mono); font-size: 16px; text-align: right;
+    -webkit-appearance: none;
+  }
+  .model-table input.tbl-inp:focus {
+    border-color: var(--amber2); outline: none;
+    box-shadow: 0 0 0 2px rgba(240,165,0,.2);
+    background: #fff;
+  }
+  .kpw-cell { color: var(--text2); font-size: 14px; text-align: right; padding-right: 8px; }
+  .prod-cell { color: var(--blue); font-weight: 700; text-align: right; padding-right: 8px; font-size: 15px; }
+  .tbd-row td:first-child { color: var(--warn); }
+
+  /* Live achievement meter */
+  .live-meter {
+    background: var(--bg2); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 16px; margin-bottom: 12px;
+    display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 10px; align-items: center;
+    box-shadow: var(--shadow);
+  }
+  .meter-item { text-align: center; }
+  .meter-label { font-size: 12px; color: var(--text2); text-transform: uppercase; letter-spacing: .3px; font-weight: 600; }
+  .meter-val   { font-family: var(--font-mono); font-size: 24px; font-weight: 700; color: var(--text); margin-top: 4px; }
+  .meter-val.ok   { color: var(--green); }
+  .meter-val.warn { color: var(--warn); }
+  .meter-val.crit { color: var(--red); }
+
+  /* Progress bar */
+  .ach-bar-wrap { grid-column: 1/-1; }
+  .ach-bar-bg { background: var(--bg3); border-radius: 4px; height: 8px; overflow: hidden; margin-top: 4px; border: 1px solid var(--border); }
+  .ach-bar-fg { height: 100%; border-radius: 4px; transition: width .4s, background .4s; }
+
+  /* Buttons */
+  .btn {
+    border: none; border-radius: 8px; padding: 14px 22px;
+    font-family: var(--font-ui); font-size: 18px; font-weight: 700;
+    letter-spacing: .5px; cursor: pointer; transition: opacity .15s, box-shadow .15s;
+    text-transform: uppercase;
+  }
+  .btn:active { opacity: .8; }
+  .btn-primary { background: var(--amber2); color: #000; width: 100%; box-shadow: 0 2px 8px rgba(240,165,0,.3); }
+  .btn-secondary { background: var(--bg3); color: var(--text); border: 1px solid var(--border); }
+  .btn-danger   { background: var(--redBg); color: var(--red); border: 1px solid #f8514944; }
+  .btn-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 12px; }
+
+  /* ── HISTORY VIEW ── */
+  .hist-filter { display: flex; gap: 8px; margin-bottom: 12px; align-items: center; }
+  .hist-filter select, .hist-filter input {
+    flex: 1; background: var(--bg2); border: 1px solid var(--border);
+    border-radius: 6px; padding: 10px 12px; color: var(--text);
+    font-family: var(--font-ui); font-size: 16px; -webkit-appearance: none;
+    box-shadow: var(--shadow);
+  }
+  .hist-list { display: flex; flex-direction: column; gap: 8px; }
+  .hist-card {
+    background: var(--bg2); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 14px 16px;
+    display: grid; grid-template-columns: 1fr auto; align-items: center; gap: 10px;
+    box-shadow: var(--shadow);
+  }
+  .hist-date { font-size: 14px; color: var(--text2); margin-bottom: 3px; }
+  .hist-dept { font-size: 19px; font-weight: 700; color: var(--text); }
+  .hist-stats-row { display: flex; gap: 12px; margin-top: 6px; flex-wrap: wrap; }
+  .hist-stat { font-size: 14px; color: var(--text2); }
+  .hist-stat strong { font-family: var(--font-mono); color: var(--text); }
+
+  /* ── SCORE VIEW ── */
+  .score-table-wrap { overflow: hidden; }
+  .score-row {
+    background: var(--bg2); border: 1px solid var(--border);
+    border-radius: 8px; padding: 12px 16px; margin-bottom: 8px;
+    display: grid; grid-template-columns: 30px 1fr auto auto;
+    align-items: center; gap: 10px;
+    box-shadow: var(--shadow);
+  }
+  .score-rank { font-family: var(--font-mono); font-size: 16px; color: var(--text2); font-weight: 700; }
+  .score-dept-name { font-size: 19px; font-weight: 700; color: var(--text); }
+  .score-ach { font-family: var(--font-mono); font-size: 21px; font-weight: 700; }
+  .score-pen { font-family: var(--font-mono); font-size: 18px; color: var(--red); text-align: right; font-weight: 600; }
+  .score-pen.zero { color: var(--text2); }
+
+  /* ── TOAST ── */
+  #toast {
+    position: fixed; bottom: 90px; left: 50%; transform: translateX(-50%) translateY(20px);
+    background: var(--bg2); border: 1px solid var(--border);
+    border-radius: 24px; padding: 10px 22px; font-size: 16px;
+    white-space: nowrap; opacity: 0; transition: all .3s; pointer-events: none; z-index: 999;
+    box-shadow: 0 4px 16px rgba(0,0,0,.15); color: var(--text);
+  }
+  #toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+  #toast.error { border-color: var(--red); color: var(--red); background: var(--redBg); }
+  #toast.success { border-color: var(--green); color: var(--green); background: var(--greenBg); }
+
+  /* ── SPINNER ── */
+  .spinner {
+    width: 28px; height: 28px; border: 3px solid var(--border);
+    border-top-color: var(--amber2); border-radius: 50%;
+    animation: spin .7s linear infinite; margin: 24px auto;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* ── EMPTY STATE ── */
+  .empty { text-align: center; padding: 48px 20px; color: var(--text2); font-size: 18px; }
+  .empty-icon { font-size: 48px; margin-bottom: 12px; }
+
+  /* ── MODAL ── */
+  .modal-overlay {
+    display: none; position: fixed; inset: 0;
+    background: rgba(0,0,0,.35); z-index: 100; align-items: flex-end; justify-content: center;
+  }
+  .modal-overlay.open { display: flex; }
+  .modal {
+    background: var(--bg2); border: 1px solid var(--border);
+    border-radius: 16px 16px 0 0; padding: 22px 18px 36px;
+    width: 100%; max-height: 70dvh; overflow-y: auto;
+    animation: slideUp .25s ease;
+    box-shadow: 0 -4px 24px rgba(0,0,0,.12);
+  }
+  @keyframes slideUp { from{transform:translateY(40px);opacity:0} to{transform:translateY(0);opacity:1} }
+  .modal-title { font-size: 22px; font-weight: 700; color: var(--amber); margin-bottom: 16px; letter-spacing: .5px; }
+
+  /* ── SCROLLBAR ── */
+  ::-webkit-scrollbar { width: 5px; }
+  ::-webkit-scrollbar-track { background: var(--bg); }
+  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+
+  /* ── DATE BADGE ── */
+  .date-badge {
+    background: var(--amberBg); border: 1px solid #f0c060;
+    border-radius: 6px; padding: 4px 12px; font-family: var(--font-mono);
+    font-size: 15px; color: var(--warn); font-weight: 600;
+  }
+
+  /* ── SCORE OK badge override ── */
+  .score-ach.ok   { color: var(--green); }
+  .score-ach.warn { color: var(--warn); }
+  .score-ach.crit { color: var(--red); }
+  .score-ach.nd   { color: var(--text2); }
+</style>
+</head>
+<body>
+<div id="app">
+  <!-- HEADER -->
+  <header id="header">
+    <div class="logo">
+      <img src="data:image/png;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/4gHYSUNDX1BST0ZJTEUAAQEAAAHIAAAAAAQwAABtbnRyUkdCIFhZWiAH4AABAAEAAAAAAABhY3NwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQAA9tYAAQAAAADTLQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAlkZXNjAAAA8AAAACRyWFlaAAABFAAAABRnWFlaAAABKAAAABRiWFlaAAABPAAAABR3dHB0AAABUAAAABRyVFJDAAABZAAAAChnVFJDAAABZAAAAChiVFJDAAABZAAAAChjcHJ0AAABjAAAADxtbHVjAAAAAAAAAAEAAAAMZW5VUwAAAAgAAAAcAHMAUgBHAEJYWVogAAAAAAAAb6IAADj1AAADkFhZWiAAAAAAAABimQAAt4UAABjaWFlaIAAAAAAAACSgAAAPhAAAts9YWVogAAAAAAAA9tYAAQAAAADTLXBhcmEAAAAAAAQAAAACZmYAAPKnAAANWQAAE9AAAApbAAAAAAAAAABtbHVjAAAAAAAAAAEAAAAMZW5VUwAAACAAAAAcAEcAbwBvAGcAbABlACAASQBuAGMALgAgADIAMAAxADb/2wBDAAUDBAQEAwUEBAQFBQUGBwwIBwcHBw8LCwkMEQ8SEhEPERETFhwXExQaFRERGCEYGh0dHx8fExciJCIeJBweHx7/2wBDAQUFBQcGBw4ICA4eFBEUHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh7/wAARCAEQAxIDASIAAhEBAxEB/8QAHQABAAEEAwEAAAAAAAAAAAAAAAgBBgcJAwQFAv/EAEwQAAIBAwIEAgQICggFAwUAAAABAgMEBQYRBwgSITFyEzZBURQWIjRVYXGSFTIzQlNigpGTsRcYNUNSVHOBIyQlN0VERqFWY4PB0f/EABwBAQEAAgMBAQAAAAAAAAAAAAABAgMEBQYHCP/EAC8RAQACAgECAwcCBwEAAAAAAAABAgMRBAUhEhMxBhQVIkFRUyNSBxYyMzRhkXH/2gAMAwEAAhEDEQA/AJlgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA3AAbjcABuU3AqAAAAAAAAAAAAAADdAAeRntS4TB0nUyd/RoRXjvJFj33Hbh1a1XTeapSaffZoDJ4Mf4XjFoLLVY0rXN0XUl4JtF82l1Qu6Ma1vVhUhJbpxe4HOBuAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACk99uxiPizxswvDyfRkaNScv1TLrIM89C/52PmAyGucDSTW/wWsiv9b/AEl/lapArbsNgJ6/1v8ASX+Vql78K+YDA67vfgtnb1IS327mtNokTyY+sr84GwynLrhGS8Gtz6OK0+a0/KjlAAAAAAAAAAAAY44468jonTVe8pzXplF7IyORh51rO9q4CrVpRk6SXfYCIvEjinqbWGTq1bi+qwoyk9oKXsLEnVqzblOrNv62cfg2huB2rLIXtlVjWtrqpTnF7pqRI/ln4356yztHE5a8lWtm1FOciMz8C5+GlG4r6otqdtGTn1rwA2xYXI0MpYU7ug94zSfY7xZvCC3uLfR9pG4TUuheP2F5AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAG0lu/A8bKaowWMl032Ro0H7pS2A9kFr/H7SX01bfeQ+Pukvpq2+8gLoBa719pJf+atvvo9HFajw2Ue1hfUq/le4HrgdzrXl/Z2ceq6uaVFL/FLYDsgtPJ8RdIY/dV8zbbrxSmjxKvGnQkJdLylN/tIDI4LAs+L2h7mahDLUY7++SLnx2psDkYxdplLapv4JT7gewCkZKUVKLTT9qKgAAAB0b/L4yxTd3fUKKXj1SSLZyXE/Rtg2qmYt5be6aAvQbmNnxq0E5dLytPfzI9HHcVNE31RQpZegm/fJAXwDz8fm8TfpOzyFvW38OmZ32+26AqAAAAAAAANzr3t7a2dNzurinRivbJ7Fo5vijozEb/CctQ3XjtJAXsDCOa5ltA2LcaV16WS+stm65r9K02/RxUkBJQEYo822mnLb0J6eP5qtHVWvTtRX2gSKBiHC8wnD/JuKjfxpt++SL9wutNNZempWeWt5N+C61uBcIPmnONSKnCSlF+DR9AAAAZBnnn+eLzE5mQZ55/ni8wET14ALwAFH4EiOTH1lfnI7vwJEcmXrK/OBsKs/mtPyo5Tis/mtPyo4L3KY6yTd3e0KK/WnsB3AWfk+JOjrBuNXMW7a90keb/THobfb8LUvvIDIW4LNx3E3Rl92pZm3W/vki4LDPYa+2+CZG3q7+yMwPSATTW6e6AAAAUkWvxD0laavwtXHXUVtOLW7RdJ08lkrHHUXWvbmnQgvbJ7Aa/uL3LXqPCZCtc4ajKvbttpRRhq90Jqq0rOlWxFypJ7doM2kVddaOrRcKmWtJrwackzoVdQcOKsuqpWxcn73GIGtfAcLtY5m4jSoYqtHqe27iyVnLly7XGBuqWXzsF6btLaSJA2+qOH9u06F3jqbXh0pI9Ox1npm8rKhbZa3nP2JSQHuWlCnbW8KNKKjGK2SRynxSqQqxUqc1KL9qPsAAAABRtJbvsgKg8+9zmIst/hWRt6O3+KZ4F/xI0fZtqpmLd7e6aAu8GOqnGPQsJbfhSk/wBpHNbcXdD15KMcvRTf6yAv8Fv2GtNMXqToZi1bfsc0ezbXlrcx3t7inVX6stwOcAbgANwAAAAA4bi6trePVXr06a/WlsBzA8W71Xp21i3Wy9pHb9dHhXnFPRVq2p5ig2vdJAXuDHMuM+hIvZ5Wl95CHGfQk5bLK0vvIDIwLQxvEnRt/wBqWatk37JTR79lmsTeNfBchb1d/DpmB6ACaa3XcAAAAAAAAAAAAAAHHdfN6nlZAnnLymRtc8o297VpR6vCMmie1z83qeVmv3nV9YI+YDACz2a+k7n77H4ezX0nc/fZ5qKgei89mvbk7n77JQcmucuITlWymRn6KL33nL2ETWe/g9WZTD2UrWyrSpxktns9gJzcbeZTE6YjUsMJONxcJbdSe+xE3XHHLWepK0276pRpyb2SkYyvruve3Eq9xUlUnJ93J7nAB6d3nsxdTcq+RuJt+Py2dR3143u7mr95nXAHahkb+D3hd1k/qmz38Br7VGGrRqWmUr/J8E5stYASk4R80ubsLyjZagfpaDaj1tky9A64wusMbTusddQnKS3cU/A1Irx8djLHAbirf6FzVP0lecrXfunLsBss1Dm8bgrGd3krmFGnFb7ye25FPjTzTfg+tWx2m1GpJNr0iZifmG453utacbPH3E6dDbZqL2MAzlKcnOpJyk/FtgX1qzizrLUVeVS6ylaEZP8AFjJlo18xlK7bq39eTfvmzo9iqW63A5vhl3vv8Iq/eZy0crkqMuqlfV4v6ps6hTYC9dL8UNYafrRqWmUrNRfhKTJJ8FOaa4r3dHG6nSim1H0jZDfYrGUoSUotxa8GgNwOnM9jc9YU7vHXEKsJx3+S9z1CAvKJxYvMZm6WDyNzJ0JNJSlInnY3VG8toXFCalCS3TRVc4TB42r8/Zadw1bIXlWMIwi33YHczGVsMTayub+4hRpxW7cnsRy4x8zuKwLq2eBlC4qrddSe/cwPzDcecrqjIV8Vja0qdpBuPVGW25H6rUqVqjqVZynJvdtvciMp6647a21PVmpX9ShSl4RjIxxe5nK30nK6v69Rvx3mzobFQDbk95Nt/WU2G59wpVZ/iUpy+yLYHxsNjmdtdLxtq33GcUoyg9pxlF/WtgPqnVq0nvTqTg/qex7mF1hqLEVY1LPJ14uPgutnggCRHDjmg1RhKlKhlJyuKCaTbfsJbcKuN2ltZ21OCu6dG6klvBv2msDbuenp3OZHA5Gne4+4qU5wafaWwG4OnONSCnBpxa3TRUixyzcwK1FCjhM3UVOtDaKlJ+JKSlVhVpRqwknGS3TA+2QZ55/ni8xOXfdMg1zz/PF5iiJ68AF4Ago/Az1ynZfH4bK1Ly/rxpQg93u9jAxzW93c28WqFadNPx2YE0+LfNNRx1OWO06lOaj09aZGbV/F7WWoq8518pWpwk/xVIx/Ocpycpycm/ayiTb2Sb+wD0K+by9w96uQuJb++bOD4de/5ut99nD6Kttv6Oe3lZ8dwO9Qy+UoPelf14/ZNlx4DiTq7C1YztcrX7exyZZ243Ak3w25qdQY25pUM3vWobpOTZLfhnxc0xrW0pytbunCu0t4uS8TVYe/o/VeX0xkqV3j7qpBQlu4qXZgbeITjOKlFpp+1FTAHLXxnstWYilZZCsoXail3fdsz9GSlFST3T8GBUj/AM4d5dWukK0ratKm+jxi9vYSAI885nqbW8gEAVqDNJv/AKlcd3/jYeoc19JXH32eY/EoB6b1Bmn/AOTufvsv/gRmctW1xbwqZCvKLkt05NmLTIfAH18tvMgNnGiXJ4KhKUnJuK8fsPdPE0R6v2/lR7YA+K1WnRpupVmoQXi37DiyF3QsbSpc3E1CnBNttkO+ZTmKrUqtfA6frbNbxlKLAzfxU466V0db1KcLuncXUU/kxkvEivr3mp1PlKtSlit7ek+yaZHrMZS+y15O6va9SrOb3fVLc6SQF5ag4mavzVSUrrLV+78FJlu1s1l635TIXEvtmzzxuB2Xf3zfe7rffYhkb+Et4XdZPzs6wA9e11Nn7WanRyt1Frw+Wy/NK8ddcYHoVPIVKsY+xyMWgCaXCrmwVxVpWmo6ahvsnNsk9pDWuA1TaQr4q+p1XJJ9PV3NR2+z7di++F/ErPaLylGraXVWVJSW8epvsVW1tFTF3AviZS11hKVSpGUa6it91t3MooiOK8uIWtvOvU36ILdmBOJ3MvpvS1xVtLWPprim2nF+8z5c0o17epRmt4zi4v8A3IB84nDaphs7UytlRlOFSXVJpeAHZ1bza6jvutYyj6BPw2MXag45a8y7l6XKVYxl7FIxh3XYoB719q/Ul5JyrZa5e/umzz6uVyVR7zvq8n9c2dOMJy/FhKX2Lc5Fa3L8Las/2GB9O9vJPvc1X+0yqvb1eF1VX7TPh2tyvG2rL9hnHJSi9pRafuaA71DNZWhJOlf14te6bLlwHE7WOGqRna5Wv8nwTkyy/aVAk5w15q9QY24pUM4vT0t0nJsl3ww4p6c1vYU6tpd0412u9NyNU+xdfDrWWV0pnKF1aXNSMIyW8VJ7AbbE01uvAGNeBXEG31npi3nOrF3SilJb9zJQAAAAAAAAAAAcdz83qeVmv3nV9YF5v/2bArn5vU8rNfvOp6wLzARuTG5QAV7Bbe4oZJ4EaH+N+rLehcQ6rdSW4HQ0Bwt1VrOvCOMsZ+jk/wAdx7Gc8Dyfagq28Kt9e04trdxJhcPNHYnSmFoWthbQhJRW8ku5dIEG8zyeZuNtKpY31NyS36fazBPEfhTqrRFeSyVlUdJf3ij2NrRY3GXS9jqPSV1SuqEJzUH0truBqgBc3EjAS09qa5tPzPSPpLZAAAD6hGU5qEU3JvZJGUOHvA7WuseipaWUqVCX58o+wunlS4Y22sdQQuMjT6qMJJpNGwrTeFssFjKVhY0o06cFt2QEMMXydZp0IyvL+n1Nd0medqflA1NZ2s7nH3tOt0rfoXdk8wBqQ1xoXUGkLuVvl7OpS2e3U49mWumbKuaLROOz2lq11OhF14xbT2NcWcsZ47J17Wa/Em0gOmAAPQ03ka2LzFvdUJuMo1F3T+s2hcv+SqZPh/ZV6k+qTpr+Rqvt/wAvT8y/mbNuVdt8ObPv/doDLdWSp0pzk9lFbkI+cbibd0r+eCsbhunJtSSZMjWFyrTTt7V32apNo1Z8ZstWyuub6dWTl0VGluUWZOTnNzk923uwAQDmsbWvfXULa2pudSb2SRwMkXyl8O6WazlLKXVL0kIyTSaA7/BHlkymoVTv9RRdK0ns1HbvsSc01y78P8LSjGNiq0ku7nFMyxjbWnZWNK2oxUYQikkkdkDHtxwc0LWpejeHoJbeyCMea/5XNG5i0qVMZTdvc7fJ2XbckKANW/F7g7qHQV9VdxSc7VN9M0vYYwNrvGbSljqbSdzRuLeE5qD2exrL4l6dqae1Lc2vT0wU30gWuAAPS0vmbnBZmhkbWcoypSTez8TZHy08QPjppSjKtUTqQgo7bmslkquSDUM6OVjjFNpNpbbgTs27EGuef54vMTl/N/2INc8/zxeYCJ68AF4ACj8Ak5NRim2/YVL44M6VnqbVlrRcHKlGa6lsBcfB/gdqTXNzTqqhOjaNrebXsJYaM5VNF422pyyanWr7fK925mThvgLTT+mba1tqMKe0FvsvqLlS3fcqsSVOXvh7Oj6L4AktvHpRYuuOU/SV7a1J4XrpV9m0n7yS4IjVnxb4Q6h0JfTjcUJ1LdPtJIxo002n4o2u8YdI2WpdMXMK9CE6ig9m19RrJ4nYP8AarurFLaKm9v3gWuAALu4WaoutMaptbulVlGn1pSW/1mz3hVqCnqHSNpeqopSlBb9zUtSfTUjL3NMnxyX6jq5DD07KVRyVNbbbgSeI885nqbW8hIYjzzmeptbyFhYa7n4lCr8ShEDInAH18tvMjHZkTgD6+W3mQGznRPq/b+VHtniaJ9X7fyo9DL1nb42vWX5kGwI783nEv4v4ariLav0VqiaWzIA311WvLypc15udSpJttmYua7UE8zrWcXUclTm0YWA+gUXiGwOa0tq13cQt6EHOpJ7JIz3wk5a9R6qjTvL+Dt7WWz+Utux2+UfhvR1DmaWSu6SqQjJNJo2AYyzo46wp2tvCMIU1skkBHLDcouiKVGKyNSrOpt36Tly3KNoOpby+AyrwqbdtyR68T6fgVUBeJnKtn8LSq3WHfwilHuoxW7I8ZbA5bF5KWPurOtCupdPT0vubf5RUqbhNKUWtmmWXkuF2jcjlfwld4qjUr777uKIjXToXgvrTVVWHwbHVaVKf58o9iS3C/lMsbRUrrUtT0s1s+lEq8Xi7DGW8aFja06MIrZKMUd0C2tG6LwulLSNtirWFOMVtulsy5UAALF4x6NttWaWubT0CncSi1B7F9HXvLqjaU3VuK0KcF4uT2A16/wBV3Wl5natKnT9FQc21Jr2GVdGcn1lCnCWoLpTftUWSC1FxX0Xg4Sd1laHUvzVNGOMzzU6DsKkoKo6m3tXcD18Fy08O8XGPTayqyXj1JF2WvCDQtvTUI4W3kl7XBGGbvm+0upP0NKbXlOt/W/wH6Gf7gM3XnB7QtzTcJYa3jv7VBGLuJnK3pPJWFa5w0JUbpRbUdvaeD/W+wP6Gf3Sn9b/Bbr/gSa9vYCI3EjQmV0Zl6tpfUpRhGTUW14lpGauY3ipi+IV3GtYW6p+/tsYUQFSnh3RUowJWckWfrUc4repUk4Npbbk6otSipLwa3NePJw38aILf85Gwu2+b0/KgOQAAAAAAAAAAcdz83qeVmv3nU9YF5jYFc/N6nlZr951PWBeYCNoAAEqOSa3pTyCqNJyUiK5Kzki+d/tATqj2px+wrFlI/k4/YIlV9Hk6t/sK58rPWPJ1b/YVz5WRGs3mN9dq3nZi8yhzG+u1bzsxeAAAE6eR+3p08NTqxiuppdyV5Fbkj/sCl9iJUgAABY/Gf1PufIzWDxD9arvzv+Zs+4z+p9z5GaweInrVd+d/zAt8FEyoH1b/AJen5l/M2a8q/wD25tP9NGsq3/L0/Mv5mzXlX/7c2n+mgL14oqfxSvunf8k/5Gq7X3V8bsj1ePpmbZtW2yu9P3lFrdyptI1c8csHVwuubyNSLiqlRtAWIAAKMnVyQeg/AsE3Hq2RBVkg+U3iL+AM9Sxt1VUKUpJJtgbFAdTEX1DI2FK6oVIzjOKe6Z2wAAA6OdcFibhz226Ga2OaL0Xxxq+ja/HfgT2406vsNNaWuZ1q8I1HB7Lf6jWbxG1DV1DqO5upS3g5vpKLZRUpsVIKMkDyV9a1/DZPbqRH5ktOR7TVStdxy3Q+lNd9gJxL8X/Yg1zz/PF5icv5u31EGuef54vMBE9eAC8ABR+Bn7k/q28NTpVnFPr7bmAi7OFmp62mdU2t1Ge1LrXWBtixvS7Gi4P5PSjsFk8JdY43U+mbatb3EHUUFut/qL2AABgdPNuP4Juerw9GzWNzLOi+INz6Jpvqe/7yfXHPXuN0rpi5Urqmq7g/k9Xc1p8QM89Q6iuMg/zpvb94FvAACq8UTJ5C3P4RU332Ib049VSMV7WkT05KtM1cdiY38otKotwJREeecz1NreQkMR55zPU2t5CwsNdz8ShV+JQiBkTgD6+W3mRjsyJwB9fLbzIDZzon1ft/Kjsap9Xr3/SZ19E+r9v5UehmaDucZXoLxnBoDVfxxdR64vevf8o9iwjNHNXp+eG1pUlKDSqTb32MLgVXiGF4h+AE7ORj0Dwi6UurYlTL2mvnlF4kUtP5injLmoqcJNLeTJ+4y9oZGxp3VvUjOE1vumUc6PspsVCwoxsfNWpClTdSpJRil3bMc5zjPo3D5r8FXd7BVd9t+rsBkkHkYPUmFzVCFbHZChXU1ulGXc9cAEDiu68ba2nXn4RW4FqcTtfYnRGHqXl9Vj1qLcY7kFOMPMRqXUeQrW+MuZULXdpbP2Hsc4+trrK6iqWUKslSTa6U+xGsiO9ksvksjXlWvLytVk/HebOlvu93uyhy2tGVe4hRj4yewHGtvcfapVH+LSm/2WSv5deXix1BbU8pmt3TaTSZJWw4GcP7WhGm8TRm0vFwQGrv0Nb9FU+6x6Gt+iqfdZtPXBjh99B0PuoR4McP1Lf8B2+3u6EBqulTnH8aEo/aimxKXnU0lp7TV3ShhbOlQTXdQWxFrcAgxuNwJD8nHrTT8yNhlt83p+VGvTk49aIeZGwu2+b0/KijkAOGpd21N7Tr04v65EHMDg+G2n+ZpfeQ+G2n+ZpfeQHODru9tF/6ml95HNTqQqR6oSUl9QH0AAOO5+b1PKzX7zqesC8xsCufm9Tys1+86nrAvMBG0AACVnJF87/aIpkrOSL53+0BOqP5OP2CIj+Tj9giVX0eTq3+wrnys9Y8rVv9hXPlZEazOY312redmLzKPMb67VvOzFwAAATv5I/7ApfYiVJFbkj/ALApfYiVIkAABZHGb1PufIzWBxF9arvzv+Zs/wCM3qfc+RmsDiL61Xfnf8wLeXiVKLxKgfVv+Xp+ZfzNmvKv/wBubT/TRrKt/wAvT8y/mbNeVf8A7c2n+mgMu1IxnCUJLdS7Mh9zj8I7m+69Q4+i2qe8moomEdHOY22y+Mq2N1TjOnUi1s0VWnqrTnRqypVIuM4vZpnySm5keXrIYy8r5vBUXVpSbk4RRGC/sruwryoXdCdKcXs1JbERwHLZ3Vezrxr283CpF7po4iniBI3gnzK5fScKdlmG7m2XbeT32RJTTXM/w+ylKPpriVGq13Rre7lYSnB7xk4v6mBs8uuYPh3b0vSSyO6+posHXPNlpSxtKkcInXrbfJ3ICSr12tpVZteZnE+/iBkfixxa1DrvI1KlxcTp27b2ppmOd++78ShVAVKMFx6L0dmtVZKla4+zqzjKSTl0vYDj0Jp271PqG2x1tRlNTklLZeBsr4B6Bo6J0tQtlTSnKCb7Fk8unAqx0dZUcnfU4yvJJNqS8CQKSjFRS2SWyKK+8g1zz/PF5icvvINc8/zxeYCJ68AF4AgDw7rswc9pY3d2nK3oTqJePSgL24Y8VNSaIv6dW0vKs6EWn6NvsSh0dzg42rQp085ZqnJLZyXtIRVqVSjNwqwcJL2NHwBsNqc2mgFS3hKbnt4Fj6z5wrb4NUpYKxUpSTSkyFXYAXjxE4hZ/WmTqXWQu6nRN7qn1dkWcAAAPe0jpTMamyNK0xtnUq9cknJR7IDt8MtNXOptVWthQpSlFzTk0u3ibPuEmm4ab0ja2XQozjBb9vqMX8tfBWy0piaN/kaEZXjin3XdMkBFKMVGK2S8AKkeecz1NreQkMR55zPU2t5CwsNdz8ShV+JQiBkTgD6+W3mRjsyHwB9fLbzIDZ1on1ft/Kj2zxNE+r9v5Ue2BGzm74Y/GHDVcvbUeqtTTa2RAG/ta1ld1LWvFwqU5bNM3E5GzoX1pO2uIKcJpppoh5zLcunVOvntPU+qpLeUoRQEM14lTu5jE3+Iu521/bVKM4PZ9Udjogctpc17S4jWtqkqdSL3TizP/CHmVz2kqVO0v3K6oR7fK79iPhTZgbAcRzc6MrUIyvoSpT27pH1lObjRVKi5WcZVZbdkzX4kvaV2X1gSe4oc1uYz9tUssPQ+C05JpSiRwy+ayWUyE767u6s60nv1OT7Hn7DYC7tJ8RtWaarwqY/L3EYxf4vU9iR/DPm4uLSnStNR2/pI9k6j8SISTb2S3ZffDLhnn9ZZOjStrSoqDkuqTi/ADZHw44nad1zaQrYqq3Jrui6dQ0pVcNcU4L5Tg9jHfAjhbaaFwlKMov4Q4rfv7TKckpLZrdAax+Zm0rWur6yrJpub8TEBNfnM4ZXV3152xtnUXdtRRCy4o1berKlWhKE4vZpoDjOxj7j4LeUq+2/RJM64AnlytcYcBXxVHE5C4pW84pRTk9iStDNYevTU6ORtZxfdNVEafra5uLaanb16lKS9sZbFyY/iDqyxpKnQzFyor3zYG1yvnMLQg5VcnawS8d6iMW8UuPmj9KWNanbX0Lm66WoqD3SZryyGvNVX0XGvmLlp+O02W/c3V1dT6rivUqyf+KW4F98YeJGR11mqte4m3Rct4p+4x6ckqVWC3lTlFfWjjAAACRPJv60Q8yNhdv8AN6flRr05N/WiHmRsLt/m9PyoDhyc5U8bcTi9pRg2jXzzC8SNY43V1ehY5ivQpxm0lGRsFy/9lXX+mzWbzL+ulx/qMC31xc1+l6wXP3mP6XNffT9z95liAC/KXFrXzrQXxgufxl+cyenK3m8pmtIUq+Sup3FRx7uTNaVD8vDzI2O8n/qRR8gGeNvrAAHHdfN6nlZA/nFwuWvs4pWlhWrLq8Yx3J6NJrZrc829wOHvZdV3j6FZ++cdwNSq0lqP6KufuMr8UdR/RVz9xm1/4o6a+hrT7g+KOm/oa0+4BqfnpLUcYuTxNzsv1CUPJdhMrZ3O91Z1aK6t/lR2JgfFLTe2zw1o/wD8Z27DDYqwe9lYUKD/AFI7Ad5LaCX1FYlQAPL1TGU8JcRit24vseoUnGM49Mkmn7ANZ3MPp7OXGs606OMuJw633jFsxp8VNQ/RVz9xm2e605grqp13GKtqsvfKG5xfFLTX0JZ/wwNT3xU1F9FXP3GfM9Lahit3ibp/ZBm2P4paa+hLP+GPilpr6Es/4YEfOS/G39ngqcbu1qUWku0lsSeOrYY2wsI9NnaUqC90I7HaAAACyuMNKpV0lcQpQc5OD7I1q6+0zqCrqm6lDFXLi5vZqDNrdxQpXFNwrU4zi/YzyaulNO1JudTEWspP2uAGp34p6j+irn7jHxT1H9FXP3GbYPijpr6GtPuD4o6a+hrT7gGqCGltQwr0t8Tc95rb5D95sf5YrO6s9A2dO5pypyVNbpr6jIHxR01un+BbPt/9s9W1tbe0pqnbUYUoLwjFbIDlKgGTJxXdtQu6Do3NKNSnLxUluYT4s8vGmdXxqVrSjTtriW73S27mckGYsWubiHyy6t0/VqTsKcrqkvDpW5iLMaL1NiqkoXeJuY7e3oZtzqQhUi4zhGSfsaPHyOldPZBNXeJtqm/i3BFGourZXlL8pa1Y/bFnDKM4/jQkvtRtOy3BjQ2QcnPFUob+6KLcuuW7QFxJt23Tv7oog1pd32SPqNGrJ7Rpzf2I2Rw5ZeH0XuqD+6jv2PLvoK1mpK0UtvfFAa2LfE5O4aVGxrzb90GXXpnhVrTO1owtsNcKMvznBmynD8L9F4xL0OHt5Ne1xRdNji8bYxUbOyo0Uv8ADBICFfDDlQvLydO41BP0cVs3BkqeHvDTTOjLOFGwsaTqRW3W49y9u3uCSKol28Nl7iqG4APwexCbnZxGUvbxfBLGtW+V36Y7k2DoZDDYq/e97Y0a79847g01KQ0nqOUE1ibnZ++DK/FHUf0Tc/cZtgWlNNpbfga0/hlfirpv6GtP4ZEanXpLUS/8Tc/cZnPlX0hd3GUqW+XxU1Rm/wC8gTt+Kemvoa0/hnYs8DhrKfVaY6hRkvbCOxVRr4rcrmOzNvK/wrjRr9O/Sl7SMOsOBut8BXqJ42tWpxfaSi+5tES7bew4bi0trmPTc0KdVfrRTBpqGvNM560m418Xcxa/UZ1vwRk/8hcfcZtqvNGaWu9/T4S0k37eg8/+jbRe+/4CtvuoiNVNDBZitJRpY25k3+oy48Lwv1nlZxjbYe4ak/HoZs9tdB6Qtu9LBWifkR69liMXZpfBbChS2/wwQEGuGfKjmcq6dxnZO3p9m4vsSv4Y8JdM6Hs4QtLSnUrJd5uJkRduyXYdgKRSjHpilFe4+ig3GjSpgHm+sru+0jWp2dCdaXR4RRn7Y6t5j7O9i4XVvCtF+yS3KrUatKaik5bYm57Pb8RlfilqP6KufuM2wfFLTf0NZ/wx8UtN/Q1p/DIjU+9Jaj+irn7jL84EaaztDXVvUq4y4hBSW7lA2SfFLTf0Nafwzkt9M4G3qekoYq1pz98YbMD40bCdPBUIzi4tRXZntHxCMYJRikkvYj7AHHVhTqRcKsIzi+zTW6OQpsBifilwN0nranOc7Snb15L8aMdu5GLiFynZ7GSnWw1T4RT8YxXcnq0H4FVqk1Bwn1phqko3GIrtR9qiy2K+ns5Qk41cZcxa/UZt2u8Xjrxf81ZUavmijyrnROlLn8rg7N/sBGpd4rJp7Oxr/cZ9Rw+Vl+Lj7h/sM2rz4Z6KlLqeDtvuo5aHDvRtJ7xwVr/vBEGrTG6M1LfzUaGJuXv74MvjSvAfXGauIRlja1GnJ/jOJsltdL6dtmvQYe1g17VBHq0qFCjFRo0YQS9iikURG4a8pFtb1KV3qC4U9tm4EmdG6JwGlbOFtjLOnDpW3V09y4+5UaXSoKbjcmk06uTx9pkrSdreUYVac1s1JbkXeNfK7a5mtXyuAcaVV7y6IrYlYU77lVqu1bwd1rp+vONbFV5wi38pRZZdxgsxbzcK2OuYNe+DNvl7jrC9j03dpSrL9aKZ4F9w/wBIXkuqthLVv3qCCNTjxt+ns7Otv5GclPD5Wo9oWFxJ/VBm02fCXREp9X4HofdR3bLhvo20e9PCWzf1wRBrCwHDzV+arRp2eGuXv7XBme+EXK1lr+9oXeok6NJSTcGib2PwWHsHvZ463o+WCPSSivBJAQT5q+FdvpyjbUMBjpT2j3cIkb1pTULW/wCC7n7jNt+RxOMyLXw6yo3G3+OO50filpn6Es/4ZRqe+Keofou4+4w9KahS3/BVz9xm2H4paZ+hLP8Ahj4paZ+hLP8AhkEHOUXB5ey1PCV1YVqUepd5RJ+W/wCQh5UefY4HDWM+u0x1vRl74R2PTX1FV1Mvu8Xcpd36NmtnmQxWUr6zuJUrCvOPpH3jFs2XSpqSal3T8UeNdaR03d1XVucRa1pvxlKG5EalPwHmPo25/hsfgPMfRtz/AA2bZPiNpH6Asv4Y+I2kfoCy/hganaOEzCrQ/wCm3P4y/MZsS5Rre4oaKoxuKMqUuhdpIygtDaR33/ANlv8A6Z7GOxtljoejsreFCH+GK2QHbAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAKMruU3AAFEmVNy+kUYKMG1QF4FRtYlQFQNrtQFSm42bAcbqw6+lyW59owreJnUKqCq8AZ7TagKgbNqAFNxsVAA2AKoDZtQFRuNm1AVA2bUBUDZtQFQY7k2oCoHiNgAKgAAAAAAbgAAADKFRsVVAVKb9xs2Ar295TcbNgKgbNqAqBs2oCoGzagKgbNqAqBs2oCoGzagKgbNqAqBs2oCoGzagRUDZsABEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAADA+Zy2PidWFOHXUnGEV7W9jxdcaip6Zw88jVourGKfZEU+JPG7PZ6tUtcd1WlHdrs9jC+WtI7u46R0HldUyaxeiQ3EPi1pvSlvOMrqFe4S7Rg9+5HzPce9SXmcjdWDdO1jL8T3oxHd1K93Wde7rzrVG931S3ONR9iOvy8q0z2fWOk+w/E4tP1o8VpSz4dce8TknTtM1L0FaXbf2bmZsfkrLI0I1rS5pVYyW66ZbmuhR6WpJtNe1F26P4g6k05XhK2vak6EfGnKW5acyfSzgdW/h7iybycS2p+30T2ifZh/gxxZesP+Vr2bhVh2cjLyfZP3nPpeLRuHyzqHAzcDNOHNGph9ApuNzNwVDzs3kaVjazlKaUtu3c58jeU7ShKrN+CMUauzs8jdOnDdQT950PXOr06fhmZnu7Lp3BvyckRrs5VqO6lmPS+nl6Pq8NzJODyVK+totTTlt37mE5JRXZ9z2tMZ2eMuYqW8oN9z5/0X2mvi5U2y2+WXpeo9GrfF+nHeGZkVOjir6nfWsa0PBo7jeyPrGHPTNSL1ntLxd6TS01l9BnymVNzBTvuWlrPXOM0z2u+rcu32mBeYvZw8DXeXX9S5F8GCb09Vyf036dS7qTKLjjptvwmRlTXSij29yRqnNEdnhZ9qOZE67JOrjdpz9YpLjdpzbt1EY+31FexIy91/mjmf6S00txLxOoLpW9s31MvuD3gpe8ipwK7akX2kqqHejH7Dfvfd63oXPycvFNruSPcqyi7B9+5k71RyUU5Skkl4tssjWfFDS+mXKndXkalVL8WD3LM5iOIlbT+PlYWM+ipUWzkmRLyN3eZC7nc3VzOrKT37vc7LicHzfmt6MJnSTGQ5lcfTrSja2fpIp9mytjzKY6dRK5s+iPt2IwbRS8EUbj7kdpHTsOvRpm8p16L4paV1OoxtbyNOs/zZvYvmElKKlFpxfg0a4bK+usfXhdWdedKpB7/JexLPly4k3GpbGONvnvUpLbqftOu5fT/LjxVZVvuWbkAUb2OqblTrX93StKEq1RpJHJWqxpU3Ob2SMea3zyrydtRfyfB7HIwYZyW04/IzRjq9K61vb06soxW6R11r6gn+TZYO6TPmTT9h3VOnY9Ogtzsm/VkJa9o/4D3sFqC3yWyi0n7jD3Y72GvqljdRqQk/HuYZun0ivytmDqGSb/ADejOCfYqeNp3MUsjbRae0ku57G+/gdJek0nUvQY7xeNwqD5be5auuOIelNFwUtRZKNmn7WtzDTNdhjTmNzGQwfDq7vsZcSoV4Re04+KPNXMjwgf/uml90x1zB8cOGepeH93jMTqCFxdTi+mKQEatGcZOIlzq+zt62orqdKdfaUXL2bmx7RVxVutMWNxXm51J0k5N+17GprSF5b2OrLO8uJ9NCnXUpS9y3Nhmj+YThPZabsra41LSp1adJKUXHwYGcgYiXMhwhf/ALppL9kyJpHU+G1Xi45LB3aurWXhNID2QAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAPuSR5upMVa5jE1rO6gpwlB7L69iCfFLT89PasuaXQ4UZTfQifm23+5Hnml0TVv6EcpZUt+hbzaRxuRTxVex9jeq+5c2K2n5bIxPcd0fKqqLlTmmpRe3co6iOotEvvdc2O1YtEvrdt7H1CEp1YUoJtyex8Ka232ZenCDT1fPapo70HKhGSbewrWZnTi8zmY+Phtlm3okPy3aFhhcTHJ1VvOst+5mn29joYC0hYYqhaU4qKhFLsegd7jrFY1D849W59+fy75r/WVTjr1IUqbnN7JH05bd34Fia7z9SEZWtspb+D2OLz+fThYpvZw+NgnkZPBV5eutQzrXDtreXyPB7FnRblJt+JX/jVJSnVhLqf1DpmvzJfuPh/Wuo5efnta29fZ9C4HEpx8cRHqpNDdH10zf8Ady/cFTn+jl+46mtbRPaJdhNq69V5aLzs7Zxt6kvkfWZItq0K9FThJSTRg2h6SHyoQluvqL60Vm6iireupJ+zc+jey/W5x2jBm9HkOsdNid5ca/EfS8T4pS64KS9p9n06sxaNw8naddh+JgXmLf8Aw9jPS8TAXMe9o+JhaNOo63/iWYHj4IrsfFKa27s++pe84F67l8lmJ2r0jpKdaXtHpI+8tap3ZG4Gesa+0lXb/kI/YRT4FvfUkdmvElZQ/IR+w5uOvZ9I9lv7MvpLuH+JL7Aiu+xl9XrEPuaW0vaeaVSqm6bl2MNRW0V9hOfjDoGjrDDTjShH4VGPyH72Q91doPU2m7ypTvrCrKCk9pQjutj0XB5NPB4Wm0La/GYcGfNWToP/AIqcH7mfVKbrNKknNv2I7WuTs48vlx9m5m7lQs7mWbnOnuop9ywdF6Az+pb2nTp2VWnSbW85R9hL3hXoGy0fiqapxTuXH5bOv53KpWk1+rPHHdfkeyRRrcJv2lTzMx3cqHQzlGdWwqRp+OxhnKQq299UjWjLx7bmdGk1s+5Z+uMDC4oSuKNNdS9yOfws3l28MuBzcHjjbGLkmx2OSdCdObhKLTR8qP1Ho6W3DzVqzEvn2BeKS8WfXS/cz3tKYWpe3cZTh8hM15ssUrtswY5vbT3tAY+9jtVb2p+4v9LZI69hbQtbeNOnFLZHZ+081yMvm329Tx8Xl00NmDeZTg1luJ9GEMdfULZx9tQzlsV2ONtvQN/qW62/+oMX+5lu8QeVjVmjdO1s3eZewr0aK3lGnvubFNjE/NPJR4WXzb2XS/5FGs7EY6WSy9HG0pKFStU6It+G5InC8nmtcnjKF9DNY2nCtBSipb77fvMCaMnFa1x82+3wpd/9zazw7m56Qx+3h6GP8gIWvku1x9PYz9z/AP6Sy4B6EvOH2haOCvrinXrw23nT8DISXbxAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAFGdTK420ylrK1vKSqUpLZpncBNQyraazuGPa3BvQlWrKpPEx6pPds+P6GNB/RUTIoMZx1n6ObHVOZHaMs/8AWO/6GtC7bLFxSPc03oXT+nn1YyzjS/2LoAjHWPoxv1Ll3r4bZJmP/XzGCXgV2KgyiNOE+akeqPT7GeZWwdhXm51KabZ6oNeXBjzRq8bZ0yWp/TOnj/FzF/oI/uHxbxf6CP7j2AcX4XxPxx/xt97z/vl5C07jF/cR/cV+L2N/QR/cesC/DOJ+OD3rN+6XkrT2NX9xH9x9U8JYU6inCkk0eoDKvT+NWdxSEnk5Z7TaXxTioxUV2SPvYA5kdu0NE9wtjVui8XqRbX0Ny5wGvJiplr4bxuGMlwZ0wvCkV/ob0x+i/wDgyYDDy4cL4Twvxwxn/Q1pj9F/8FHwZ0x+iMmgeCD4TwvxwsfTfDXCYG8+FWcNpl7Rj0wUfcfQM47OVh42LBGscaUSGxUBvU2OpksZYZGk6V5a0qsX49UUdwFiZj0GP8lwd0JkKrqXGIg5N7vYY7g/oSwqRnQxEFKL3W5kAG33jLrXiTww6eOxdjj6Co2dtTpRXZbRR20tioNU2mfU1AACKpsfFamqkemS3RyAsTpJjbxq2m8bVm5zord+JxrSuJX9wj3QbPPyfdq93x/Z4a0tiv0CPQscdb2a2owUUdwEtmvaNTKxgx1ncQpsNioNbaAAmgPJ1Xp3F6mxNTGZah6a3qLaUT1gUYdx/LbwrschTvqGDSrU5dcXv7TLWOs7ews6dpbQ6KVNdMV7kdgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAf//Z" alt="MOBICA">
+      <div class="logo-divider"></div>
+      <div class="logo-sub-block">
+        <div class="logo-sub-title">Assembly</div>
+        <div class="logo-sub-label">Capacity Live System</div>
+      </div>
+    </div>
+    <div class="sync-badge" onclick="syncNow()">
+      <div class="sync-dot" id="syncDot"></div>
+      <span id="syncLabel">LIVE</span>
+    </div>
+  </header>
+
+  <!-- CONTENT -->
+  <div id="content">
+    <!-- DASHBOARD -->
+    <div class="view active" id="view-dash">
+      <div class="sec-hdr">
+        <div>
+          <div class="sec-title">Dashboard</div>
+          <div class="sec-sub" id="dashDate"></div>
+        </div>
+        <div class="date-badge" id="dashPeriod">—</div>
+      </div>
+      <div class="summary-bar" id="summaryBar">
+        <div class="sum-item"><div class="sum-label">Depts Active</div><div class="sum-val" id="sumDepts">—</div></div>
+        <div class="sum-item"><div class="sum-label">Avg Achievement</div><div class="sum-val" id="sumAch">—</div></div>
+        <div class="sum-item"><div class="sum-label">Total Penalty</div><div class="sum-val" id="sumPen">—</div></div>
+      </div>
+      <div class="dept-grid" id="deptGrid">
+        <div class="spinner"></div>
+      </div>
+    </div>
+
+    <!-- ENTRY FORM -->
+    <div class="view" id="view-entry">
+      <div class="sec-hdr">
+        <div>
+          <div class="sec-title">New Entry</div>
+          <div class="sec-sub">Daily capacity record</div>
+        </div>
+      </div>
+
+      <!-- Dept selector -->
+      <div class="form-dept-selector" id="formDeptSelector"></div>
+
+      <!-- Live meter -->
+      <div class="live-meter" id="liveMeter">
+        <div class="meter-item"><div class="meter-label">Needed</div><div class="meter-val" id="mNeeded">—</div></div>
+        <div class="meter-item"><div class="meter-label">Available</div><div class="meter-val" id="mAvail">—</div></div>
+        <div class="meter-item"><div class="meter-label">Achievement</div><div class="meter-val" id="mAch">—</div></div>
+        <div class="meter-item"><div class="meter-label">Penalty LE</div><div class="meter-val" id="mPen">—</div></div>
+        <div class="ach-bar-wrap">
+          <div class="ach-bar-bg"><div class="ach-bar-fg" id="achBar" style="width:0%;background:var(--border)"></div></div>
+        </div>
+      </div>
+
+      <!-- Date & Workers -->
+      <div class="form-section">
+        <div class="form-section-hdr">📅 Period &amp; Workers</div>
+        <div class="form-body">
+          <div class="form-row">
+            <div class="field">
+              <label>Entry Date</label>
+              <input type="date" id="fDate">
+            </div>
+            <div class="field">
+              <label>Working Days</label>
+              <input type="number" id="fWorkDays" min="0" max="31" step="0.5" placeholder="17.9">
+            </div>
+          </div>
+          <div class="form-row three">
+            <div class="field">
+              <label>Available Workers</label>
+              <input type="number" id="fAvail" min="0" step="1" placeholder="16">
+            </div>
+            <div class="field">
+              <label>Overtime Shifts</label>
+              <input type="number" id="fOT" min="0" step="0.5" placeholder="0">
+            </div>
+            <div class="field">
+              <label>Vacations</label>
+              <input type="number" id="fVac" min="0" step="0.5" placeholder="0">
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="field">
+              <label>All-In Shifts (received)</label>
+              <input type="number" id="fAllIn" min="0" step="0.5" placeholder="0">
+            </div>
+            <div class="field">
+              <label>All-Out Shifts (sent)</label>
+              <input type="number" id="fAllOut" min="0" step="0.5" placeholder="0">
+            </div>
+          </div>
+          <div class="form-row single">
+            <div class="field">
+              <label>Notes (optional)</label>
+              <input type="text" id="fNotes" placeholder="e.g. Ramadan schedule, line stoppage…">
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Model production table -->
+      <div class="form-section">
+        <div class="form-section-hdr">🏭 Production — <span id="formDeptLabel">Select department above</span></div>
+        <div class="form-body" style="padding:0">
+          <div class="model-table-wrap" id="modelTableWrap">
+            <div style="padding:24px;text-align:center;color:var(--text2);font-size:16px;">Select a department to show models</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="btn-row">
+        <button class="btn btn-secondary" onclick="resetForm()">CLEAR</button>
+        <button class="btn btn-primary" onclick="submitEntry()">SAVE ENTRY</button>
+      </div>
+      <div style="height:10px"></div>
+    </div>
+
+    <!-- HISTORY -->
+    <div class="view" id="view-hist">
+      <div class="sec-hdr">
+        <div class="sec-title">History</div>
+      </div>
+      <div class="hist-filter">
+        <select id="histDeptFilter" onchange="loadHistory()">
+          <option value="">All Departments</option>
+        </select>
+        <input type="month" id="histMonth" onchange="loadHistory()">
+      </div>
+      <div class="hist-list" id="histList"><div class="spinner"></div></div>
+    </div>
+
+    <!-- SCOREBOARD -->
+    <div class="view" id="view-score">
+      <div class="sec-hdr">
+        <div>
+          <div class="sec-title">Score Board</div>
+          <div class="sec-sub" id="scoreMonth"></div>
+        </div>
+        <select id="scoreMonthSel" style="background:var(--bg2);border:1px solid var(--border);border-radius:6px;padding:8px 12px;color:var(--text);font-family:var(--font-ui);font-size:15px;box-shadow:var(--shadow);" onchange="loadScoreboard()"></select>
+      </div>
+      <div id="scoreList"><div class="spinner"></div></div>
+    </div>
+  </div>
+
+  <!-- BOTTOM NAV -->
+  <nav id="nav">
+    <button class="nav-btn active" data-view="dash" onclick="switchView('dash',this)">
+      <svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+      Dashboard
+    </button>
+    <button class="nav-btn" data-view="entry" onclick="switchView('entry',this)">
+      <svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+      Entry
+    </button>
+    <button class="nav-btn" data-view="hist" onclick="switchView('hist',this)">
+      <svg viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+      History
+    </button>
+    <button class="nav-btn" data-view="score" onclick="switchView('score',this)">
+      <svg viewBox="0 0 24 24"><polyline points="18 20 18 10"/><polyline points="12 20 12 4"/><polyline points="6 20 6 14"/></svg>
+      Score
+    </button>
+  </nav>
+</div>
+
+<!-- TOAST -->
+<div id="toast"></div>
+
+<script>
+
+// ══════════════════════════════════════════════
+//  CONFIG & DATA
+// ══════════════════════════════════════════════
+const SB_URL = 'https://ojsmjqwjsdornetdqiyu.supabase.co';
+const SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9qc21qcXdqc2Rvcm5ldGRxaXl1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDM0NTIwMDIsImV4cCI6MjA1OTAyODAwMn0.WDWKDPf4cHQH_EOlR2VdC00GxaEWGkWJRhUgGfx0YFQ';
+
+// ── DEPARTMENTS ─────────────────────────────
+const DEPTS = [
+  { code:'GM',         name:'General Motors',    short:'GM'      },
+  { code:'NISSAN',     name:'Nissan & Suzuki',   short:'NISSAN'  },
+  { code:'MERCEDES',   name:'Mercedes & Exeed',  short:'MER/EXD' },
+  { code:'BMW',        name:'BMW & Geely',       short:'BMW'     },
+  { code:'AAV_TOYOTA', name:'AAV & Toyota',      short:'AAV/TOY' },
+  { code:'GHABBOUR',   name:'Ghabbour',          short:'GHAB'    },
+  { code:'PROTON',     name:'Proton',            short:'PROTON'  },
+  { code:'KASRAWY',    name:'Kasrawy',           short:'KAS'     },
+];
+
+// ── MODELS (F05 extracted) ──────────────────
+// Each entry: [model_name, variant_or_null, kpw_or_null]
+const MODELS_BY_DEPT = {
+  GM: [
+    ['RT50 Fabric',  'Left(F)',        null],
+    ['RT50 Fabric',  'Right(F)',       null],
+    ['RT50 Leather', 'Left(L)',        9.2],
+    ['RT50 Leather', 'Right(L)',       9.2],
+    ['VL01',         'CDSB 1',       12.12],
+    ['VL01',         'CDSB2',        12.12],
+    ['VL01',         'CDSC',         12.12],
+    ['VL01',         'LH (DR)',      12.12],
+    ['VL20',         'CDSB',        13.32],
+    ['VL20',         'CDSC',        13.32],
+    ['VL20',         'LH (DR)',     13.32],
+    ['310vl1',       'Cushion',      4.47],
+    ['310vl1',       'Left Seat',    4.47],
+    ['310vl1',       'Rear back 100%',4.47],
+    ['310vl1',       'Right Seat',   4.47],
+    ['310vl2',       'Cushion 40%',  4.47],
+    ['310vl2',       'Cushion 60%',  4.47],
+    ['310vl2',       'Left Seat',    4.47],
+    ['310vl2',       'Rear back 40%',4.47],
+    ['310vl2',       'Rear Back 60%',4.47],
+    ['310vl2',       'Right Seat',   4.47],
+    ['BRACKET',      'Left',         null],
+    ['BRACKET',      'Massad',       null],
+    ['BRACKET',      'Right',        null],
+  ],
+  NISSAN: [
+    ['MC15 Black', 'Seat',       7.5],
+    ['MC15 Black', 'Door',       30.94],
+    ['MC15 Black', 'Luxe Door',  30.94],
+    ['MC15 Beige', 'Seat',       30.94],
+    ['MC15 Beige', 'Door',       30.94],
+    ['MC15 Beige', 'Luxe Door',  30.94],
+    ['L12F',       'Lower Seat', 3.5],
+    ['L12F',       'Upper Seat', 3.5],
+    ['L12F',       'Lower Door', 8.97],
+    ['L12F',       'Upper Door', 8.97],
+  ],
+  MERCEDES: [
+    ['GLE', 'Beige',          1.36],
+    ['GLE', 'Black',          1.36],
+    ['GLE', 'Brown',          1.36],
+    ['GLS', 'Beige',          0.47],
+    ['GLS', 'Black',          0.47],
+    ['GLS', 'Brown',          0.47],
+    ['RX',  'Flagship Seat',  1.7],
+    ['RX',  'Flagship DP',    1.97],
+    ['RX',  'Seat Red',       1.7],
+    ['RX',  'DP Red',         1.97],
+    ['VX',  'Flagship Brown', 0.74],
+    ['VX',  'Luxury Black',   0.74],
+    ['AMG', 'Black',          null],
+    ['AMG', 'Red',            null],
+    ['Van', 'Front',         12.91],
+    ['Van', 'Rear',           5.36],
+  ],
+  BMW: [
+    ['G45-15',     'G45-15',    1.4],
+    ['G45-85',     'G45-85',    1.4],
+    ['G06',        null,        1.31],
+    ['G05 EU25',   null,        1.31],
+    ['G05 EU35',   null,        1.31],
+    ['G07',        null,        0.81],
+    ['SS GS',      'Seat',      3.876],
+    ['SS GS',      'DP',        3.876],
+    ['SS GF',      'Seat',      2.69],
+    ['SS GF',      'DP',        2.62],
+    ['SS GF Black','Seat',      2.69],
+    ['SS GF Black','DP',        2.69],
+    ['SX GF',      'Seat',      2.65],
+    ['SX GF',      'DP',        2.65],
+    ['SX GK',      'Seat',      2.65],
+    ['SX GK',      'DP',        2.65],
+    ['SX GL',      'Seat',      2.65],
+    ['SX GL',      'DP',        2.65],
+  ],
+  AAV_TOYOTA: [
+    ['W4',                     'Seat',         0.92],
+    ['W4',                     'DP',           1.34],
+    ['Fortuner Seats Leather', 'Leather Seat', 1.89],
+    ['Fortuner Doors Leather', 'Leather DP',   5.05],
+    ['C43 L2',                 'C43 L2',       4.44],
+    ['C43 L3',                 'C43 L3',       4.44],
+  ],
+  GHABBOUR: [
+    ['T7BL (قماش)', 'T7BL', 3.09194],
+    ['T7HL (جلد)',  'T7HL', 3.239305],
+  ],
+  PROTON: [
+    ['Proton', 'Seat', 4.99],
+    ['Proton', 'DP',   13.7],
+  ],
+  KASRAWY: [
+    ['Golden Dragon', null,   1.06],
+    ['Jetour',        null,   1.88],
+    ['Jack',          'Seat', 3.06],
+    ['Jack',          'DP',   5.1],
+    ['Zemex',         null,   1.03],
+  ],
+};
+
+// ══════════════════════════════════════════════
+//  STATE
+// ══════════════════════════════════════════════
+let currentView   = 'dash';
+let selectedDept  = null;
+let isOnline      = navigator.onLine;
+let pendingQueue  = JSON.parse(localStorage.getItem('mobica_pending') || '[]');
+let dashCache     = null;
+
+// ══════════════════════════════════════════════
+//  SUPABASE FETCH WRAPPER
+// ══════════════════════════════════════════════
+async function sbFetch(path, opts={}) {
+  const url = `${SB_URL}/rest/v1/${path}`;
+  const headers = {
+    'apikey': SB_KEY,
+    'Authorization': `Bearer ${SB_KEY}`,
+    'Content-Type': 'application/json',
+    'Prefer': 'return=representation',
+    ...opts.headers,
+  };
+  const res = await fetch(url, { ...opts, headers });
+  if (!res.ok) {
+    const err = await res.text();
+    throw new Error(err || res.statusText);
+  }
+  return res.status === 204 ? null : res.json();
+}
+
+// ══════════════════════════════════════════════
+//  FORMULAS
+// ══════════════════════════════════════════════
+function calcProductionQty(delivery, stockBegin, stockEnd) {
+  return (Number(delivery)||0) + (Number(stockEnd)||0) - (Number(stockBegin)||0);
+}
+function calcNeededWorkers(rows) {
+  // rows: [{production_qty, kpw}]
+  return rows.reduce((sum, r) => {
+    if (!r.kpw || r.kpw <= 0) return sum;
+    return sum + (r.production_qty / r.kpw);
+  }, 0);
+}
+function calcAvailableShifts(availableWorkers, workingDays) {
+  return (Number(availableWorkers)||0) * (Number(workingDays)||0);
+}
+function calcAchievement(availableShifts, allIn, neededWorkers, allOut) {
+  const denom = (Number(neededWorkers)||0) + (Number(allOut)||0);
+  if (denom === 0) return null;
+  return ((Number(availableShifts)||0) + (Number(allIn)||0)) / denom;
+}
+function calcPenalty(achievement) {
+  if (achievement === null) return 0;
+  return achievement < 0.99 ? (achievement - 0.99) * 300 : 0;
+}
+function calcVacationRatio(vacations, availableShifts) {
+  if (!availableShifts) return 0;
+  return (Number(vacations)||0) / availableShifts;
+}
+
+// ══════════════════════════════════════════════
+//  UI HELPERS
+// ══════════════════════════════════════════════
+function switchView(v, btn) {
+  document.querySelectorAll('.view').forEach(el => el.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(el => el.classList.remove('active'));
+  document.getElementById(`view-${v}`).classList.add('active');
+  btn.classList.add('active');
+  currentView = v;
+  if (v === 'dash')  loadDashboard();
+  if (v === 'hist')  loadHistory();
+  if (v === 'score') loadScoreboard();
+}
+
+function showToast(msg, type='info') {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = `show ${type}`;
+  setTimeout(() => t.className = '', 2500);
+}
+
+function achClass(a) {
+  if (a === null || a === undefined) return 'nd';
+  if (a >= 0.99) return 'ok';
+  if (a >= 0.95) return 'warn';
+  return 'crit';
+}
+
+function fmtAch(a) {
+  if (a === null || a === undefined) return '—';
+  return (a * 100).toFixed(2) + '%';
+}
+
+function fmtNum(n, dec=1) {
+  if (n === null || n === undefined || isNaN(n)) return '—';
+  return Number(n).toFixed(dec);
+}
+
+function todayStr() {
+  return new Date().toISOString().slice(0,10);
+}
+
+function monthStr(d) {
+  return d ? d.slice(0,7) : new Date().toISOString().slice(0,7);
+}
+
+function setOnlineStatus(online) {
+  isOnline = online;
+  const dot = document.getElementById('syncDot');
+  const lbl = document.getElementById('syncLabel');
+  dot.className = 'sync-dot' + (online ? '' : ' offline');
+  lbl.textContent = online ? 'LIVE' : 'OFFLINE';
+}
+
+window.addEventListener('online',  () => { setOnlineStatus(true);  flushQueue(); });
+window.addEventListener('offline', () => setOnlineStatus(false));
+
+// ══════════════════════════════════════════════
+//  OFFLINE QUEUE
+// ══════════════════════════════════════════════
+function saveQueue() {
+  localStorage.setItem('mobica_pending', JSON.stringify(pendingQueue));
+}
+
+async function flushQueue() {
+  if (!isOnline || pendingQueue.length === 0) return;
+  const item = pendingQueue[0];
+  try {
+    await upsertEntry(item);
+    pendingQueue.shift();
+    saveQueue();
+    if (pendingQueue.length > 0) flushQueue();
+    else showToast('Offline entries synced ✓', 'success');
+  } catch(e) {
+    console.error('Flush error', e);
+  }
+}
+
+// ══════════════════════════════════════════════
+//  DASHBOARD
+// ══════════════════════════════════════════════
+async function loadDashboard() {
+  const grid = document.getElementById('deptGrid');
+  if (!isOnline && dashCache) { renderDash(dashCache); return; }
+  grid.innerHTML = '<div class="spinner"></div>';
+  try {
+    const today = todayStr();
+    const firstOfMonth = today.slice(0,7) + '-01';
+    // Get latest entry per dept this month
+    const rows = await sbFetch(
+      `capacity_entries?entry_date=gte.${firstOfMonth}&entry_date=lte.${today}&select=*&order=entry_date.desc`,
+      { headers: { 'Range-Unit':'items' } }
+    );
+    // Keep latest per dept
+    const latestMap = {};
+    (rows||[]).forEach(r => {
+      if (!latestMap[r.department_code]) latestMap[r.department_code] = r;
+    });
+    dashCache = latestMap;
+    renderDash(latestMap);
+  } catch(e) {
+    grid.innerHTML = `<div class="empty"><div class="empty-icon">⚠️</div>Connection error<br><small>${e.message}</small></div>`;
+    setOnlineStatus(false);
+  }
+}
+
+function renderDash(latestMap) {
+  const today = todayStr();
+  document.getElementById('dashDate').textContent = 'As of ' + today;
+  document.getElementById('dashPeriod').textContent = monthStr(today);
+
+  // Summary
+  const active = Object.keys(latestMap).length;
+  const achs = Object.values(latestMap).map(r=>r.achievement).filter(a=>a!==null);
+  const avgAch = achs.length ? achs.reduce((s,a)=>s+a,0)/achs.length : null;
+  const totalPen = Object.values(latestMap).reduce((s,r)=>s+(Number(r.penalty)||0),0);
+
+  document.getElementById('sumDepts').textContent = `${active}/8`;
+  document.getElementById('sumAch').textContent = avgAch !== null ? fmtAch(avgAch) : '—';
+  document.getElementById('sumPen').textContent = totalPen > 0 ? `${totalPen.toFixed(0)} LE` : '0';
+
+  const grid = document.getElementById('deptGrid');
+  grid.innerHTML = '';
+  DEPTS.forEach(dept => {
+    const r = latestMap[dept.code];
+    const cls = r ? achClass(r.achievement) : 'nodata';
+    const ach = r ? r.achievement : null;
+    const vacRatio = r ? r.vacation_ratio : null;
+    const vacWarn = vacRatio && vacRatio > 0.10;
+    const pen = r ? (Number(r.penalty)||0) : 0;
+
+    const card = document.createElement('div');
+    card.className = `dept-card ${cls}`;
+    card.onclick = () => { switchView('entry', document.querySelector('[data-view="entry"]')); selectDept(dept.code); };
+    card.innerHTML = `
+      <div class="dept-card-header">
+        <div>
+          <div class="dept-name">${dept.name}</div>
+          <div class="dept-code">${dept.short} · ${r ? r.entry_date : 'No data this month'}</div>
+        </div>
+        <div class="ach-badge ${cls}">${fmtAch(ach)}</div>
+      </div>
+      <div class="dept-stats">
+        <div class="stat-item"><div class="stat-label">Available</div><div class="stat-val">${r ? fmtNum(r.available_shifts) : '—'}</div></div>
+        <div class="stat-item"><div class="stat-label">Needed</div><div class="stat-val">${r ? fmtNum(r.needed_workers) : '—'}</div></div>
+        <div class="stat-item"><div class="stat-label">Workers</div><div class="stat-val">${r ? r.available_workers : '—'}</div></div>
+      </div>
+      ${(pen > 0 || vacWarn) ? `<div class="penalty-row">
+        ${pen > 0 ? `<span class="penalty-tag">⚡ ${pen.toFixed(0)} LE penalty</span>` : ''}
+        ${vacWarn ? `<span class="vacation-tag">🏖 Vac ${(vacRatio*100).toFixed(1)}%</span>` : ''}
+      </div>` : ''}
+    `;
+    grid.appendChild(card);
+  });
+}
+
+async function syncNow() {
+  await flushQueue();
+  await loadDashboard();
+  showToast('Refreshed', 'success');
+}
+
+// ══════════════════════════════════════════════
+//  ENTRY FORM
+// ══════════════════════════════════════════════
+function initForm() {
+  // Date default
+  document.getElementById('fDate').value = todayStr();
+  document.getElementById('fWorkDays').value = '';
+
+  // Dept buttons
+  const sel = document.getElementById('formDeptSelector');
+  sel.innerHTML = '';
+  DEPTS.forEach(d => {
+    const btn = document.createElement('button');
+    btn.className = 'dept-sel-btn';
+    btn.textContent = d.name;
+    btn.dataset.code = d.code;
+    btn.onclick = () => selectDept(d.code);
+    sel.appendChild(btn);
+  });
+
+  // History dept filter
+  const hf = document.getElementById('histDeptFilter');
+  hf.innerHTML = '<option value="">All Departments</option>';
+  DEPTS.forEach(d => {
+    const o = document.createElement('option');
+    o.value = d.code; o.textContent = d.name;
+    hf.appendChild(o);
+  });
+
+  // Score month selector — last 12 months
+  const sms = document.getElementById('scoreMonthSel');
+  const now = new Date();
+  for (let i=0; i<12; i++) {
+    const d = new Date(now.getFullYear(), now.getMonth()-i, 1);
+    const val = d.toISOString().slice(0,7);
+    const o = document.createElement('option');
+    o.value = val; o.textContent = val;
+    if (i===0) o.selected = true;
+    sms.appendChild(o);
+  }
+
+  // History month default
+  document.getElementById('histMonth').value = monthStr();
+
+  // Live recalc on worker field changes
+  ['fAvail','fWorkDays','fOT','fAllIn','fAllOut'].forEach(id => {
+    document.getElementById(id).addEventListener('input', liveRecalc);
+  });
+}
+
+function selectDept(code) {
+  selectedDept = code;
+  document.querySelectorAll('.dept-sel-btn').forEach(b => {
+    b.classList.toggle('active', b.dataset.code === code);
+  });
+  const dept = DEPTS.find(d=>d.code===code);
+  document.getElementById('formDeptLabel').textContent = dept.name;
+  renderModelTable(code);
+  liveRecalc();
+}
+
+function renderModelTable(code) {
+  const wrap = document.getElementById('modelTableWrap');
+  const models = MODELS_BY_DEPT[code] || [];
+
+  let html = `<table class="model-table">
+    <thead><tr>
+      <th style="text-align:left">Model / Variant</th>
+      <th>KPW</th>
+      <th>Delivery</th>
+      <th>Stk Begin</th>
+      <th>Stk End</th>
+      <th>Prod Qty</th>
+    </tr></thead><tbody>`;
+
+  models.forEach((m, i) => {
+    const [model, variant, kpw] = m;
+    const label = variant ? `${model} · ${variant}` : model;
+    const isTbd = kpw === null;
+    html += `<tr class="${isTbd?'tbd-row':''}">
+      <td>${label}${isTbd?' ⚠':''}</td>
+      <td class="kpw-cell">${isTbd ? 'TBD' : kpw}</td>
+      <td><input class="tbl-inp" type="number" min="0" step="1" data-i="${i}" data-f="del" placeholder="0" oninput="liveRecalc()"></td>
+      <td><input class="tbl-inp" type="number" min="0" step="1" data-i="${i}" data-f="sb"  placeholder="0" oninput="liveRecalc()"></td>
+      <td><input class="tbl-inp" type="number" min="0" step="1" data-i="${i}" data-f="se"  placeholder="0" oninput="liveRecalc()"></td>
+      <td class="prod-cell" id="pq_${i}">—</td>
+    </tr>`;
+  });
+  html += '</tbody></table>';
+  wrap.innerHTML = html;
+}
+
+function getModelRows() {
+  if (!selectedDept) return [];
+  const models = MODELS_BY_DEPT[selectedDept] || [];
+  return models.map((m, i) => {
+    const del = Number(document.querySelector(`[data-i="${i}"][data-f="del"]`)?.value||0);
+    const sb  = Number(document.querySelector(`[data-i="${i}"][data-f="sb"]`)?.value||0);
+    const se  = Number(document.querySelector(`[data-i="${i}"][data-f="se"]`)?.value||0);
+    const pq  = calcProductionQty(del, sb, se);
+    // Update cell
+    const cell = document.getElementById(`pq_${i}`);
+    if (cell) cell.textContent = pq !== 0 ? pq : '—';
+    return { model_name: m[0], variant: m[1], kpw: m[2], delivery_qty: del, stock_begin: sb, stock_end: se, production_qty: pq };
+  });
+}
+
+function liveRecalc() {
+  const rows = getModelRows();
+  const needed = calcNeededWorkers(rows);
+  const avail  = Number(document.getElementById('fAvail').value)||0;
+  const days   = Number(document.getElementById('fWorkDays').value)||0;
+  const ot     = Number(document.getElementById('fOT').value)||0;
+  const allIn  = Number(document.getElementById('fAllIn').value)||0;
+  const allOut = Number(document.getElementById('fAllOut').value)||0;
+  const vac    = Number(document.getElementById('fVac').value)||0;
+  const avShifts = calcAvailableShifts(avail, days) + ot;
+  const ach    = needed > 0 ? calcAchievement(avShifts, allIn, needed, allOut) : null;
+  const pen    = calcPenalty(ach);
+  const vacR   = calcVacationRatio(vac, avShifts);
+
+  const cls = achClass(ach);
+  document.getElementById('mNeeded').textContent  = needed.toFixed(1);
+  document.getElementById('mAvail').textContent   = avShifts.toFixed(1);
+  const achEl = document.getElementById('mAch');
+  achEl.textContent = fmtAch(ach);
+  achEl.className = `meter-val ${cls}`;
+  document.getElementById('mPen').textContent     = pen !== 0 ? pen.toFixed(0) : '0';
+
+  // Progress bar
+  const bar = document.getElementById('achBar');
+  const pct = ach !== null ? Math.min(ach * 100, 115) : 0;
+  const color = cls==='ok' ? 'var(--green)' : cls==='warn' ? 'var(--warn)' : cls==='crit' ? 'var(--red)' : 'var(--text2)';
+  bar.style.width  = pct + '%';
+  bar.style.background = color;
+}
+
+function resetForm() {
+  document.getElementById('fDate').value = todayStr();
+  ['fWorkDays','fAvail','fOT','fAllIn','fAllOut','fVac','fNotes'].forEach(id => {
+    document.getElementById(id).value = '';
+  });
+  selectedDept = null;
+  document.querySelectorAll('.dept-sel-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById('modelTableWrap').innerHTML = '<div style="padding:20px;text-align:center;color:var(--text2);font-size:12px;">Select a department to show models</div>';
+  document.getElementById('formDeptLabel').textContent = 'Select department above';
+  ['mNeeded','mAvail','mAch','mPen'].forEach(id => document.getElementById(id).textContent='—');
+  document.getElementById('achBar').style.width='0%';
+}
+
+async function submitEntry() {
+  if (!selectedDept) { showToast('Select a department', 'error'); return; }
+  const date = document.getElementById('fDate').value;
+  if (!date)  { showToast('Enter a date', 'error'); return; }
+  const avail  = Number(document.getElementById('fAvail').value)||0;
+  const days   = Number(document.getElementById('fWorkDays').value)||0;
+  if (!avail || !days) { showToast('Enter available workers & working days', 'error'); return; }
+
+  const rows   = getModelRows();
+  const needed = calcNeededWorkers(rows);
+  const ot     = Number(document.getElementById('fOT').value)||0;
+  const allIn  = Number(document.getElementById('fAllIn').value)||0;
+  const allOut = Number(document.getElementById('fAllOut').value)||0;
+  const vac    = Number(document.getElementById('fVac').value)||0;
+  const notes  = document.getElementById('fNotes').value.trim();
+
+  const avShifts = calcAvailableShifts(avail, days) + ot;
+  const ach    = needed > 0 ? calcAchievement(avShifts, allIn, needed, allOut) : null;
+  const pen    = calcPenalty(ach);
+  const vacR   = calcVacationRatio(vac, avShifts);
+
+  const payload = {
+    entry_date: date,
+    department_code: selectedDept,
+    available_workers: avail,
+    actual_working_days: days,
+    over_time_shifts: ot,
+    all_in_shifts: allIn,
+    all_out_shifts: allOut,
+    vacations: vac,
+    needed_workers: needed,
+    achievement: ach,
+    penalty: pen,
+    vacation_ratio: vacR,
+    submitted_by: 'PM',
+    notes,
+    model_rows_json: JSON.stringify(rows.filter(r=>r.delivery_qty>0||r.stock_begin>0||r.stock_end>0)),
+  };
+
+  if (!isOnline) {
+    pendingQueue.push(payload);
+    saveQueue();
+    showToast('Saved offline — will sync when online', 'info');
+    resetForm();
+    return;
+  }
+
+  try {
+    await upsertEntry(payload);
+    showToast('Entry saved ✓', 'success');
+    dashCache = null;
+    resetForm();
+  } catch(e) {
+    showToast('Save failed: ' + e.message, 'error');
+  }
+}
+
+async function upsertEntry(payload) {
+  // Upsert into capacity_entries
+  await sbFetch('capacity_entries', {
+    method: 'POST',
+    body: JSON.stringify(payload),
+    headers: { 'Prefer': 'resolution=merge-duplicates,return=representation' },
+  });
+}
+
+// ══════════════════════════════════════════════
+//  HISTORY
+// ══════════════════════════════════════════════
+async function loadHistory() {
+  const list = document.getElementById('histList');
+  list.innerHTML = '<div class="spinner"></div>';
+  const dept  = document.getElementById('histDeptFilter').value;
+  const month = document.getElementById('histMonth').value || monthStr();
+  const from  = month + '-01';
+  const to    = month + '-31';
+
+  try {
+    let path = `capacity_entries?entry_date=gte.${from}&entry_date=lte.${to}&order=entry_date.desc`;
+    if (dept) path += `&department_code=eq.${dept}`;
+    const rows = await sbFetch(path);
+
+    if (!rows || rows.length === 0) {
+      list.innerHTML = '<div class="empty"><div class="empty-icon">📭</div>No entries for this period</div>';
+      return;
+    }
+    list.innerHTML = '';
+    rows.forEach(r => {
+      const dept = DEPTS.find(d=>d.code===r.department_code);
+      const cls  = achClass(r.achievement);
+      const div  = document.createElement('div');
+      div.className = 'hist-card';
+      div.innerHTML = `
+        <div>
+          <div class="hist-date">${r.entry_date}</div>
+          <div class="hist-dept">${dept ? dept.name : r.department_code}</div>
+          <div class="hist-stats-row">
+            <div class="hist-stat">Workers: <strong>${r.available_workers}</strong></div>
+            <div class="hist-stat">Avail: <strong>${fmtNum(r.available_shifts)}</strong></div>
+            <div class="hist-stat">Needed: <strong>${fmtNum(r.needed_workers)}</strong></div>
+          </div>
+          ${r.notes ? `<div style="font-size:10px;color:var(--text2);margin-top:4px">${r.notes}</div>` : ''}
+        </div>
+        <div style="text-align:right">
+          <div class="ach-badge ${cls}">${fmtAch(r.achievement)}</div>
+          ${Number(r.penalty||0)>0 ? `<div style="font-size:10px;color:var(--red);margin-top:4px">${Number(r.penalty).toFixed(0)} LE</div>` : ''}
+          ${r.vacation_ratio > 0.10 ? `<div style="font-size:10px;color:var(--warn);margin-top:2px">Vac⚠</div>` : ''}
+        </div>`;
+      list.appendChild(div);
+    });
+  } catch(e) {
+    list.innerHTML = `<div class="empty">Error: ${e.message}</div>`;
+  }
+}
+
+// ══════════════════════════════════════════════
+//  SCOREBOARD
+// ══════════════════════════════════════════════
+async function loadScoreboard() {
+  const sc   = document.getElementById('scoreList');
+  sc.innerHTML = '<div class="spinner"></div>';
+  const month = document.getElementById('scoreMonthSel').value || monthStr();
+  document.getElementById('scoreMonth').textContent = month;
+  const from = month + '-01';
+  const to   = month + '-31';
+
+  try {
+    const rows = await sbFetch(`capacity_entries?entry_date=gte.${from}&entry_date=lte.${to}&order=entry_date.desc`);
+
+    // Latest per dept
+    const latestMap = {};
+    (rows||[]).forEach(r => { if (!latestMap[r.department_code]) latestMap[r.department_code] = r; });
+
+    // Sort by achievement desc
+    const sorted = DEPTS.map(d => ({ dept: d, r: latestMap[d.code] || null }))
+      .sort((a,b) => {
+        const aa = a.r ? (a.r.achievement||0) : -1;
+        const bb = b.r ? (b.r.achievement||0) : -1;
+        return bb - aa;
+      });
+
+    const totalPenalty = sorted.reduce((s,x)=>s+(x.r ? Number(x.r.penalty||0):0),0);
+
+    sc.innerHTML = '';
+    // Total penalty bar
+    const ptag = document.createElement('div');
+    ptag.style.cssText = 'background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:10px 14px;margin-bottom:10px;display:flex;justify-content:space-between;align-items:center;';
+    ptag.innerHTML = `
+      <div style="font-size:11px;color:var(--text2);text-transform:uppercase;letter-spacing:.5px">Total Monthly Penalty</div>
+      <div style="font-family:var(--font-mono);font-size:18px;font-weight:700;color:${totalPenalty>0?'var(--red)':'var(--green)'}">
+        ${totalPenalty>0 ? totalPenalty.toFixed(0)+' LE' : '✓ 0 LE'}
+      </div>`;
+    sc.appendChild(ptag);
+
+    sorted.forEach((item, idx) => {
+      const { dept, r } = item;
+      const cls  = r ? achClass(r.achievement) : 'nd';
+      const pen  = r ? Number(r.penalty||0) : 0;
+      const row  = document.createElement('div');
+      row.className = 'score-row';
+      row.innerHTML = `
+        <div class="score-rank">${idx+1}</div>
+        <div>
+          <div class="score-dept-name">${dept.name}</div>
+          <div style="font-size:10px;color:var(--text2)">${r ? r.entry_date : 'No data'}</div>
+        </div>
+        <div class="score-ach ${cls}">${fmtAch(r?.achievement)}</div>
+        <div class="score-pen${pen===0?' zero':''}">${pen>0 ? '-'+pen.toFixed(0)+' LE' : '—'}</div>`;
+      sc.appendChild(row);
+    });
+
+  } catch(e) {
+    sc.innerHTML = `<div class="empty">Error: ${e.message}</div>`;
+  }
+}
+
+// ══════════════════════════════════════════════
+//  INIT
+// ══════════════════════════════════════════════
+function init() {
+  setOnlineStatus(navigator.onLine);
+  initForm();
+  loadDashboard();
+  // Flush any pending offline data
+  if (isOnline && pendingQueue.length > 0) flushQueue();
+}
+
+document.addEventListener('DOMContentLoaded', init);
+
+// PWA manifest (inline blob)
+const manifest = {
+  name: 'MOBICA Capacity',
+  short_name: 'Capacity',
+  start_url: './',
+  display: 'standalone',
+  theme_color: '#0d1117',
+  background_color: '#0d1117',
+  icons: [{
+    src: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' fill='%230d1117'/%3E%3Cpolygon points='50,5 95,27.5 95,72.5 50,95 5,72.5 5,27.5' fill='%23f0a500'/%3E%3Ctext x='50' y='60' text-anchor='middle' font-family='Arial' font-weight='bold' font-size='30' fill='%23000'%3EM%3C/text%3E%3C/svg%3E",
+    sizes: '192x192', type: 'image/svg+xml'
+  }]
+};
+const blob = new Blob([JSON.stringify(manifest)], {type:'application/json'});
+document.getElementById('manifest-placeholder').href = URL.createObjectURL(blob);
+
+</script>
+</body>
+</html>
