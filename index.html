@@ -354,6 +354,47 @@ html,body { height:100%; background:var(--bg); color:var(--text); font-family:va
 ::-webkit-scrollbar { width:5px; }
 ::-webkit-scrollbar-track { background:var(--bg); }
 ::-webkit-scrollbar-thumb { background:var(--border); border-radius:3px; }
+
+  /* ── TRANSFER BLOCKS ── */
+  .transfer-block {
+    border-radius:8px; padding:12px 14px; margin-bottom:10px; border:2px solid;
+  }
+  .transfer-in  { background:#e8fff0; border-color:#b8e8c8; }
+  .transfer-out { background:#fff3cd; border-color:#f0d080; }
+  .transfer-label {
+    font-size:14px; font-weight:700; letter-spacing:.5px; text-transform:uppercase;
+    margin-bottom:10px;
+  }
+  .transfer-in  .transfer-label { color:var(--green); }
+  .transfer-out .transfer-label { color:var(--warn); }
+  .transfer-row { display:flex; flex-direction:column; gap:8px; }
+  .transfer-item {
+    display:grid; grid-template-columns:1fr auto; gap:8px; align-items:center;
+  }
+  .transfer-dept {
+    background:#fff; border:1px solid var(--border); border-radius:6px;
+    padding:9px 10px; color:var(--text); font-family:var(--font-ui);
+    font-size:16px; -webkit-appearance:none;
+  }
+  .transfer-dept:focus { outline:none; border-color:var(--blue); box-shadow:0 0 0 2px rgba(9,105,218,.15); }
+  .transfer-qty {
+    width:80px; background:#fff; border:1px solid var(--border); border-radius:6px;
+    padding:9px 10px; color:var(--text); font-family:var(--font-mono);
+    font-size:16px; text-align:right; -webkit-appearance:none;
+  }
+  .transfer-qty:focus { outline:none; border-color:var(--blue); box-shadow:0 0 0 2px rgba(9,105,218,.15); }
+  .transfer-add-btn {
+    margin-top:8px; background:none; border:1px dashed var(--borderDk);
+    border-radius:6px; padding:6px 12px; color:var(--text2); font-size:13px;
+    font-family:var(--font-ui); cursor:pointer; width:100%; text-align:center;
+    transition:all .15s;
+  }
+  .transfer-add-btn:hover { background:var(--blueBg); border-color:var(--blue); color:var(--blue); }
+  .transfer-remove-btn {
+    background:var(--redBg); border:1px solid #f8514944; color:var(--red);
+    border-radius:5px; padding:4px 8px; font-size:14px; cursor:pointer;
+    font-family:var(--font-ui); flex-shrink:0;
+  }
 </style>
 </head>
 <body>
@@ -449,25 +490,39 @@ html,body { height:100%; background:var(--bg); color:var(--text); font-family:va
             <input type="number" id="fAvail" min="0" step="1" placeholder="16">
           </div>
         </div>
-        <div class="worker-grid three" style="margin-bottom:10px">
+        <div class="worker-grid" style="margin-bottom:10px">
           <div class="field">
             <label>⏱ Overtime Shifts</label>
-            <input type="number" id="fOT" min="0" step="0.5" placeholder="0">
+            <input type="number" id="fOT" min="0" step="0.5" placeholder="0" oninput="liveRecalc()">
           </div>
-          <div class="field">
-            <label>↙ All-In (received)</label>
-            <input type="number" id="fAllIn" min="0" step="0.5" placeholder="0">
-          </div>
-          <div class="field">
-            <label>↗ All-Out (sent)</label>
-            <input type="number" id="fAllOut" min="0" step="0.5" placeholder="0">
-          </div>
-        </div>
-        <div class="worker-grid">
           <div class="field">
             <label>🏖 Vacations</label>
             <input type="number" id="fVac" min="0" step="0.5" placeholder="0">
           </div>
+        </div>
+        <!-- All-In transfers -->
+        <div class="transfer-block transfer-in">
+          <div class="transfer-label">↙ Workers Received (All-In)</div>
+          <div class="transfer-row" id="allInRows">
+            <div class="transfer-item">
+              <select class="transfer-dept" id="fAllInDept0"><option value="">— From Department —</option></select>
+              <input class="transfer-qty" type="number" min="0" step="0.5" placeholder="0" id="fAllInQty0" oninput="liveRecalc()">
+            </div>
+          </div>
+          <button class="transfer-add-btn" onclick="addTransferRow('in')">＋ Add another source</button>
+        </div>
+        <!-- All-Out transfers -->
+        <div class="transfer-block transfer-out">
+          <div class="transfer-label">↗ Workers Sent (All-Out)</div>
+          <div class="transfer-row" id="allOutRows">
+            <div class="transfer-item">
+              <select class="transfer-dept" id="fAllOutDept0"><option value="">— To Department —</option></select>
+              <input class="transfer-qty" type="number" min="0" step="0.5" placeholder="0" id="fAllOutQty0" oninput="liveRecalc()">
+            </div>
+          </div>
+          <button class="transfer-add-btn" onclick="addTransferRow('out')">＋ Add another destination</button>
+        </div>
+        <div class="worker-grid single" style="margin-top:4px">
           <div class="field">
             <label>📝 Notes</label>
             <input type="text" id="fNotes" placeholder="Optional…">
@@ -852,6 +907,7 @@ function selectDept(code) {
   const dept=DEPTS.find(d=>d.code===code);
   document.getElementById('formDeptLabel').textContent=dept.name;
   renderProdTable(code);
+  populateTransferSelects();
   liveRecalc();
 }
 
@@ -902,8 +958,8 @@ function liveRecalc() {
   const needed=calcNeeded(rows);
   const avail=(Number(document.getElementById('fAvail').value)||0)*1
              +(Number(document.getElementById('fOT').value)||0);
-  const allIn =Number(document.getElementById('fAllIn').value)||0;
-  const allOut=Number(document.getElementById('fAllOut').value)||0;
+  const allIn  = collectTransfers('in').reduce((s,t)=>s+t.qty,0);
+  const allOut = collectTransfers('out').reduce((s,t)=>s+t.qty,0);
   const ach=needed>0?calcAchieve(avail,allIn,needed,allOut):null;
   const pen=calcPenalty(ach);
   const cls=achClass(ach);
@@ -922,13 +978,66 @@ function liveRecalc() {
 
 function resetForm() {
   document.getElementById('fDate').value=todayStr();
-  ['fAvail','fOT','fAllIn','fAllOut','fVac','fNotes'].forEach(id=>document.getElementById(id).value='');
+  ['fAvail','fOT','fVac','fNotes'].forEach(id=>document.getElementById(id).value='');
+  // Reset transfer rows — keep only row 0, clear values
+  ['allInRows','allOutRows'].forEach(containerId=>{
+    const c=document.getElementById(containerId);
+    const first=c.querySelector('.transfer-item');
+    c.innerHTML=''; c.appendChild(first);
+    first.querySelector('select').value='';
+    first.querySelector('input').value='';
+  });
   selectedDept=null;
   document.querySelectorAll('.dept-btn').forEach(b=>b.classList.remove('active'));
   document.getElementById('formDeptLabel').textContent='Select a department first';
   document.getElementById('modelTableWrap').innerHTML='<div style="padding:24px;text-align:center;color:var(--text2);font-size:16px">← Complete Step 1 first</div>';
   ['mNeeded','mAvail','mAch','mPen'].forEach(id=>document.getElementById(id).textContent='—');
   document.getElementById('achBar').style.width='0%';
+}
+
+
+// ── TRANSFER HELPERS
+function getDeptOptions(excludeCode) {
+  return DEPTS.filter(d=>d.code!==excludeCode)
+    .map(d=>`<option value="${d.code}">${d.name}</option>`).join('');
+}
+
+function populateTransferSelects() {
+  document.querySelectorAll('.transfer-dept').forEach(sel=>{
+    const current=sel.value;
+    sel.innerHTML=`<option value="">— ${sel.id&&sel.id.includes('In')?'From':'To'} Department —</option>`
+      + getDeptOptions(selectedDept||'');
+    if(current) sel.value=current;
+  });
+}
+
+function addTransferRow(dir) {
+  const containerId = dir==='in'?'allInRows':'allOutRows';
+  const container   = document.getElementById(containerId);
+  const idx         = container.querySelectorAll('.transfer-item').length;
+  const labelWord   = dir==='in'?'From':'To';
+  const div=document.createElement('div');
+  div.className='transfer-item';
+  div.innerHTML=`
+    <select class="transfer-dept" id="fAll${dir==='in'?'In':'Out'}Dept${idx}">
+      <option value="">— ${labelWord} Department —</option>
+      ${getDeptOptions(selectedDept||'')}
+    </select>
+    <input class="transfer-qty" type="number" min="0" step="0.5" placeholder="0"
+      id="fAll${dir==='in'?'In':'Out'}Qty${idx}" oninput="liveRecalc()">
+    <button class="transfer-remove-btn" onclick="this.closest('.transfer-item').remove();liveRecalc()">✕</button>`;
+  container.appendChild(div);
+}
+
+function collectTransfers(dir) {
+  const container=document.getElementById(dir==='in'?'allInRows':'allOutRows');
+  const result=[];
+  container.querySelectorAll('.transfer-item').forEach(item=>{
+    const dept=item.querySelector('select').value;
+    const qty =Number(item.querySelector('input').value)||0;
+    if(qty>0) result.push({dept: dept||'Unknown', qty});
+  });
+  return result;
 }
 
 async function submitEntry() {
@@ -941,10 +1050,14 @@ async function submitEntry() {
   const rows=getModelRows();
   const needed=calcNeeded(rows);
   const ot    =Number(document.getElementById('fOT').value)||0;
-  const allIn =Number(document.getElementById('fAllIn').value)||0;
-  const allOut=Number(document.getElementById('fAllOut').value)||0;
   const vac   =Number(document.getElementById('fVac').value)||0;
   const notes =document.getElementById('fNotes').value.trim();
+
+  // Collect transfer rows
+  const allInTransfers  = collectTransfers('in');   // [{dept, qty}]
+  const allOutTransfers = collectTransfers('out');
+  const allIn  = allInTransfers.reduce((s,t)=>s+t.qty,0);
+  const allOut = allOutTransfers.reduce((s,t)=>s+t.qty,0);
 
   const availShifts=avail*1+ot;
   const ach  =needed>0?calcAchieve(availShifts,allIn,needed,allOut):null;
@@ -955,7 +1068,7 @@ async function submitEntry() {
     entry_date:       date,
     department_code:  selectedDept,
     available_workers:avail,
-    actual_working_days:1,        // always 1 — one day per entry
+    actual_working_days:1,
     over_time_shifts: ot,
     all_in_shifts:    allIn,
     all_out_shifts:   allOut,
@@ -967,6 +1080,7 @@ async function submitEntry() {
     submitted_by:     'PM',
     notes,
     model_rows_json:  JSON.stringify(rows.filter(r=>r.delivery_qty>0||r.stock_begin>0||r.stock_end>0)),
+    transfers_json:   JSON.stringify({in: allInTransfers, out: allOutTransfers}),
   };
 
   if(!isOnline) {
@@ -993,6 +1107,20 @@ async function doInsert(payload) {
 // ══════════════════════════════════════════════
 //  HISTORY — daily log
 // ══════════════════════════════════════════════
+
+function formatTransfers(json, dir) {
+  try {
+    const data = JSON.parse(json||'{}');
+    const transfers = data[dir]||[];
+    if(!transfers.length) return '';
+    const names = transfers.map(t=>{
+      const d=DEPTS.find(x=>x.code===t.dept);
+      return `${d?d.short:t.dept}(${t.qty})`;
+    });
+    return ` <span style="font-size:11px;color:var(--blue);font-family:var(--font-mono)">[${names.join(', ')}]</span>`;
+  } catch(e){ return ''; }
+}
+
 async function loadHistory() {
   const list=document.getElementById('histList');
   list.innerHTML='<div class="spinner"></div>';
@@ -1031,7 +1159,8 @@ async function loadHistory() {
           <div class="hist-stat">Avail: <strong>${fmtN(Number(r.available_workers)*1+(r.over_time_shifts||0))}</strong></div>
           <div class="hist-stat">Needed: <strong>${fmtN(r.needed_workers)}</strong></div>
           <div class="hist-stat">OT: <strong>${r.over_time_shifts||0}</strong></div>
-          <div class="hist-stat">AllIn: <strong>${r.all_in_shifts||0}</strong></div>
+          <div class="hist-stat">AllIn: <strong>${r.all_in_shifts||0}</strong>${formatTransfers(r.transfers_json,'in')}</div>
+          <div class="hist-stat">AllOut: <strong>${r.all_out_shifts||0}</strong>${formatTransfers(r.transfers_json,'out')}</div>
         </div>
         ${modelRows.length?`
         <div class="hist-models">
