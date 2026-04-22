@@ -191,10 +191,10 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(
 
 <!-- TAB BAR -->
 <div class="tabs">
-  <div class="tab active" onclick="showPage('dashboard')" id="tab-dashboard">ًں“ٹ Dashboard</div>
-  <div class="tab" onclick="showPage('entry')" id="tab-entry">âœڈï¸ڈ Entry</div>
-  <div class="tab" onclick="showPage('log')" id="tab-log">ًں“‹ Log</div>
-  <div class="tab" onclick="showPage('score')" id="tab-score">ًںڈ† Score</div>
+  <div class="tab active" onclick="showPage('dashboard')" id="tab-dashboard">📊 Dashboard</div>
+  <div class="tab" onclick="showPage('entry')" id="tab-entry">✏️ Entry</div>
+  <div class="tab" onclick="showPage('log')" id="tab-log">📋 Log</div>
+  <div class="tab" onclick="showPage('score')" id="tab-score">🏆 Score</div>
 </div>
 
 <!-- â•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گ
@@ -202,7 +202,7 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(
 â•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گ -->
 <div class="page active" id="page-dashboard">
   <div class="card">
-    <div class="card-head">ًں“ٹ MTD Achievement â€” <span id="db-month-label">â€”</span></div>
+    <div class="card-head">📊 MTD Achievement — <span id="db-month-label">—</span></div>
     <div class="card-body">
       <div class="dept-cards" id="dept-cards-grid">
         <div style="text-align:center;color:var(--muted);font-size:12px;grid-column:1/-1;padding:20px;">Loading...</div>
@@ -210,7 +210,7 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(
     </div>
   </div>
   <div class="card">
-    <div class="card-head">ًں“ˆ MTD Summary</div>
+    <div class="card-head">📈 MTD Summary</div>
     <div class="card-body" style="padding:0;">
       <table class="summary-tbl" id="summary-tbl">
         <thead><tr><th>Dept</th><th>Avail.</th><th>Needed</th><th>Achieve.</th><th>Penalty</th></tr></thead>
@@ -233,7 +233,7 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(
 
   <!-- STEP 1: Date + Department -->
   <div id="step1">
-    <div class="step-label">STEP 1 OF 4 â€” DATE & DEPARTMENT</div>
+    <div class="step-label">STEP 1 OF 4 — DATE & DEPARTMENT</div>
     <div class="card">
       <div class="card-body">
         <div class="field">
@@ -261,19 +261,19 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(
 
   <!-- STEP 2: Production Quantities -->
   <div id="step2" style="display:none;">
-    <div class="step-label">STEP 2 OF 4 â€” PRODUCTION QUANTITIES</div>
+    <div class="step-label">STEP 2 OF 4 — PRODUCTION QUANTITIES</div>
     <div class="card" id="step2-card">
       <div class="card-body" id="step2-body">
         <!-- Populated dynamically: GM gets model table, others get single field -->
       </div>
     </div>
-    <button class="btn-outline" onclick="goStep(1)">â†گ BACK</button>
-    <button class="btn-primary" onclick="goStep(3)">NEXT â†’</button>
+    <button class="btn-outline" onclick="goStep(1)">← BACK</button>
+    <button class="btn-primary" onclick="goStep(3)">NEXT →</button>
   </div>
 
   <!-- STEP 3: Workers & Attendance -->
   <div id="step3" style="display:none;">
-    <div class="step-label">STEP 3 OF 4 â€” WORKERS & ATTENDANCE</div>
+    <div class="step-label">STEP 3 OF 4 — WORKERS & ATTENDANCE</div>
     <div class="card">
       <div class="card-body">
         <div class="worker-grid">
@@ -304,24 +304,24 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(
         </div>
       </div>
     </div>
-    <button class="btn-outline" onclick="goStep(2)">â†گ BACK</button>
-    <button class="btn-primary" onclick="goStep(4)">NEXT â†’</button>
+    <button class="btn-outline" onclick="goStep(2)">← BACK</button>
+    <button class="btn-primary" onclick="goStep(4)">NEXT →</button>
   </div>
 
   <!-- STEP 4: Transfers -->
   <div id="step4" style="display:none;">
-    <div class="step-label">STEP 4 OF 4 â€” WORKER TRANSFERS</div>
+    <div class="step-label">STEP 4 OF 4 — WORKER TRANSFERS</div>
 
     <!-- â”€â”€ SUGGESTIONS BANNER â”€â”€ -->
     <div class="suggest-card" id="suggest-card">
-      <div class="suggest-title">âڑ  Suggested IN â€” from other dept entries today</div>
+      <div class="suggest-title">⚠️ Suggested IN — from other dept entries today</div>
       <div id="suggest-list"></div>
       <div class="suggest-note">These depts recorded a transfer OUT to your department today. Accept to confirm, or dismiss to ignore.</div>
     </div>
 
     <!-- â”€â”€ ALL-IN â”€â”€ -->
     <div class="card" style="margin-bottom:10px;">
-      <div class="card-head">â‍• All-IN (workers received)</div>
+      <div class="card-head">➕ All-IN (workers received)</div>
       <div class="card-body">
 
         <div class="transfer-section-divider">From department</div>
@@ -331,7 +331,7 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(
             <option value="">From dept...</option>
           </select>
           <input type="number" id="in-qty" min="0" step="0.5" placeholder="shifts"/>
-          <button style="background:#dbeafe;color:#1d4ed8;border-radius:8px;border:none;padding:8px 12px;cursor:pointer;font-weight:700;" onclick="addTransfer('in')">ï¼‹</button>
+          <button style="background:#dbeafe;color:#1d4ed8;border-radius:8px;border:none;padding:8px 12px;cursor:pointer;font-weight:700;" onclick="addTransfer('in')">＋</button>
         </div>
 
         <div class="transfer-section-divider">Other source</div>
@@ -339,7 +339,7 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(
         <div class="other-transfer-row">
           <input type="text" id="other-in-source" placeholder="e.g. New hire, 3rd party, Agency..."/>
           <input type="number" id="other-in-qty" min="0" step="0.5" placeholder="shifts"/>
-          <button style="background:#dcfce7;color:#15803d;" onclick="addOtherTransfer('in')">ï¼‹</button>
+          <button style="background:#dcfce7;color:#15803d;" onclick="addOtherTransfer('in')">＋</button>
         </div>
 
       </div>
@@ -347,7 +347,7 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(
 
     <!-- â”€â”€ ALL-OUT â”€â”€ -->
     <div class="card">
-      <div class="card-head">â‍– All-OUT (workers lost)</div>
+      <div class="card-head">➖ All-OUT (workers lost)</div>
       <div class="card-body">
 
         <div class="transfer-section-divider">To department</div>
@@ -357,7 +357,7 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(
             <option value="">To dept...</option>
           </select>
           <input type="number" id="out-qty" min="0" step="0.5" placeholder="shifts"/>
-          <button style="background:#fee2e2;color:#991b1b;border-radius:8px;border:none;padding:8px 12px;cursor:pointer;font-weight:700;" onclick="addTransfer('out')">ï¼‹</button>
+          <button style="background:#fee2e2;color:#991b1b;border-radius:8px;border:none;padding:8px 12px;cursor:pointer;font-weight:700;" onclick="addTransfer('out')">＋</button>
         </div>
 
         <div class="transfer-section-divider">Other reason</div>
@@ -365,14 +365,14 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(
         <div class="other-transfer-row">
           <input type="text" id="other-out-reason" placeholder="e.g. Unplanned stoppage, Maintenance..."/>
           <input type="number" id="other-out-qty" min="0" step="0.5" placeholder="shifts"/>
-          <button style="background:#fef3c7;color:#92400e;" onclick="addOtherTransfer('out')">ï¼‹</button>
+          <button style="background:#fef3c7;color:#92400e;" onclick="addOtherTransfer('out')">＋</button>
         </div>
 
       </div>
     </div>
 
-    <button class="btn-outline" onclick="goStep(3)">â†گ BACK</button>
-    <button class="btn-primary" onclick="openConfirm()">REVIEW & SAVE âœ“</button>
+    <button class="btn-outline" onclick="goStep(3)">← BACK</button>
+    <button class="btn-primary" onclick="openConfirm()">REVIEW & SAVE ✓</button>
   </div>
 </div>
 
@@ -429,7 +429,7 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(
 <!-- CONFIRM MODAL -->
 <div class="modal-overlay" id="confirm-modal">
   <div class="modal">
-    <h3>âœ“ Confirm Entry</h3>
+    <h3>✓ Confirm Entry</h3>
     <div id="confirm-content"></div>
     <button class="btn-primary" onclick="saveEntry()">SAVE ENTRY</button>
     <button class="btn-outline" onclick="closeConfirm()">EDIT</button>
@@ -439,7 +439,7 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(
 <!-- DELETE CONFIRM MODAL -->
 <div class="modal-overlay" id="delete-modal">
   <div class="modal">
-    <h3>âڑ  Confirm Delete</h3>
+    <h3>⚠️ Confirm Delete</h3>
     <p style="font-size:13px;color:var(--muted);margin-bottom:14px;">This will permanently remove this daily entry. Enter password to confirm.</p>
     <div class="field" style="margin-bottom:12px;">
       <label>Password</label>
@@ -525,8 +525,8 @@ const DEPT_MODELS = {
     { id: 'PROTON_DP',   name: 'Proton DP',     kpw: 13.7  }
   ],
   GHABBOUR: [
-    { id: 'T7BL',      name: 'T7BL (ظ‚ظ…ط§ط´)',   kpw: 3.09194  },
-    { id: 'T7HL',      name: 'T7HL (ط¬ظ„ط¯)',    kpw: 3.239305 }
+    { id: 'T7BL',      name: 'T7BL (قماش)',   kpw: 3.09194  },
+    { id: 'T7HL',      name: 'T7HL (جلد)',    kpw: 3.239305 }
   ],
   KASRAWY: [
     { id: 'GOLDEN_DR', name: 'Golden Dragon',  kpw: 1.06  },
