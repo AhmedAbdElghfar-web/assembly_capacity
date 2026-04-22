@@ -477,24 +477,76 @@ async function sbFetch(path, opts={}) {
 /* ══════════════════════════════════════════════════
    KPW DATA — GM models with individual KPW
 ══════════════════════════════════════════════════ */
-const GM_MODELS = [
-  { id: 'RT50',    name: 'RT50',     kpw: 9.2  },
-  { id: 'VL01',    name: 'VL01',     kpw: 12.12 },
-  { id: 'VL20',    name: 'VL20',     kpw: 13.32 },
-  { id: '310vl1',  name: '310 Lv1',  kpw: 4.47 },
-  { id: '310vl2',  name: '310 Lv2',  kpw: 4.47 },
-  { id: 'BRACKET', name: 'BRACKET',  kpw: null  }  // KPW TBD
-];
-
-const DEPT_KPW = {
-  'NISSAN':   7.5,    // composite; actual calc uses per-model in future
-  'EXCEED':   1.36,
-  'BMW':      2.5,
-  'GEELY':    5.2,
-  'ESAF':     6.8,
-  'GHABBOUR': 4.1,
-  'KASRAWY':  3.9
+// ── ALL DEPT MODELS WITH KPW — from F05/M.A-Q-P-05 ──
+const DEPT_MODELS = {
+  GM: [
+    { id: 'RT50_F',    name: 'RT50 Fabric',   kpw: 9.2   },
+    { id: 'RT50_L',    name: 'RT50 Leather',  kpw: 9.2   },
+    { id: 'VL01',      name: 'VL01',          kpw: 12.12 },
+    { id: 'VL20',      name: 'VL20',          kpw: 13.32 },
+    { id: '310vl1',    name: '310 Lv1',       kpw: 4.47  },
+    { id: '310vl2',    name: '310 Lv2',       kpw: 4.47  },
+    { id: 'BRACKET',   name: 'BRACKET',       kpw: null  }
+  ],
+  NISSAN: [
+    { id: 'MC15_BLK',  name: 'MC15 Black',    kpw: 7.5   },
+    { id: 'MC15_BEI',  name: 'MC15 Beige',    kpw: 30.94 },
+    { id: 'L12F',      name: 'L12F',          kpw: 3.5   }
+  ],
+  EXCEED: [
+    { id: 'GLE',       name: 'GLE',           kpw: 1.36  },
+    { id: 'GLS',       name: 'GLS',           kpw: 0.47  },
+    { id: 'RX',        name: 'RX',            kpw: 1.7   },
+    { id: 'VX',        name: 'VX',            kpw: 0.74  },
+    { id: 'AMG',       name: 'AMG',           kpw: 1.36  },
+    { id: 'VAN',       name: 'Van (Suzuki)',   kpw: 12.91 }
+  ],
+  BMW: [
+    { id: 'G45_15',    name: 'G45-15',        kpw: 1.4   },
+    { id: 'G45_85',    name: 'G45-85',        kpw: 1.4   },
+    { id: 'G06',       name: 'G06',           kpw: 1.31  },
+    { id: 'G05_EU25',  name: 'G05 EU25',      kpw: 1.31  },
+    { id: 'G05_EU35',  name: 'G05 EU35',      kpw: 1.31  },
+    { id: 'G07',       name: 'G07',           kpw: 0.81  },
+    { id: 'SS_GS',     name: 'SS GS (Geely)', kpw: 3.876 },
+    { id: 'SS_GF',     name: 'SS GF (Geely)', kpw: 2.69  },
+    { id: 'SS_GF_BLK', name: 'SS GF Black',   kpw: 2.69  },
+    { id: 'SX_GF',     name: 'SX GF (Geely)', kpw: 2.65  },
+    { id: 'SX_GK',     name: 'SX GK (Geely)', kpw: 2.65  },
+    { id: 'SX_GL',     name: 'SX GL (Geely)', kpw: 2.65  }
+  ],
+  GEELY: [
+    { id: 'SS_GS',     name: 'SS GS',         kpw: 3.876 },
+    { id: 'SS_GF',     name: 'SS GF',         kpw: 2.69  },
+    { id: 'SS_GF_BLK', name: 'SS GF Black',   kpw: 2.69  },
+    { id: 'SX_GF',     name: 'SX GF',         kpw: 2.65  },
+    { id: 'SX_GK',     name: 'SX GK',         kpw: 2.65  },
+    { id: 'SX_GL',     name: 'SX GL',         kpw: 2.65  }
+  ],
+  ESAF: [
+    { id: 'PROTON',    name: 'Proton',         kpw: 4.99  }
+  ],
+  GHABBOUR: [
+    { id: 'T7BL',      name: 'T7BL (قماش)',   kpw: 3.09194  },
+    { id: 'T7HL',      name: 'T7HL (جلد)',    kpw: 3.239305 }
+  ],
+  KASRAWY: [
+    { id: 'GOLDEN_DR', name: 'Golden Dragon',  kpw: 1.06  },
+    { id: 'JETOUR',    name: 'Jetour',         kpw: 1.88  },
+    { id: 'JACK',      name: 'Jack',           kpw: 3.06  },
+    { id: 'ZEMEX',     name: 'Zemex',          kpw: 1.03  }
+  ],
+  AAV: [
+    { id: 'W4',        name: 'W4 (AAV)',           kpw: 0.92  },
+    { id: 'FOR_SEAT',  name: 'Fortuner Seat (Lth)',kpw: 1.89  },
+    { id: 'FOR_DOOR',  name: 'Fortuner Door (Lth)',kpw: 5.05  },
+    { id: 'C43_L2',    name: 'Citroen C43 L2',     kpw: 4.44  },
+    { id: 'C43_L3',    name: 'Citroen C43 L3',     kpw: 4.44  }
+  ]
 };
+
+// Backward-compat alias
+const GM_MODELS = DEPT_MODELS.GM;
 
 const DEPTS = ['GM','NISSAN','EXCEED','BMW','GEELY','ESAF','GHABBOUR','KASRAWY'];
 const DEPT_LABELS = {
@@ -617,9 +669,9 @@ function validateStep(s) {
   }
   if (s === 2) {
     const dept = document.getElementById('f-dept').value;
-    if (dept === 'GM') {
-      const total = getGMTotalQty();
-      if (total < 0) { toast('Invalid GM quantities'); return false; }
+    const deptModels = DEPT_MODELS[dept];
+    if (deptModels && deptModels.length > 0) {
+      if (getModelTotalQty() < 0) { toast('Invalid quantities'); return false; }
     }
   }
   return true;
@@ -631,8 +683,9 @@ function validateStep(s) {
 function onDeptChange() {
   const dept = document.getElementById('f-dept').value;
   const body = document.getElementById('step2-body');
-  if (dept === 'GM') {
-    body.innerHTML = renderGMModelTable();
+  const models = DEPT_MODELS[dept];
+  if (models && models.length > 0) {
+    body.innerHTML = renderModelTable(dept, models);
   } else {
     body.innerHTML = `
       <div class="field">
@@ -643,23 +696,23 @@ function onDeptChange() {
 }
 
 /* ══════════════════════════════════════════════════
-   GM MODEL TABLE
+   UNIVERSAL MODEL TABLE — all departments
 ══════════════════════════════════════════════════ */
-function renderGMModelTable() {
-  const rows = GM_MODELS.map(m => `
+function renderModelTable(dept, models) {
+  const rows = models.map(m => `
     <tr>
       <td>
         <div class="model-name">${m.name}</div>
         <div class="model-kpw">KPW: ${m.kpw != null ? m.kpw : '—'}</div>
       </td>
       <td style="text-align:right;">
-        <input type="number" class="gm-qty-input" id="gm-qty-${m.id}"
-          min="0" placeholder="0" oninput="updateGMTotals()"/>
+        <input type="number" class="gm-qty-input" id="mdl-qty-${m.id}"
+          min="0" placeholder="0" oninput="updateModelTotals()"/>
       </td>
     </tr>`).join('');
   return `
     <div style="font-size:11px;color:var(--muted);margin-bottom:8px;font-weight:600;">
-      Enter production quantity per GM model
+      Enter production quantity per model
     </div>
     <table class="gm-model-table">
       <thead><tr><th>Model</th><th style="text-align:right;">Qty (units)</th></tr></thead>
@@ -667,51 +720,62 @@ function renderGMModelTable() {
       <tfoot>
         <tr class="gm-total-row">
           <td>TOTAL</td>
-          <td style="text-align:right;" id="gm-total-qty">0</td>
+          <td style="text-align:right;" id="mdl-total-qty">0</td>
         </tr>
       </tfoot>
     </table>
-    <div class="gm-needed-label" id="gm-needed-label">Needed workers: —</div>`;
+    <div class="gm-needed-label" id="mdl-needed-label">Needed workers: —</div>`;
 }
 
-function getGMModelQtys() {
+function getCurrentModels() {
+  const dept = document.getElementById('f-dept').value;
+  return DEPT_MODELS[dept] || [];
+}
+
+function getModelQtys() {
   const result = {};
-  GM_MODELS.forEach(m => {
-    const el = document.getElementById('gm-qty-' + m.id);
+  getCurrentModels().forEach(m => {
+    const el = document.getElementById('mdl-qty-' + m.id);
     result[m.id] = el ? (parseFloat(el.value) || 0) : 0;
   });
   return result;
 }
 
-function getGMTotalQty() {
-  return Object.values(getGMModelQtys()).reduce((s, v) => s + v, 0);
+function getModelTotalQty() {
+  return Object.values(getModelQtys()).reduce((s, v) => s + v, 0);
 }
 
-function updateGMTotals() {
-  const qtys = getGMModelQtys();
+function updateModelTotals() {
+  const models = getCurrentModels();
+  const qtys = getModelQtys();
   const total = Object.values(qtys).reduce((s, v) => s + v, 0);
-  document.getElementById('gm-total-qty').textContent = total;
-
-  // Compute needed workers from per-model KPW
+  const totalEl = document.getElementById('mdl-total-qty');
+  if (totalEl) totalEl.textContent = total;
   let needed = 0;
-  GM_MODELS.forEach(m => {
+  models.forEach(m => {
     if (m.kpw != null && qtys[m.id] > 0) needed += qtys[m.id] / m.kpw;
   });
-  const lbl = document.getElementById('gm-needed-label');
-  lbl.textContent = needed > 0 ? 'Needed workers: ' + needed.toFixed(2) : 'Needed workers: —';
+  const lbl = document.getElementById('mdl-needed-label');
+  if (lbl) lbl.textContent = needed > 0 ? 'Needed workers: ' + needed.toFixed(2) : 'Needed workers: —';
 }
 
 /* ══════════════════════════════════════════════════
-   COMPUTE GM NEEDED FROM STORED MODEL QTYS
+   COMPUTE NEEDED FROM STORED MODEL QTYS
 ══════════════════════════════════════════════════ */
-function computeGMNeeded(modelQtysObj) {
+function computeNeededFromModels(dept, modelQtysObj) {
+  const models = DEPT_MODELS[dept] || [];
   let needed = 0;
-  GM_MODELS.forEach(m => {
+  models.forEach(m => {
     const qty = modelQtysObj[m.id] || 0;
     if (m.kpw != null && qty > 0) needed += qty / m.kpw;
   });
   return needed;
 }
+
+// Backward compat
+function computeGMNeeded(modelQtysObj) { return computeNeededFromModels('GM', modelQtysObj); }
+function getGMModelQtys() { return getModelQtys(); }
+function getGMTotalQty()  { return getModelTotalQty(); }
 
 /* ══════════════════════════════════════════════════
    TRANSFERS — dept-to-dept
@@ -869,20 +933,21 @@ function openConfirm() {
   const stkB  = parseFloat(document.getElementById('f-stk-begin').value) || 0;
   const stkE  = parseFloat(document.getElementById('f-stk-end').value) || 0;
 
-  let delQty = 0, neededWkrs = 0, gmBreakdownHtml = '';
+  let delQty = 0, neededWkrs = 0, modelBreakdownHtml = '';
+  const deptModels = DEPT_MODELS[dept];
 
-  if (dept === 'GM') {
-    const gmQtys = getGMModelQtys();
-    delQty = Object.values(gmQtys).reduce((s,v) => s+v, 0);
-    neededWkrs = computeGMNeeded(gmQtys);
-    const bmRows = GM_MODELS.map(m => {
-      const q = gmQtys[m.id] || 0;
+  if (deptModels && deptModels.length > 0) {
+    const mQtys = getModelQtys();
+    delQty = Object.values(mQtys).reduce((s,v) => s+v, 0);
+    neededWkrs = computeNeededFromModels(dept, mQtys);
+    const bmRows = deptModels.map(m => {
+      const q = mQtys[m.id] || 0;
       return q > 0 ? `<tr><td class="cgm-model">${m.name}</td><td class="cgm-qty">${q}</td></tr>` : '';
     }).join('');
-    gmBreakdownHtml = `<table class="confirm-gm-table"><tbody>${bmRows}</tbody></table>`;
+    if (bmRows) modelBreakdownHtml = `<table class="confirm-gm-table"><tbody>${bmRows}</tbody></table>`;
   } else {
     delQty = parseFloat(document.getElementById('f-del-qty').value) || 0;
-    neededWkrs = DEPT_KPW[dept] ? delQty / DEPT_KPW[dept] : 0;
+    neededWkrs = delQty > 0 ? delQty : 0;
   }
 
   const prodQty = delQty + stkE - stkB;
@@ -908,8 +973,8 @@ function openConfirm() {
   document.getElementById('confirm-content').innerHTML = `
     <div class="confirm-row"><span class="confirm-label">Date</span><span class="confirm-value">${date}</span></div>
     <div class="confirm-row"><span class="confirm-label">Department</span><span class="confirm-value">${DEPT_LABELS[dept]}</span></div>
-    <div class="confirm-row"><span class="confirm-label">Delivery Qty</span><span class="confirm-value">${delQty}${dept==='GM' ? ' (multi-model)' : ''}</span></div>
-    ${dept === 'GM' ? '<div class="confirm-row"><span class="confirm-label">By Model</span><span class="confirm-value" style="text-align:right;">' + gmBreakdownHtml + '</span></div>' : ''}
+    <div class="confirm-row"><span class="confirm-label">Delivery Qty</span><span class="confirm-value">${delQty}${deptModels ? ' (per model)' : ''}</span></div>
+    ${modelBreakdownHtml ? '<div class="confirm-row"><span class="confirm-label">By Model</span><span class="confirm-value" style="text-align:right;">' + modelBreakdownHtml + '</span></div>' : ''}
     <div class="confirm-row"><span class="confirm-label">Production Qty</span><span class="confirm-value">${prodQty}</span></div>
     <div class="confirm-row"><span class="confirm-label">Available Workers</span><span class="confirm-value">${avail} (+${ot} OT)</span></div>
     <div class="confirm-row"><span class="confirm-label">Needed Workers</span><span class="confirm-value">${neededWkrs.toFixed(2)}</span></div>
@@ -937,15 +1002,16 @@ async function saveEntry() {
   const stkE  = parseFloat(document.getElementById('f-stk-end').value) || 0;
 
   let delQty = 0, neededWkrs = 0, gm_model_qtys = null;
+  const deptModels = DEPT_MODELS[dept];
 
-  if (dept === 'GM') {
-    const gmQtys = getGMModelQtys();
-    gm_model_qtys = gmQtys;
-    delQty = Object.values(gmQtys).reduce((s,v) => s+v, 0);
-    neededWkrs = computeGMNeeded(gmQtys);
+  if (deptModels && deptModels.length > 0) {
+    const mQtys = getModelQtys();
+    gm_model_qtys = mQtys;   // reuse same column for all depts
+    delQty = Object.values(mQtys).reduce((s,v) => s+v, 0);
+    neededWkrs = computeNeededFromModels(dept, mQtys);
   } else {
     delQty = parseFloat(document.getElementById('f-del-qty').value) || 0;
-    neededWkrs = DEPT_KPW[dept] ? delQty / DEPT_KPW[dept] : 0;
+    neededWkrs = 0;
   }
 
   const prodQty = delQty + stkE - stkB;
@@ -1068,12 +1134,13 @@ function renderLog() {
       : '—';
     const achColor = parseFloat(ach) >= 99 ? 'var(--ok)' : 'var(--danger)';
 
-    // GM breakdown
+    // Model breakdown for all depts
     let gmHtml = '';
-    if (e.dept_code === 'GM' && e.gm_model_qtys) {
+    if (e.gm_model_qtys) {
       let mqs;
       try { mqs = typeof e.gm_model_qtys === 'string' ? JSON.parse(e.gm_model_qtys) : e.gm_model_qtys; } catch(ex) { mqs = {}; }
-      const lines = GM_MODELS.filter(m => mqs[m.id] > 0).map(m => `${m.name}:${mqs[m.id]}`).join(' | ');
+      const models = DEPT_MODELS[e.dept_code] || [];
+      const lines = models.filter(m => mqs[m.id] > 0).map(m => `${m.name}:${mqs[m.id]}`).join(' | ');
       if (lines) gmHtml = `<div class="gm-breakdown">${lines}</div>`;
     }
 
@@ -1128,11 +1195,11 @@ function aggregateByDept(entries) {
     aggr[d].all_in    += e.all_in  || 0;
     aggr[d].all_out   += e.all_out || 0;
 
-    // GM: recompute needed from model qtys if available
-    if (d === 'GM' && e.gm_model_qtys) {
+    // Recompute needed from stored model qtys if available
+    if (e.gm_model_qtys) {
       let mqs;
       try { mqs = typeof e.gm_model_qtys === 'string' ? JSON.parse(e.gm_model_qtys) : e.gm_model_qtys; } catch(ex) { mqs = {}; }
-      aggr[d].needed += computeGMNeeded(mqs);
+      aggr[d].needed += computeNeededFromModels(d, mqs);
     } else {
       aggr[d].needed += e.needed_workers || 0;
     }
