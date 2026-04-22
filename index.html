@@ -1,1285 +1,967 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
-<meta name="theme-color" content="#dbeeff">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="default">
-<meta name="apple-mobile-web-app-title" content="MOBICA Capacity">
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1"/>
+<meta name="theme-color" content="#1a4a7a"/>
 <title>MOBICA Assembly Capacity</title>
-<link rel="manifest" id="manifest-placeholder">
+<link rel="manifest" href="manifest.json"/>
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap');
+:root{
+  --bg:#e8f4fc;
+  --card:#ffffff;
+  --primary:#1a4a7a;
+  --primary-light:#2a6aaa;
+  --accent:#0d8de6;
+  --accent2:#f59e0b;
+  --danger:#dc2626;
+  --ok:#16a34a;
+  --warn:#d97706;
+  --text:#1e293b;
+  --muted:#64748b;
+  --border:#cbd5e1;
+  --step-done:#c7e8fc;
+  --step-active:#1a4a7a;
+  --shadow:0 2px 12px rgba(26,74,122,0.12);
+  --radius:12px;
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--text);min-height:100vh;}
 
-:root {
-  /* ── LIGHT BLUE THEME ── */
-  --bg:        #dbeeff;
-  --bg2:       #ffffff;
-  --bg3:       #eaf4ff;
-  --bg4:       #c8e4fb;
-  --border:    #a8cce8;
-  --borderDk:  #7ab0d4;
-  --text:      #0d2137;
-  --text2:     #3a6080;
-  --blue:      #0969da;
-  --blueDk:    #054f9e;
-  --blueBg:    #e8f4ff;
-  --green:     #1a7f37;
-  --greenBg:   #dcf5e7;
-  --red:       #cf222e;
-  --redBg:     #fce8e8;
-  --warn:      #7d5a00;
-  --warnBg:    #fff3cd;
-  --amber:     #c8880a;
-  --amberBg:   #fff8e6;
-  --shadow:    0 2px 8px rgba(9,105,218,.10), 0 1px 3px rgba(9,105,218,.06);
-  --shadowMd:  0 4px 16px rgba(9,105,218,.14);
-  --radius:    10px;
-  --font-mono: 'JetBrains Mono','Courier New',monospace;
-  --font-ui:   'Barlow Condensed','Arial Narrow',Arial,sans-serif;
-  /* Step accent colors */
-  --step1: #0969da;
-  --step2: #1a7f37;
-  --step3: #c8880a;
-  --step4: #8250df;
-}
+/* ── HEADER ── */
+.header{background:var(--primary);color:#fff;padding:10px 16px;display:flex;align-items:center;gap:10px;position:sticky;top:0;z-index:100;box-shadow:0 2px 8px rgba(0,0,0,0.25);}
+.header img{height:36px;border-radius:4px;}
+.header-title{flex:1;}
+.header-title h1{font-size:14px;font-weight:700;letter-spacing:.5px;}
+.header-title p{font-size:10px;opacity:.75;margin-top:1px;}
+.hbtn{background:rgba(255,255,255,0.15);border:none;color:#fff;border-radius:6px;padding:6px 10px;font-size:11px;cursor:pointer;font-weight:600;}
 
-*,*::before,*::after { box-sizing:border-box; margin:0; padding:0; }
-html,body { height:100%; background:var(--bg); color:var(--text); font-family:var(--font-ui); overflow:hidden; }
+/* ── TAB BAR ── */
+.tabs{display:flex;background:var(--primary);padding:0 8px 8px;}
+.tab{flex:1;text-align:center;padding:8px 4px;color:rgba(255,255,255,0.6);font-size:11px;font-weight:600;cursor:pointer;border-radius:8px;transition:.2s;}
+.tab.active{background:rgba(255,255,255,0.2);color:#fff;}
 
-/* ══ LAYOUT ══ */
-#app { display:flex; flex-direction:column; height:100dvh; }
+/* ── CONTENT AREA ── */
+.page{display:none;padding:12px;}
+.page.active{display:block;}
 
-#header {
-  background:#fff;
-  border-bottom:2px solid var(--border);
-  padding:10px 16px;
-  display:flex; align-items:center; justify-content:space-between;
-  flex-shrink:0;
-  box-shadow:0 2px 10px rgba(9,105,218,.12);
-}
-.logo { display:flex; align-items:center; gap:0; }
-.logo img { height:42px; width:auto; object-fit:contain; display:block; }
-.logo-divider { width:1px; height:30px; background:var(--border); margin:0 12px; }
-.logo-sub-block { display:flex; flex-direction:column; justify-content:center; }
-.logo-sub-title { font-size:16px; font-weight:700; letter-spacing:1px; color:var(--text); line-height:1; }
-.logo-sub-label { font-size:10px; color:var(--text2); letter-spacing:.5px; margin-top:3px; text-transform:uppercase; }
+/* ── CARDS ── */
+.card{background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);margin-bottom:12px;overflow:hidden;}
+.card-head{padding:10px 14px;font-size:12px;font-weight:700;color:var(--primary);border-bottom:1px solid var(--border);display:flex;align-items:center;gap:6px;}
+.card-body{padding:12px 14px;}
 
-.sync-badge {
-  font-family:var(--font-mono); font-size:13px; padding:5px 12px;
-  border-radius:20px; border:1px solid var(--border); color:var(--text2);
-  background:var(--bg3); display:flex; align-items:center; gap:6px; cursor:pointer;
-}
-.sync-dot { width:8px; height:8px; border-radius:50%; background:var(--green); animation:pulse 2s infinite; }
-.sync-dot.offline { background:var(--red); animation:none; }
-@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.35} }
+/* ── STEP FORM ── */
+.step-bar{display:flex;gap:6px;padding:12px 14px;background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);margin-bottom:12px;}
+.step-dot{flex:1;height:6px;border-radius:3px;background:var(--border);transition:.3s;}
+.step-dot.done{background:var(--accent);}
+.step-dot.active{background:var(--primary);}
 
-#content { flex:1; overflow-y:auto; overflow-x:hidden; -webkit-overflow-scrolling:touch; }
+.step-label{text-align:center;font-size:11px;color:var(--muted);margin-bottom:12px;font-weight:600;letter-spacing:.3px;}
 
-/* ══ NAV ══ */
-#nav {
-  background:#fff;
-  border-top:2px solid var(--border);
-  display:grid; grid-template-columns:repeat(4,1fr);
-  flex-shrink:0;
-  box-shadow:0 -2px 8px rgba(9,105,218,.08);
-}
-.nav-btn {
-  background:none; border:none; color:var(--text2); padding:11px 4px 13px;
-  font-family:var(--font-ui); font-size:14px; font-weight:600; letter-spacing:.5px;
-  display:flex; flex-direction:column; align-items:center; gap:5px; cursor:pointer;
-  transition:color .2s; text-transform:uppercase;
-}
-.nav-btn svg { width:26px; height:26px; stroke:currentColor; fill:none; stroke-width:2; }
-.nav-btn.active { color:var(--blue); }
-.nav-btn.active svg { stroke:var(--blue); }
+.field{margin-bottom:14px;}
+.field label{display:block;font-size:11px;font-weight:700;color:var(--primary);margin-bottom:6px;letter-spacing:.3px;text-transform:uppercase;}
+.field input,.field select,.field textarea{width:100%;padding:10px 12px;border:1.5px solid var(--border);border-radius:8px;font-size:14px;font-family:inherit;color:var(--text);background:#fff;outline:none;transition:.2s;}
+.field input:focus,.field select:focus{border-color:var(--accent);}
+.field select{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='%2364748b' viewBox='0 0 16 16'%3E%3Cpath d='M7.247 11.14L2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 12px center;}
 
-.view { display:none; padding:14px; animation:fadeIn .2s; }
-.view.active { display:block; }
-@keyframes fadeIn { from{opacity:0;transform:translateY(4px)} to{opacity:1;transform:translateY(0)} }
+/* ── GM MODEL TABLE ── */
+.gm-model-table{width:100%;border-collapse:collapse;margin-top:4px;}
+.gm-model-table th{font-size:10px;font-weight:700;color:var(--primary);text-transform:uppercase;letter-spacing:.3px;padding:6px 8px;background:#e8f4fc;text-align:left;}
+.gm-model-table td{padding:5px 6px;border-bottom:1px solid #e2eaf2;vertical-align:middle;}
+.gm-model-table tr:last-child td{border-bottom:none;}
+.gm-model-table .model-name{font-size:12px;font-weight:600;color:var(--text);white-space:nowrap;}
+.gm-model-table .model-kpw{font-size:10px;color:var(--muted);}
+.gm-qty-input{width:80px;padding:6px 8px;border:1.5px solid var(--border);border-radius:6px;font-size:14px;font-family:inherit;color:var(--text);text-align:center;outline:none;transition:.2s;}
+.gm-qty-input:focus{border-color:var(--accent);}
+.gm-total-row td{font-weight:700;color:var(--primary);font-size:12px;padding-top:8px;border-top:2px solid var(--primary);}
+.gm-needed-label{font-size:10px;color:var(--muted);margin-top:6px;text-align:right;}
 
-/* ══ SECTION HEADER ══ */
-.sec-hdr { display:flex; align-items:center; justify-content:space-between; margin-bottom:14px; }
-.sec-title { font-size:26px; font-weight:700; letter-spacing:1px; color:var(--blue); text-transform:uppercase; }
-.sec-sub   { font-size:15px; color:var(--text2); margin-top:2px; }
-.date-badge {
-  background:var(--blueBg); border:1px solid var(--border);
-  border-radius:6px; padding:4px 12px; font-family:var(--font-mono);
-  font-size:14px; color:var(--blue); font-weight:600;
-}
+/* ── WORKER FIELDS GRID ── */
+.worker-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.worker-grid .field{margin-bottom:0;}
 
-/* ══ DASHBOARD SUMMARY BAR ══ */
-.summary-bar {
-  background:linear-gradient(135deg,#e8f4ff,#dbeeff);
-  border:1px solid var(--border); border-radius:var(--radius);
-  padding:14px; margin-bottom:14px;
-  display:grid; grid-template-columns:repeat(3,1fr); gap:10px;
-  box-shadow:var(--shadow);
-}
-.sum-item { text-align:center; }
-.sum-label { font-size:12px; color:var(--text2); text-transform:uppercase; letter-spacing:.5px; font-weight:600; }
-.sum-val   { font-family:var(--font-mono); font-size:26px; font-weight:700; color:var(--blue); margin-top:2px; }
+/* ── TRANSFER SECTION ── */
+.transfer-header{font-size:11px;font-weight:700;color:var(--primary);margin-bottom:8px;text-transform:uppercase;letter-spacing:.3px;}
+.transfer-row{display:flex;gap:8px;align-items:center;margin-bottom:8px;}
+.transfer-row select{flex:2;padding:8px 10px;border:1.5px solid var(--border);border-radius:8px;font-size:13px;}
+.transfer-row input{flex:1;padding:8px 10px;border:1.5px solid var(--border);border-radius:8px;font-size:13px;text-align:center;}
+.transfer-row button{padding:8px 10px;border:none;border-radius:8px;cursor:pointer;font-size:14px;font-weight:700;}
+.btn-add-transfer{background:#e8f4fc;color:var(--primary);border:1.5px dashed var(--accent);padding:8px;width:100%;border-radius:8px;font-size:12px;cursor:pointer;font-weight:600;margin-top:4px;}
+.transfer-tag{display:inline-flex;align-items:center;gap:6px;background:#dbeafe;color:#1d4ed8;border-radius:16px;padding:4px 10px;font-size:11px;font-weight:600;margin:3px;}
+.transfer-tag button{background:none;border:none;color:#1d4ed8;cursor:pointer;font-size:14px;line-height:1;padding:0;}
 
-/* ══ DEPT CARDS ══ */
-.dept-grid { display:flex; flex-direction:column; gap:10px; }
-.dept-card {
-  background:#fff; border:1px solid var(--border); border-radius:var(--radius);
-  padding:14px; cursor:pointer; transition:box-shadow .2s, border-color .2s;
-  border-left:4px solid var(--border); box-shadow:var(--shadow);
-}
-.dept-card:hover { box-shadow:var(--shadowMd); border-color:var(--blue); }
-.dept-card.ok   { border-left-color:var(--green); }
-.dept-card.warn { border-left-color:var(--amber); }
-.dept-card.crit { border-left-color:var(--red); }
-.dept-card.nodata { border-left-color:var(--border); }
-.dept-card-header { display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:10px; }
-.dept-name { font-size:20px; font-weight:700; color:var(--text); }
-.dept-code { font-size:13px; color:var(--text2); margin-top:2px; }
-.ach-badge {
-  font-family:var(--font-mono); font-size:21px; font-weight:700;
-  padding:3px 11px; border-radius:6px;
-}
-.ach-badge.ok   { color:var(--green); background:var(--greenBg); }
-.ach-badge.warn { color:var(--warn);  background:var(--warnBg); }
-.ach-badge.crit { color:var(--red);   background:var(--redBg); }
-.ach-badge.nd   { color:var(--text2); background:var(--bg3); font-size:15px; }
-.dept-stats { display:grid; grid-template-columns:repeat(3,1fr); gap:8px; }
-.stat-item { background:var(--bg3); border-radius:6px; padding:8px 10px; border:1px solid var(--bg4); }
-.stat-label { font-size:11px; color:var(--text2); text-transform:uppercase; letter-spacing:.4px; font-weight:600; }
-.stat-val   { font-family:var(--font-mono); font-size:18px; font-weight:700; color:var(--text); margin-top:2px; }
-.mtd-tag {
-  display:inline-block; margin-top:6px; font-size:11px; font-weight:600;
-  background:var(--blueBg); color:var(--blue); border:1px solid var(--border);
-  border-radius:3px; padding:1px 7px; letter-spacing:.3px;
-}
-.penalty-row { margin-top:8px; display:flex; align-items:center; gap:8px; flex-wrap:wrap; }
-.penalty-tag {
-  font-size:13px; font-family:var(--font-mono); font-weight:600;
-  background:var(--redBg); color:var(--red);
-  padding:3px 9px; border-radius:4px; border:1px solid #f8514944;
-}
-.vacation-tag {
-  font-size:13px; font-family:var(--font-mono); font-weight:600;
-  background:var(--warnBg); color:var(--warn);
-  padding:3px 9px; border-radius:4px; border:1px solid #d2992244;
-}
+/* ── BUTTONS ── */
+.btn-primary{width:100%;padding:13px;background:var(--primary);color:#fff;border:none;border-radius:10px;font-size:15px;font-weight:700;cursor:pointer;letter-spacing:.5px;margin-top:8px;transition:.2s;}
+.btn-primary:active{background:var(--primary-light);}
+.btn-primary:disabled{background:var(--border);color:var(--muted);cursor:default;}
+.btn-outline{width:100%;padding:11px;background:transparent;color:var(--primary);border:2px solid var(--primary);border-radius:10px;font-size:14px;font-weight:700;cursor:pointer;margin-top:8px;}
+.btn-danger{background:var(--danger);color:#fff;border:none;border-radius:6px;padding:4px 10px;font-size:11px;cursor:pointer;font-weight:600;}
 
-/* ══ LIVE METER ══ */
-.live-meter {
-  background:#fff; border:2px solid var(--blue); border-radius:var(--radius);
-  padding:14px; margin-bottom:14px;
-  display:grid; grid-template-columns:1fr 1fr 1fr 1fr; gap:10px; align-items:center;
-  box-shadow:var(--shadow);
-}
-.meter-item { text-align:center; }
-.meter-label { font-size:11px; color:var(--text2); text-transform:uppercase; letter-spacing:.3px; font-weight:600; }
-.meter-val   { font-family:var(--font-mono); font-size:22px; font-weight:700; color:var(--text); margin-top:3px; }
-.meter-val.ok   { color:var(--green); }
-.meter-val.warn { color:var(--warn); }
-.meter-val.crit { color:var(--red); }
-.ach-bar-wrap { grid-column:1/-1; }
-.ach-bar-bg { background:var(--bg4); border-radius:4px; height:8px; overflow:hidden; margin-top:4px; }
-.ach-bar-fg { height:100%; border-radius:4px; transition:width .4s,background .4s; }
+/* ── DASHBOARD CARDS ── */
+.dept-cards{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.dept-card{background:var(--card);border-radius:10px;padding:10px 12px;box-shadow:var(--shadow);border-left:4px solid var(--primary);}
+.dept-card .dname{font-size:11px;font-weight:700;color:var(--primary);}
+.dept-card .dach{font-size:20px;font-weight:800;color:var(--text);margin:4px 0;}
+.dept-card .dach.ok{color:var(--ok);}
+.dept-card .dach.warn{color:var(--warn);}
+.dept-card .dach.bad{color:var(--danger);}
+.dept-card .dsub{font-size:10px;color:var(--muted);}
+.dept-card .dpen{font-size:10px;color:var(--danger);font-weight:700;margin-top:2px;}
 
-/* ══ STEP-BY-STEP ENTRY FORM ══ */
-.step-block {
-  background:#fff; border:1px solid var(--border);
-  border-radius:var(--radius); margin-bottom:14px;
-  box-shadow:var(--shadow); overflow:hidden;
-}
-.step-header {
-  display:flex; align-items:center; gap:12px;
-  padding:13px 16px;
-  border-bottom:1px solid var(--border);
-}
-.step-num {
-  width:32px; height:32px; border-radius:50%;
-  display:flex; align-items:center; justify-content:center;
-  font-size:16px; font-weight:700; color:#fff; flex-shrink:0;
-}
-.step-title  { font-size:17px; font-weight:700; letter-spacing:.5px; text-transform:uppercase; }
-.step-sub    { font-size:13px; color:var(--text2); margin-top:1px; }
-.step-body   { padding:14px 16px; }
+/* ── SUMMARY TABLE ── */
+.summary-tbl{width:100%;border-collapse:collapse;font-size:12px;}
+.summary-tbl th{background:#e8f4fc;color:var(--primary);font-weight:700;padding:7px 8px;text-align:center;font-size:10px;text-transform:uppercase;}
+.summary-tbl td{padding:7px 8px;border-bottom:1px solid #e9eef4;text-align:center;}
+.summary-tbl tr:last-child td{border-bottom:none;}
+.badge{display:inline-block;padding:2px 8px;border-radius:10px;font-size:10px;font-weight:700;}
+.badge-ok{background:#dcfce7;color:#15803d;}
+.badge-warn{background:#fef3c7;color:#92400e;}
+.badge-bad{background:#fee2e2;color:#991b1b;}
 
-/* dept grid in step 1 */
-.dept-btn-grid { display:grid; grid-template-columns:repeat(2,1fr); gap:8px; }
-.dept-btn {
-  background:var(--bg3); border:2px solid var(--border);
-  border-radius:8px; padding:12px 10px; cursor:pointer;
-  font-family:var(--font-ui); font-size:16px; font-weight:600;
-  color:var(--text2); text-align:center; transition:all .15s;
-}
-.dept-btn:hover { border-color:var(--blue); color:var(--blue); background:var(--blueBg); }
-.dept-btn.active { background:var(--blue); color:#fff; border-color:var(--blue); box-shadow:0 2px 8px rgba(9,105,218,.3); }
+/* ── LOG TABLE ── */
+.log-tbl{width:100%;border-collapse:collapse;font-size:11px;}
+.log-tbl th{background:#e8f4fc;color:var(--primary);font-weight:700;padding:6px 8px;text-align:left;}
+.log-tbl td{padding:6px 8px;border-bottom:1px solid #e9eef4;vertical-align:top;}
+.log-tbl tr:hover td{background:#f8fafc;}
+.gm-breakdown{font-size:10px;color:var(--muted);margin-top:2px;}
 
-/* date + workers row */
-.worker-grid { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:10px; }
-.worker-grid.three { grid-template-columns:1fr 1fr 1fr; }
-.worker-grid.single { grid-template-columns:1fr; }
-.field { display:flex; flex-direction:column; gap:5px; }
-.field label { font-size:13px; color:var(--text2); text-transform:uppercase; letter-spacing:.4px; font-weight:600; }
-.field input, .field select {
-  background:var(--bg3); border:1px solid var(--border);
-  border-radius:6px; padding:10px 12px; color:var(--text);
-  font-family:var(--font-mono); font-size:17px;
-  transition:border-color .15s, box-shadow .15s; -webkit-appearance:none;
-}
-.field input:focus, .field select:focus {
-  outline:none; border-color:var(--blue);
-  box-shadow:0 0 0 3px rgba(9,105,218,.15); background:#fff;
-}
-.field input[type=number] { text-align:right; }
+/* ── TOAST ── */
+#toast{position:fixed;bottom:80px;left:50%;transform:translateX(-50%);background:#1e293b;color:#fff;padding:10px 20px;border-radius:20px;font-size:13px;font-weight:600;opacity:0;transition:opacity .3s;pointer-events:none;z-index:999;white-space:nowrap;}
+#toast.show{opacity:1;}
 
-/* ── PRODUCTION TABLE (Step 3) ── */
-.prod-table-wrap { overflow-x:auto; border-radius:8px; border:1px solid var(--border); }
-.prod-table {
-  width:100%; border-collapse:collapse; font-family:var(--font-mono); font-size:14px;
-}
-.prod-table thead { background:var(--bg4); position:sticky; top:0; z-index:1; }
-.prod-table th {
-  padding:9px 8px; text-align:center; color:var(--text2);
-  font-size:12px; letter-spacing:.5px; text-transform:uppercase;
-  border-bottom:2px solid var(--border); white-space:nowrap; font-weight:700;
-}
-.prod-table th:first-child { text-align:left; padding-left:12px; }
-.prod-table td { padding:5px 4px; border-bottom:1px solid var(--bg4); }
-.prod-table td:first-child { padding-left:12px; font-size:13px; color:var(--text); white-space:nowrap; }
-.prod-table tr:last-child td { border-bottom:none; }
-.prod-table tr:hover td { background:var(--blueBg); }
-.tbl-inp {
-  width:78px; background:var(--bg3); border:1px solid var(--border);
-  border-radius:4px; padding:5px 7px; color:var(--text);
-  font-family:var(--font-mono); font-size:15px; text-align:right; -webkit-appearance:none;
-}
-.tbl-inp:focus { border-color:var(--blue); outline:none; background:#fff; box-shadow:0 0 0 2px rgba(9,105,218,.15); }
-.kpw-cell  { color:var(--text2); font-size:13px; text-align:right; padding-right:8px; }
-.prod-cell { color:var(--blue); font-weight:700; text-align:right; padding-right:8px; font-size:14px; }
-.tbd-row td:first-child { color:var(--amber); }
-.tbd-kpw { color:var(--amber); font-size:12px; }
+/* ── CONFIRM MODAL ── */
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:200;align-items:flex-end;}
+.modal-overlay.open{display:flex;}
+.modal{background:#fff;border-radius:20px 20px 0 0;padding:20px;width:100%;max-height:80vh;overflow-y:auto;}
+.modal h3{font-size:15px;font-weight:800;color:var(--primary);margin-bottom:14px;}
+.confirm-row{display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border);font-size:13px;}
+.confirm-row:last-child{border-bottom:none;}
+.confirm-label{color:var(--muted);font-weight:600;}
+.confirm-value{font-weight:700;text-align:right;}
+.confirm-gm-table{width:100%;border-collapse:collapse;margin:4px 0;font-size:12px;}
+.confirm-gm-table td{padding:3px 6px;}
+.confirm-gm-table .cgm-model{color:var(--muted);}
+.confirm-gm-table .cgm-qty{font-weight:700;text-align:right;}
 
-/* ══ BUTTONS ══ */
-.btn {
-  border:none; border-radius:8px; padding:13px 22px;
-  font-family:var(--font-ui); font-size:18px; font-weight:700;
-  letter-spacing:.5px; cursor:pointer; transition:opacity .15s, box-shadow .15s;
-  text-transform:uppercase;
-}
-.btn:active { opacity:.8; }
-.btn-primary   { background:var(--blue); color:#fff; width:100%; box-shadow:0 3px 10px rgba(9,105,218,.3); }
-.btn-secondary { background:var(--bg3); color:var(--text); border:2px solid var(--border); }
-.btn-danger    { background:var(--redBg); color:var(--red); border:1px solid #f8514944; }
-.btn-row { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-top:12px; }
+/* ── SCROLLBAR ── */
+::-webkit-scrollbar{width:4px;height:4px;}
+::-webkit-scrollbar-track{background:transparent;}
+::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px;}
 
-/* ══ HISTORY VIEW ══ */
-.hist-filter { display:flex; gap:8px; margin-bottom:12px; }
-.hist-filter select, .hist-filter input {
-  flex:1; background:#fff; border:1px solid var(--border);
-  border-radius:6px; padding:10px 12px; color:var(--text);
-  font-family:var(--font-ui); font-size:16px; -webkit-appearance:none;
-  box-shadow:var(--shadow);
-}
-.hist-list { display:flex; flex-direction:column; gap:8px; }
-.hist-card {
-  background:#fff; border:1px solid var(--border);
-  border-radius:var(--radius); padding:13px 16px;
-  box-shadow:var(--shadow);
-}
-.hist-card-top { display:flex; justify-content:space-between; align-items:flex-start; }
-.hist-date { font-size:13px; color:var(--text2); margin-bottom:2px; font-family:var(--font-mono); }
-.hist-dept { font-size:18px; font-weight:700; color:var(--text); }
-.hist-stats-row { display:flex; gap:12px; margin-top:8px; flex-wrap:wrap; }
-.hist-stat { font-size:13px; color:var(--text2); }
-.hist-stat strong { font-family:var(--font-mono); color:var(--text); font-size:14px; }
-.hist-models { margin-top:8px; font-size:12px; color:var(--text2); border-top:1px solid var(--bg4); padding-top:6px; }
-.hist-model-row { display:flex; gap:8px; flex-wrap:wrap; }
-.hist-model-tag {
-  background:var(--blueBg); border:1px solid var(--border);
-  border-radius:3px; padding:1px 7px; font-family:var(--font-mono); font-size:11px; color:var(--blue);
-}
-.del-btn {
-  background:var(--redBg); border:1px solid #f8514944; color:var(--red);
-  border-radius:5px; padding:4px 10px; font-size:13px; font-weight:600;
-  cursor:pointer; font-family:var(--font-ui);
-}
-
-/* ══ SCORE VIEW ══ */
-.score-total-bar {
-  background:#fff; border:1px solid var(--border); border-radius:var(--radius);
-  padding:12px 16px; margin-bottom:12px;
-  display:flex; justify-content:space-between; align-items:center;
-  box-shadow:var(--shadow);
-}
-.score-total-lbl { font-size:14px; color:var(--text2); text-transform:uppercase; letter-spacing:.5px; font-weight:600; }
-.score-total-val { font-family:var(--font-mono); font-size:22px; font-weight:700; }
-.score-row {
-  background:#fff; border:1px solid var(--border);
-  border-radius:8px; padding:12px 16px; margin-bottom:8px;
-  display:grid; grid-template-columns:30px 1fr auto auto;
-  align-items:center; gap:10px; box-shadow:var(--shadow);
-}
-.score-rank { font-family:var(--font-mono); font-size:16px; color:var(--text2); font-weight:700; }
-.score-dept-name { font-size:18px; font-weight:700; color:var(--text); }
-.score-dept-sub  { font-size:12px; color:var(--text2); }
-.score-ach { font-family:var(--font-mono); font-size:20px; font-weight:700; }
-.score-ach.ok   { color:var(--green); }
-.score-ach.warn { color:var(--warn); }
-.score-ach.crit { color:var(--red); }
-.score-ach.nd   { color:var(--text2); }
-.score-pen { font-family:var(--font-mono); font-size:16px; color:var(--red); text-align:right; font-weight:600; }
-.score-pen.zero { color:var(--text2); }
-
-/* ══ MISC ══ */
-#toast {
-  position:fixed; bottom:90px; left:50%; transform:translateX(-50%) translateY(20px);
-  background:#fff; border:1px solid var(--border); border-radius:24px;
-  padding:10px 22px; font-size:16px; white-space:nowrap;
-  opacity:0; transition:all .3s; pointer-events:none; z-index:999;
-  box-shadow:0 4px 16px rgba(9,105,218,.18); color:var(--text);
-}
-#toast.show    { opacity:1; transform:translateX(-50%) translateY(0); }
-#toast.error   { border-color:var(--red);   color:var(--red);   background:var(--redBg); }
-#toast.success { border-color:var(--green); color:var(--green); background:var(--greenBg); }
-
-.spinner {
-  width:28px; height:28px; border:3px solid var(--bg4);
-  border-top-color:var(--blue); border-radius:50%;
-  animation:spin .7s linear infinite; margin:28px auto;
-}
-@keyframes spin { to{transform:rotate(360deg)} }
-
-.empty { text-align:center; padding:48px 20px; color:var(--text2); font-size:18px; }
-.empty-icon { font-size:48px; margin-bottom:12px; }
-
-::-webkit-scrollbar { width:5px; }
-::-webkit-scrollbar-track { background:var(--bg); }
-::-webkit-scrollbar-thumb { background:var(--border); border-radius:3px; }
-
-  /* ── TRANSFER BLOCKS ── */
-  .transfer-block {
-    border-radius:8px; padding:12px 14px; margin-bottom:10px; border:2px solid;
-  }
-  .transfer-in  { background:#e8fff0; border-color:#b8e8c8; }
-  .transfer-out { background:#fff3cd; border-color:#f0d080; }
-  .transfer-label {
-    font-size:14px; font-weight:700; letter-spacing:.5px; text-transform:uppercase;
-    margin-bottom:10px;
-  }
-  .transfer-in  .transfer-label { color:var(--green); }
-  .transfer-out .transfer-label { color:var(--warn); }
-  .transfer-row { display:flex; flex-direction:column; gap:8px; }
-  .transfer-item {
-    display:grid; grid-template-columns:1fr auto; gap:8px; align-items:center;
-  }
-  .transfer-dept {
-    background:#fff; border:1px solid var(--border); border-radius:6px;
-    padding:9px 10px; color:var(--text); font-family:var(--font-ui);
-    font-size:16px; -webkit-appearance:none;
-  }
-  .transfer-dept:focus { outline:none; border-color:var(--blue); box-shadow:0 0 0 2px rgba(9,105,218,.15); }
-  .transfer-qty {
-    width:80px; background:#fff; border:1px solid var(--border); border-radius:6px;
-    padding:9px 10px; color:var(--text); font-family:var(--font-mono);
-    font-size:16px; text-align:right; -webkit-appearance:none;
-  }
-  .transfer-qty:focus { outline:none; border-color:var(--blue); box-shadow:0 0 0 2px rgba(9,105,218,.15); }
-  .transfer-add-btn {
-    margin-top:8px; background:none; border:1px dashed var(--borderDk);
-    border-radius:6px; padding:6px 12px; color:var(--text2); font-size:13px;
-    font-family:var(--font-ui); cursor:pointer; width:100%; text-align:center;
-    transition:all .15s;
-  }
-  .transfer-add-btn:hover { background:var(--blueBg); border-color:var(--blue); color:var(--blue); }
-  .transfer-remove-btn {
-    background:var(--redBg); border:1px solid #f8514944; color:var(--red);
-    border-radius:5px; padding:4px 8px; font-size:14px; cursor:pointer;
-    font-family:var(--font-ui); flex-shrink:0;
-  }
+/* ── BOTTOM NAV SPACING ── */
+.page{padding-bottom:80px;}
 </style>
 </head>
 <body>
-<div id="app">
 
-<!-- ══ HEADER ══ -->
-<header id="header">
-  <div class="logo">
-    <img src="data:image/png;base64,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" alt="MOBICA">
-    <div class="logo-divider"></div>
-    <div class="logo-sub-block">
-      <div class="logo-sub-title">Assembly</div>
-      <div class="logo-sub-label">Capacity Live System</div>
-    </div>
+<!-- HEADER -->
+<div class="header">
+  <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAGQAAAAoCAYAAAAIeF9DAAABhGlDQ1BJQ0MgcHJvZmlsZQAAKJF9kT1Iw0AcxV9TpSoVBzuIOGSoThZERRy1CkWoEGqFVh1MLv2CJg1Ji4uj4Fpw8GOx6uDirKuDqyAIfoA4OTopukiJfyWFFjEejsfje9x7x90BQqPCVLNrHFBVy0gl4kImuyp0vyKAIYQwi5jMLGMuSUn4jq97BODrXYxn+Z/7c/SpXMMA0Ek8ywzTIl4nnt60NM77xCIrSSrxOXHUoAsSP3JddvmNc9FhgWcKRjo1TywSS8UOljtYlYyUeJI4rqkaJV/IuKxw3uKsVmqsdU/+wlBeW0lzneYQEljEEpIQoaCGMiqwEKNVI8VEmvYTHv4Bxy+RSyZXGYwcC6hCheT4wf/gd7dmITbpJoXiQNeLbX8MA91As67b32e23TwBvGfgSuv6q00g9kl6va1FjoDINnBx3dbkPeByBxh60iVDciEvTaFQAN7P6JsywFCP9K65s7X2cfoAZKirpRvg4BAYL1L2usu7+zp7e3em1d8PAGVyrALv4gAAAAlwSFlzAAALEwAACxMBAJqcGAAAAA1JREFUaN7j+P//PwAI9AL9hc2rNAAAAABJRU5ErkJggg==" alt="MOBICA"/>
+  <div class="header-title">
+    <h1>ASSEMBLY CAPACITY SYSTEM</h1>
+    <p id="header-month">Loading...</p>
   </div>
-  <div class="sync-badge" onclick="syncNow()">
-    <div class="sync-dot" id="syncDot"></div>
-    <span id="syncLabel">LIVE</span>
-  </div>
-</header>
+  <button class="hbtn" onclick="showPage('entry')">+ ENTRY</button>
+</div>
 
-<!-- ══ CONTENT ══ -->
-<div id="content">
+<!-- TAB BAR -->
+<div class="tabs">
+  <div class="tab active" onclick="showPage('dashboard')" id="tab-dashboard">📊 Dashboard</div>
+  <div class="tab" onclick="showPage('entry')" id="tab-entry">✏️ Entry</div>
+  <div class="tab" onclick="showPage('log')" id="tab-log">📋 Log</div>
+  <div class="tab" onclick="showPage('score')" id="tab-score">🏆 Score</div>
+</div>
 
-  <!-- ── DASHBOARD ── -->
-  <div class="view active" id="view-dash">
-    <div class="sec-hdr">
-      <div>
-        <div class="sec-title">Dashboard</div>
-        <div class="sec-sub" id="dashDate">Month-to-Date</div>
-      </div>
-      <div class="date-badge" id="dashPeriod">—</div>
-    </div>
-    <div class="summary-bar">
-      <div class="sum-item"><div class="sum-label">Depts Active</div><div class="sum-val" id="sumDepts">—</div></div>
-      <div class="sum-item"><div class="sum-label">Avg Achievement</div><div class="sum-val" id="sumAch">—</div></div>
-      <div class="sum-item"><div class="sum-label">Total Penalty</div><div class="sum-val" id="sumPen">—</div></div>
-    </div>
-    <div class="dept-grid" id="deptGrid"><div class="spinner"></div></div>
-  </div>
-
-  <!-- ── ENTRY FORM ── -->
-  <div class="view" id="view-entry">
-    <div class="sec-hdr">
-      <div>
-        <div class="sec-title">Daily Entry</div>
-        <div class="sec-sub">Record one day per submission</div>
+<!-- ════════════════════════════════════════════
+     PAGE: DASHBOARD
+════════════════════════════════════════════ -->
+<div class="page active" id="page-dashboard">
+  <div class="card">
+    <div class="card-head">📊 MTD Achievement — <span id="db-month-label">—</span></div>
+    <div class="card-body">
+      <div class="dept-cards" id="dept-cards-grid">
+        <div style="text-align:center;color:var(--muted);font-size:12px;grid-column:1/-1;padding:20px;">Loading...</div>
       </div>
     </div>
-
-    <!-- LIVE METER -->
-    <div class="live-meter">
-      <div class="meter-item"><div class="meter-label">Needed</div><div class="meter-val" id="mNeeded">—</div></div>
-      <div class="meter-item"><div class="meter-label">Available</div><div class="meter-val" id="mAvail">—</div></div>
-      <div class="meter-item"><div class="meter-label">Achievement</div><div class="meter-val" id="mAch">—</div></div>
-      <div class="meter-item"><div class="meter-label">Penalty LE</div><div class="meter-val" id="mPen">—</div></div>
-      <div class="ach-bar-wrap">
-        <div class="ach-bar-bg"><div class="ach-bar-fg" id="achBar" style="width:0%;background:var(--border)"></div></div>
-      </div>
+  </div>
+  <div class="card">
+    <div class="card-head">📈 MTD Summary</div>
+    <div class="card-body" style="padding:0;">
+      <table class="summary-tbl" id="summary-tbl">
+        <thead><tr><th>Dept</th><th>Avail.</th><th>Needed</th><th>Achieve.</th><th>Penalty</th></tr></thead>
+        <tbody id="summary-tbody"></tbody>
+      </table>
     </div>
+  </div>
+</div>
 
-    <!-- STEP 1 — DEPARTMENT -->
-    <div class="step-block">
-      <div class="step-header" style="background:#e8f4ff; border-bottom:2px solid var(--border);">
-        <div class="step-num" style="background:var(--step1)">1</div>
-        <div>
-          <div class="step-title" style="color:var(--step1)">Select Department</div>
-          <div class="step-sub">Choose the production line for this entry</div>
+<!-- ════════════════════════════════════════════
+     PAGE: ENTRY FORM (4 steps)
+════════════════════════════════════════════ -->
+<div class="page" id="page-entry">
+  <div class="step-bar">
+    <div class="step-dot active" id="sd1"></div>
+    <div class="step-dot" id="sd2"></div>
+    <div class="step-dot" id="sd3"></div>
+    <div class="step-dot" id="sd4"></div>
+  </div>
+
+  <!-- STEP 1: Date + Department -->
+  <div id="step1">
+    <div class="step-label">STEP 1 OF 4 — DATE & DEPARTMENT</div>
+    <div class="card">
+      <div class="card-body">
+        <div class="field">
+          <label>Date</label>
+          <input type="date" id="f-date"/>
+        </div>
+        <div class="field">
+          <label>Department</label>
+          <select id="f-dept" onchange="onDeptChange()">
+            <option value="">Select department...</option>
+            <option value="GM">General Motors (GM)</option>
+            <option value="NISSAN">Nissan</option>
+            <option value="EXCEED">Mercedes & Exeed</option>
+            <option value="BMW">BMW</option>
+            <option value="GEELY">Geely (AAV)</option>
+            <option value="ESAF">Proton (ESAF)</option>
+            <option value="GHABBOUR">Ghabbour</option>
+            <option value="KASRAWY">Kasrawy</option>
+          </select>
         </div>
       </div>
-      <div class="step-body">
-        <div class="dept-btn-grid" id="formDeptSelector"></div>
+    </div>
+    <button class="btn-primary" onclick="goStep(2)">NEXT →</button>
+  </div>
+
+  <!-- STEP 2: Production Quantities -->
+  <div id="step2" style="display:none;">
+    <div class="step-label">STEP 2 OF 4 — PRODUCTION QUANTITIES</div>
+    <div class="card" id="step2-card">
+      <div class="card-body" id="step2-body">
+        <!-- Populated dynamically: GM gets model table, others get single field -->
       </div>
     </div>
+    <button class="btn-outline" onclick="goStep(1)">← BACK</button>
+    <button class="btn-primary" onclick="goStep(3)">NEXT →</button>
+  </div>
 
-    <!-- STEP 2 — DATE & WORKERS -->
-    <div class="step-block">
-      <div class="step-header" style="background:#e8fff0; border-bottom:2px solid #b8e8c8;">
-        <div class="step-num" style="background:var(--step2)">2</div>
-        <div>
-          <div class="step-title" style="color:var(--step2)">Date &amp; Workforce</div>
-          <div class="step-sub">One entry = one working day (shift)</div>
-        </div>
-      </div>
-      <div class="step-body">
-        <div class="worker-grid" style="margin-bottom:10px">
+  <!-- STEP 3: Workers & Attendance -->
+  <div id="step3" style="display:none;">
+    <div class="step-label">STEP 3 OF 4 — WORKERS & ATTENDANCE</div>
+    <div class="card">
+      <div class="card-body">
+        <div class="worker-grid">
           <div class="field">
-            <label>📅 Entry Date</label>
-            <input type="date" id="fDate">
+            <label>Available Workers</label>
+            <input type="number" id="f-avail" min="0" step="0.5" placeholder="0"/>
           </div>
           <div class="field">
-            <label>👷 Available Workers</label>
-            <input type="number" id="fAvail" min="0" step="1" placeholder="16">
-          </div>
-        </div>
-        <div class="worker-grid" style="margin-bottom:10px">
-          <div class="field">
-            <label>⏱ Overtime Shifts</label>
-            <input type="number" id="fOT" min="0" step="0.5" placeholder="0" oninput="liveRecalc()">
+            <label>Overtime Shifts</label>
+            <input type="number" id="f-ot" min="0" step="0.5" placeholder="0"/>
           </div>
           <div class="field">
-            <label>🏖 Vacations</label>
-            <input type="number" id="fVac" min="0" step="0.5" placeholder="0">
+            <label>Vacations</label>
+            <input type="number" id="f-vac" min="0" step="0.5" placeholder="0"/>
           </div>
-        </div>
-        <!-- All-In transfers -->
-        <div class="transfer-block transfer-in">
-          <div class="transfer-label">↙ Workers Received (All-In)</div>
-          <div class="transfer-row" id="allInRows">
-            <div class="transfer-item">
-              <select class="transfer-dept" id="fAllInDept0"><option value="">— From Department —</option></select>
-              <input class="transfer-qty" type="number" min="0" step="0.5" placeholder="0" id="fAllInQty0" oninput="liveRecalc()">
-            </div>
-          </div>
-          <button class="transfer-add-btn" onclick="addTransferRow('in')">＋ Add another source</button>
-        </div>
-        <!-- All-Out transfers -->
-        <div class="transfer-block transfer-out">
-          <div class="transfer-label">↗ Workers Sent (All-Out)</div>
-          <div class="transfer-row" id="allOutRows">
-            <div class="transfer-item">
-              <select class="transfer-dept" id="fAllOutDept0"><option value="">— To Department —</option></select>
-              <input class="transfer-qty" type="number" min="0" step="0.5" placeholder="0" id="fAllOutQty0" oninput="liveRecalc()">
-            </div>
-          </div>
-          <button class="transfer-add-btn" onclick="addTransferRow('out')">＋ Add another destination</button>
-        </div>
-        <div class="worker-grid single" style="margin-top:4px">
           <div class="field">
-            <label>📝 Notes</label>
-            <input type="text" id="fNotes" placeholder="Optional…">
+            <label>Absences</label>
+            <input type="number" id="f-abs" min="0" step="0.5" placeholder="0"/>
           </div>
+        </div>
+        <div class="field" style="margin-top:8px;">
+          <label>Stock Begin</label>
+          <input type="number" id="f-stk-begin" min="0" placeholder="0"/>
+        </div>
+        <div class="field">
+          <label>Stock End</label>
+          <input type="number" id="f-stk-end" min="0" placeholder="0"/>
         </div>
       </div>
     </div>
-
-    <!-- STEP 3 — PRODUCTION QTY -->
-    <div class="step-block">
-      <div class="step-header" style="background:#fff8e6; border-bottom:2px solid #f0d080;">
-        <div class="step-num" style="background:var(--step3)">3</div>
-        <div>
-          <div class="step-title" style="color:var(--step3)">Production Quantities</div>
-          <div class="step-sub" id="formDeptLabel">Select a department first</div>
-        </div>
-      </div>
-      <div class="step-body" style="padding:0">
-        <div class="prod-table-wrap" id="modelTableWrap">
-          <div style="padding:24px;text-align:center;color:var(--text2);font-size:16px">
-            ← Complete Step 1 first
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- STEP 4 — SAVE -->
-    <div class="step-block">
-      <div class="step-header" style="background:#f5eeff; border-bottom:2px solid #d8c0f0;">
-        <div class="step-num" style="background:var(--step4)">4</div>
-        <div>
-          <div class="step-title" style="color:var(--step4)">Save Entry</div>
-          <div class="step-sub">Each save adds a new daily record — never overwrites</div>
-        </div>
-      </div>
-      <div class="step-body">
-        <div class="btn-row">
-          <button class="btn btn-secondary" onclick="resetForm()">🗑 CLEAR</button>
-          <button class="btn btn-primary" onclick="submitEntry()">💾 SAVE DAY</button>
-        </div>
-      </div>
-    </div>
-
-    <div style="height:10px"></div>
+    <button class="btn-outline" onclick="goStep(2)">← BACK</button>
+    <button class="btn-primary" onclick="goStep(4)">NEXT →</button>
   </div>
 
-  <!-- ── HISTORY ── -->
-  <div class="view" id="view-hist">
-    <div class="sec-hdr">
-      <div class="sec-title">Daily Log</div>
-    </div>
-    <div class="hist-filter">
-      <select id="histDeptFilter" onchange="loadHistory()">
-        <option value="">All Departments</option>
-      </select>
-      <input type="month" id="histMonth" onchange="loadHistory()">
-    </div>
-    <div class="hist-list" id="histList"><div class="spinner"></div></div>
-  </div>
+  <!-- STEP 4: Transfers -->
+  <div id="step4" style="display:none;">
+    <div class="step-label">STEP 4 OF 4 — WORKER TRANSFERS</div>
+    <div class="card">
+      <div class="card-body">
+        <div class="transfer-header">All-IN (received from other depts)</div>
+        <div id="in-tags"></div>
+        <div class="transfer-row" id="in-row">
+          <select id="in-from">
+            <option value="">From dept...</option>
+          </select>
+          <input type="number" id="in-qty" min="0" step="0.5" placeholder="shifts"/>
+          <button style="background:#dbeafe;color:#1d4ed8;border-radius:8px;border:none;padding:8px 12px;cursor:pointer;font-weight:700;" onclick="addTransfer('in')">＋</button>
+        </div>
 
-  <!-- ── SCOREBOARD ── -->
-  <div class="view" id="view-score">
-    <div class="sec-hdr">
-      <div>
-        <div class="sec-title">Score Board</div>
-        <div class="sec-sub" id="scoreMonth"></div>
+        <div class="transfer-header" style="margin-top:14px;">All-OUT (sent to other depts)</div>
+        <div id="out-tags"></div>
+        <div class="transfer-row" id="out-row">
+          <select id="out-to">
+            <option value="">To dept...</option>
+          </select>
+          <input type="number" id="out-qty" min="0" step="0.5" placeholder="shifts"/>
+          <button style="background:#fee2e2;color:#991b1b;border-radius:8px;border:none;padding:8px 12px;cursor:pointer;font-weight:700;" onclick="addTransfer('out')">＋</button>
+        </div>
       </div>
-      <select id="scoreMonthSel"
-        style="background:#fff;border:1px solid var(--border);border-radius:6px;padding:8px 12px;color:var(--text);font-family:var(--font-ui);font-size:15px;box-shadow:var(--shadow);"
-        onchange="loadScoreboard()"></select>
     </div>
-    <div id="scoreList"><div class="spinner"></div></div>
+    <button class="btn-outline" onclick="goStep(3)">← BACK</button>
+    <button class="btn-primary" onclick="openConfirm()">REVIEW & SAVE ✓</button>
   </div>
+</div>
 
-</div><!-- /content -->
+<!-- ════════════════════════════════════════════
+     PAGE: DAILY LOG
+════════════════════════════════════════════ -->
+<div class="page" id="page-log">
+  <div style="display:flex;gap:8px;margin-bottom:10px;align-items:center;">
+    <select id="log-month-sel" style="flex:1;padding:8px;border:1.5px solid var(--border);border-radius:8px;font-size:13px;" onchange="renderLog()"></select>
+    <select id="log-dept-sel" style="flex:1;padding:8px;border:1.5px solid var(--border);border-radius:8px;font-size:13px;" onchange="renderLog()">
+      <option value="ALL">All Depts</option>
+      <option value="GM">GM</option>
+      <option value="NISSAN">Nissan</option>
+      <option value="EXCEED">Mercedes/Exeed</option>
+      <option value="BMW">BMW</option>
+      <option value="GEELY">Geely</option>
+      <option value="ESAF">Proton</option>
+      <option value="GHABBOUR">Ghabbour</option>
+      <option value="KASRAWY">Kasrawy</option>
+    </select>
+  </div>
+  <div class="card">
+    <div class="card-body" style="padding:0;overflow-x:auto;">
+      <table class="log-tbl">
+        <thead><tr><th>Date</th><th>Dept</th><th>Del.Qty</th><th>Avail.</th><th>Ach.%</th><th>Del</th></tr></thead>
+        <tbody id="log-tbody"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
 
-<!-- ══ NAV ══ -->
-<nav id="nav">
-  <button class="nav-btn active" data-view="dash" onclick="switchView('dash',this)">
-    <svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
-    Dashboard
-  </button>
-  <button class="nav-btn" data-view="entry" onclick="switchView('entry',this)">
-    <svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-    Entry
-  </button>
-  <button class="nav-btn" data-view="hist" onclick="switchView('hist',this)">
-    <svg viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
-    Daily Log
-  </button>
-  <button class="nav-btn" data-view="score" onclick="switchView('score',this)">
-    <svg viewBox="0 0 24 24"><polyline points="18 20 18 10"/><polyline points="12 20 12 4"/><polyline points="6 20 6 14"/></svg>
-    Score
-  </button>
-</nav>
-</div><!-- /app -->
+<!-- ════════════════════════════════════════════
+     PAGE: SCOREBOARD
+════════════════════════════════════════════ -->
+<div class="page" id="page-score">
+  <div class="field" style="margin-bottom:10px;">
+    <select id="score-month-sel" style="width:100%;padding:9px 12px;border:1.5px solid var(--border);border-radius:8px;font-size:13px;" onchange="renderScore()"></select>
+  </div>
+  <div class="card">
+    <div class="card-body" style="padding:0;overflow-x:auto;">
+      <table class="summary-tbl">
+        <thead>
+          <tr>
+            <th>Dept</th><th>Avail.</th><th>All-In</th><th>Needed</th><th>All-Out</th>
+            <th>Achieve.</th><th>Penalty</th>
+          </tr>
+        </thead>
+        <tbody id="score-tbody"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- CONFIRM MODAL -->
+<div class="modal-overlay" id="confirm-modal">
+  <div class="modal">
+    <h3>✓ Confirm Entry</h3>
+    <div id="confirm-content"></div>
+    <button class="btn-primary" onclick="saveEntry()">SAVE ENTRY</button>
+    <button class="btn-outline" onclick="closeConfirm()">EDIT</button>
+  </div>
+</div>
+
+<!-- DELETE CONFIRM MODAL -->
+<div class="modal-overlay" id="delete-modal">
+  <div class="modal">
+    <h3>⚠ Confirm Delete</h3>
+    <p style="font-size:13px;color:var(--muted);margin-bottom:14px;">This will permanently remove this daily entry.</p>
+    <button class="btn-primary" style="background:var(--danger);" onclick="confirmDelete()">DELETE</button>
+    <button class="btn-outline" onclick="closeDelete()">CANCEL</button>
+  </div>
+</div>
 
 <div id="toast"></div>
 
 <script>
-// ══════════════════════════════════════════════
-//  CONFIG
-// ══════════════════════════════════════════════
+/* ══════════════════════════════════════════════════
+   SUPABASE CONFIG
+══════════════════════════════════════════════════ */
 const SB_URL = 'https://ojsmjqwjsdornetdqiyu.supabase.co';
 const SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9qc21qcXdqc2Rvcm5ldGRxaXl1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU1MTM1NTgsImV4cCI6MjA5MTA4OTU1OH0.ThQBFXNp1wC-7bteu95Fuiertz1t69TbyLqpna_rjVQ';
+const TABLE = 'capacity_entries';
+const DELETE_PASS = 'mobica2026';
 
-// ── DEPARTMENTS
-const DEPTS = [
-  { code:'GM',         name:'General Motors',   short:'GM'      },
-  { code:'NISSAN',     name:'Nissan & Suzuki',  short:'NISSAN'  },
-  { code:'MERCEDES',   name:'Mercedes & Exeed', short:'MER/EXD' },
-  { code:'BMW',        name:'BMW & Geely',      short:'BMW'     },
-  { code:'AAV_TOYOTA', name:'AAV & Toyota',     short:'AAV/TOY' },
-  { code:'GHABBOUR',   name:'Ghabbour',         short:'GHAB'    },
-  { code:'PROTON',     name:'Proton',           short:'PROTON'  },
-  { code:'KASRAWY',    name:'Kasrawy',          short:'KAS'     },
+async function sbFetch(path, opts={}) {
+  const r = await fetch(SB_URL + path, {
+    headers: { 'apikey': SB_KEY, 'Authorization': 'Bearer ' + SB_KEY, 'Content-Type': 'application/json', ...opts.headers },
+    ...opts
+  });
+  if (!r.ok) throw new Error(await r.text());
+  const t = await r.text();
+  return t ? JSON.parse(t) : null;
+}
+
+/* ══════════════════════════════════════════════════
+   KPW DATA — GM models with individual KPW
+══════════════════════════════════════════════════ */
+const GM_MODELS = [
+  { id: 'RT50',    name: 'RT50',     kpw: 9.2  },
+  { id: 'VL01',    name: 'VL01',     kpw: 12.12 },
+  { id: 'VL20',    name: 'VL20',     kpw: 13.32 },
+  { id: '310vl1',  name: '310 Lv1',  kpw: 4.47 },
+  { id: '310vl2',  name: '310 Lv2',  kpw: 4.47 },
+  { id: 'BRACKET', name: 'BRACKET',  kpw: null  }  // KPW TBD
 ];
 
-// ── MODELS [model_name, variant|null, kpw|null]
-const MODELS_BY_DEPT = {
-  GM: [
-    ['RT50 Fabric','Left(F)',9.2],['RT50 Fabric','Right(F)',9.2],
-    ['RT50 Leather','Left(L)',9.2],['RT50 Leather','Right(L)',9.2],
-    ['VL01','CDSB 1',12.12],['VL01','CDSB2',12.12],['VL01','CDSC',12.12],['VL01','LH (DR)',12.12],
-    ['VL20','CDSB',13.32],['VL20','CDSC',13.32],['VL20','LH (DR)',13.32],
-    ['310vl1','Cushion',4.47],['310vl1','Left Seat',4.47],['310vl1','Rear back 100%',4.47],['310vl1','Right Seat',4.47],
-    ['310vl2','Cushion 40%',4.47],['310vl2','Cushion 60%',4.47],['310vl2','Left Seat',4.47],
-    ['310vl2','Rear back 40%',4.47],['310vl2','Rear Back 60%',4.47],['310vl2','Right Seat',4.47],
-
-  ],
-  NISSAN: [
-    ['MC15 Black','Seat',7.5],['MC15 Black','Door',30.94],['MC15 Black','Luxe Door',30.94],
-    ['MC15 Beige','Seat',30.94],['MC15 Beige','Door',30.94],['MC15 Beige','Luxe Door',30.94],
-    ['L12F','Lower Seat',3.5],['L12F','Upper Seat',3.5],['L12F','Lower Door',8.97],['L12F','Upper Door',8.97],
-  ],
-  MERCEDES: [
-    ['GLE','Beige',1.36],['GLE','Black',1.36],['GLE','Brown',1.36],
-    ['GLS','Beige',0.47],['GLS','Black',0.47],['GLS','Brown',0.47],
-    ['RX','Flagship Seat',1.7],['RX','Flagship DP',1.97],['RX','Seat Red',1.7],['RX','DP Red',1.97],
-    ['VX','Flagship Brown',0.74],['VX','Luxury Black',0.74],
-    ['AMG','Black',1.36],['AMG','Red',1.36],
-    ['Van','Front',12.91],['Van','Rear',5.36],
-  ],
-  BMW: [
-    ['G45-15','G45-15',1.4],['G45-85','G45-85',1.4],
-    ['G06',null,1.31],['G05 EU25',null,1.31],['G05 EU35',null,1.31],['G07',null,0.81],
-    ['SS GS','Seat',3.876],['SS GS','DP',3.876],
-    ['SS GF','Seat',2.69],['SS GF','DP',2.62],
-    ['SS GF Black','Seat',2.69],['SS GF Black','DP',2.69],
-    ['SX GF','Seat',2.65],['SX GF','DP',2.65],
-    ['SX GK','Seat',2.65],['SX GK','DP',2.65],
-    ['SX GL','Seat',2.65],['SX GL','DP',2.65],
-  ],
-  AAV_TOYOTA: [
-    ['W4','Seat',0.92],['W4','DP',1.34],
-    ['Fortuner Seats Leather','Leather Seat',1.89],
-    ['Fortuner Doors Leather','Leather DP',5.05],
-    ['C43 L2','C43 L2',4.44],['C43 L3','C43 L3',4.44],
-  ],
-  GHABBOUR: [
-    ['T7BL (\u0642\u0645\u0627\u0634)','T7BL',3.09194],
-    ['T7HL (\u062c\u0644\u062f)','T7HL',3.239305],
-  ],
-  PROTON: [
-    ['Proton','Seat',4.99],['Proton','DP',13.7],
-  ],
-  KASRAWY: [
-    ['Golden Dragon',null,1.06],['Jetour',null,1.88],
-    ['Jack','Seat',3.06],['Jack','DP',5.1],['Zemex',null,1.03],
-  ],
+const DEPT_KPW = {
+  'NISSAN':   7.5,    // composite; actual calc uses per-model in future
+  'EXCEED':   1.36,
+  'BMW':      2.5,
+  'GEELY':    5.2,
+  'ESAF':     6.8,
+  'GHABBOUR': 4.1,
+  'KASRAWY':  3.9
 };
 
-// ══════════════════════════════════════════════
-//  STATE
-// ══════════════════════════════════════════════
-let currentView  = 'dash';
-let selectedDept = null;
-let isOnline     = navigator.onLine;
-let pendingQueue = JSON.parse(localStorage.getItem('mob_pend') || '[]');
+const DEPTS = ['GM','NISSAN','EXCEED','BMW','GEELY','ESAF','GHABBOUR','KASRAWY'];
+const DEPT_LABELS = {
+  GM:'GM', NISSAN:'Nissan', EXCEED:'Mercedes/Exeed',
+  BMW:'BMW', GEELY:'Geely', ESAF:'Proton', GHABBOUR:'Ghabbour', KASRAWY:'Kasrawy'
+};
 
-// ══════════════════════════════════════════════
-//  SUPABASE
-// ══════════════════════════════════════════════
-async function sbFetch(path, opts={}) {
-  const url = `${SB_URL}/rest/v1/${path}`;
-  const headers = {
-    'apikey': SB_KEY,
-    'Authorization': `Bearer ${SB_KEY}`,
-    'Content-Type': 'application/json',
-    'Prefer': 'return=representation',
-    ...(opts.headers||{}),
-  };
-  const res = await fetch(url, { ...opts, headers });
-  if (!res.ok) {
-    const errText = await res.text();
-    throw new Error(`HTTP ${res.status}: ${errText||res.statusText}`);
-  }
-  return res.status === 204 ? null : res.json();
+/* ══════════════════════════════════════════════════
+   STATE
+══════════════════════════════════════════════════ */
+let allEntries = [];
+let inTransfers  = [];
+let outTransfers = [];
+let pendingDeleteId = null;
+let currentStep = 1;
+
+/* ══════════════════════════════════════════════════
+   INIT
+══════════════════════════════════════════════════ */
+document.addEventListener('DOMContentLoaded', async () => {
+  const today = new Date().toISOString().slice(0, 10);
+  document.getElementById('f-date').value = today;
+  updateHeaderMonth(today);
+  populateTransferDropdowns();
+  populateMonthSelects();
+  await loadEntries();
+  renderDashboard();
+  renderLog();
+  renderScore();
+});
+
+function updateHeaderMonth(dateStr) {
+  const d = new Date(dateStr + 'T00:00:00');
+  const label = d.toLocaleDateString('en-GB', { month: 'long', year: 'numeric' });
+  document.getElementById('header-month').textContent = label;
+  document.getElementById('db-month-label').textContent = label;
 }
 
-// ══════════════════════════════════════════════
-//  FORMULAS  (LOCKED)
-// ══════════════════════════════════════════════
-const calcProdQty   = (del,sb,se) => (Number(del)||0)+(Number(se)||0)-(Number(sb)||0);
-const calcNeeded    = rows => rows.reduce((s,r)=>(!r.kpw||r.kpw<=0)?s:s+(r.pq/r.kpw),0);
-const calcAchieve   = (avail,allIn,needed,allOut) => {
-  const d=(Number(needed)||0)+(Number(allOut)||0);
-  return d===0 ? null : ((Number(avail)||0)+(Number(allIn)||0))/d;
-};
-const calcPenalty   = a => (a===null)?0:(a<0.99?(a-0.99)*300:0);
-const calcVacRatio  = (vac,avail) => avail?((Number(vac)||0)/avail):0;
-
-// MTD aggregation: sum arrays of daily rows per dept
-function aggregateMTD(rows) {
-  // rows = array of capacity_entries for one dept in one month
-  let totAvail=0, totAllIn=0, totAllOut=0, totVac=0, totNeeded=0;
-  rows.forEach(r => {
-    const avail = (r.available_workers||0)*(1) + (r.over_time_shifts||0);
-    totAvail  += avail;
-    totAllIn  += Number(r.all_in_shifts||0);
-    totAllOut += Number(r.all_out_shifts||0);
-    totVac    += Number(r.vacations||0);
-    totNeeded += Number(r.needed_workers||0);
+function populateTransferDropdowns() {
+  ['in-from','out-to'].forEach(id => {
+    const sel = document.getElementById(id);
+    sel.innerHTML = '<option value="">Select dept...</option>';
+    DEPTS.forEach(d => {
+      const o = document.createElement('option');
+      o.value = d; o.textContent = DEPT_LABELS[d];
+      sel.appendChild(o);
+    });
   });
-  const ach = calcAchieve(totAvail, totAllIn, totNeeded, totAllOut);
-  return {
-    available: totAvail, allIn: totAllIn, allOut: totAllOut,
-    vacations: totVac, needed: totNeeded,
-    achievement: ach,
-    penalty: calcPenalty(ach),
-    vacRatio: calcVacRatio(totVac, totAvail),
-    days: rows.length,
-  };
 }
 
-// ══════════════════════════════════════════════
-//  UI HELPERS
-// ══════════════════════════════════════════════
-function switchView(v, btn) {
-  document.querySelectorAll('.view').forEach(e=>e.classList.remove('active'));
-  document.querySelectorAll('.nav-btn').forEach(e=>e.classList.remove('active'));
-  document.getElementById(`view-${v}`).classList.add('active');
-  btn.classList.add('active');
-  currentView = v;
-  if(v==='dash')  loadDashboard();
-  if(v==='hist')  loadHistory();
-  if(v==='score') loadScoreboard();
-}
-
-function showToast(msg,type='info') {
-  const t=document.getElementById('toast');
-  t.textContent=msg; t.className=`show ${type}`;
-  setTimeout(()=>t.className='',2800);
-}
-
-const achClass = a => a===null?'nd':a>=0.99?'ok':a>=0.95?'warn':'crit';
-const fmtAch   = a => a===null?'—':(a*100).toFixed(2)+'%';
-const fmtN     = (n,d=1) => (n===null||isNaN(n))?'—':Number(n).toFixed(d);
-const todayStr = () => new Date().toISOString().slice(0,10);
-const monthStr = (d) => (d||new Date().toISOString()).slice(0,7);
-
-function setOnline(on) {
-  isOnline=on;
-  const dot=document.getElementById('syncDot');
-  document.getElementById('syncLabel').textContent=on?'LIVE':'OFFLINE';
-  dot.className='sync-dot'+(on?'':' offline');
-}
-window.addEventListener('online', ()=>{setOnline(true);flushQueue();});
-window.addEventListener('offline',()=>setOnline(false));
-
-// ══════════════════════════════════════════════
-//  OFFLINE QUEUE
-// ══════════════════════════════════════════════
-function saveQueue() { localStorage.setItem('mob_pend',JSON.stringify(pendingQueue)); }
-async function flushQueue() {
-  if(!isOnline||!pendingQueue.length) return;
-  try {
-    await doInsert(pendingQueue[0]);
-    pendingQueue.shift(); saveQueue();
-    pendingQueue.length?flushQueue():showToast('Offline entries synced ✓','success');
-  } catch(e) { console.error('flush',e); }
-}
-
-// ══════════════════════════════════════════════
-//  DASHBOARD  — MTD aggregation
-// ══════════════════════════════════════════════
-async function loadDashboard() {
-  const grid=document.getElementById('deptGrid');
-  grid.innerHTML='<div class="spinner"></div>';
-  const today=todayStr();
-  const from=today.slice(0,7)+'-01';
-  document.getElementById('dashPeriod').textContent=monthStr(today);
-  document.getElementById('dashDate').textContent=`MTD · ${from} → ${today}`;
-  try {
-    const rows=await sbFetch(`capacity_entries?entry_date=gte.${from}&entry_date=lte.${today}&order=entry_date.asc`);
-    // group by dept
-    const byDept={};
-    (rows||[]).forEach(r=>{
-      if(!byDept[r.department_code]) byDept[r.department_code]=[];
-      byDept[r.department_code].push(r);
+function populateMonthSelects() {
+  const months = [];
+  const now = new Date();
+  for (let i = 0; i < 12; i++) {
+    const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+    months.push({ value: d.toISOString().slice(0,7), label: d.toLocaleDateString('en-GB',{month:'long',year:'numeric'}) });
+  }
+  ['log-month-sel','score-month-sel'].forEach(id => {
+    const sel = document.getElementById(id);
+    sel.innerHTML = '';
+    months.forEach(m => {
+      const o = document.createElement('option');
+      o.value = m.value; o.textContent = m.label;
+      sel.appendChild(o);
     });
-    // summary
-    const active=Object.keys(byDept).length;
-    const achs=Object.values(byDept).map(rs=>aggregateMTD(rs).achievement).filter(a=>a!==null);
-    const avgAch=achs.length?achs.reduce((s,a)=>s+a,0)/achs.length:null;
-    const totalPen=Object.values(byDept).reduce((s,rs)=>s+aggregateMTD(rs).penalty,0);
-    document.getElementById('sumDepts').textContent=`${active}/8`;
-    document.getElementById('sumAch').textContent=avgAch!==null?fmtAch(avgAch):'—';
-    document.getElementById('sumPen').textContent=totalPen>0?totalPen.toFixed(0)+' LE':'0';
+  });
+}
 
-    grid.innerHTML='';
-    DEPTS.forEach(dept=>{
-      const rs=byDept[dept.code]||[];
-      const mtd=rs.length?aggregateMTD(rs):null;
-      const cls=mtd?achClass(mtd.achievement):'nodata';
-      const card=document.createElement('div');
-      card.className=`dept-card ${cls}`;
-      card.onclick=()=>{switchView('entry',document.querySelector('[data-view="entry"]'));selectDept(dept.code);};
-      card.innerHTML=`
-        <div class="dept-card-header">
-          <div>
-            <div class="dept-name">${dept.name}</div>
-            <div class="dept-code">${dept.short} · ${rs.length} day${rs.length!==1?'s':''} logged</div>
-          </div>
-          <div class="ach-badge ${cls}">${mtd?fmtAch(mtd.achievement):'No data'}</div>
-        </div>
-        <div class="dept-stats">
-          <div class="stat-item"><div class="stat-label">Avail Shifts</div><div class="stat-val">${mtd?fmtN(mtd.available):'—'}</div></div>
-          <div class="stat-item"><div class="stat-label">Needed</div><div class="stat-val">${mtd?fmtN(mtd.needed):'—'}</div></div>
-          <div class="stat-item"><div class="stat-label">Days</div><div class="stat-val">${rs.length||'—'}</div></div>
-        </div>
-        ${mtd&&(mtd.penalty>0||mtd.vacRatio>0.10)?`
-        <div class="penalty-row">
-          ${mtd.penalty>0?`<span class="penalty-tag">⚡ ${mtd.penalty.toFixed(0)} LE</span>`:''}
-          ${mtd.vacRatio>0.10?`<span class="vacation-tag">🏖 Vac ${(mtd.vacRatio*100).toFixed(1)}%</span>`:''}
-        </div>`:''}      `;
-      grid.appendChild(card);
-    });
-    setOnline(true);
+/* ══════════════════════════════════════════════════
+   LOAD DATA
+══════════════════════════════════════════════════ */
+async function loadEntries() {
+  try {
+    const data = await sbFetch('/rest/v1/' + TABLE + '?select=*&order=entry_date.desc', { method: 'GET' });
+    allEntries = data || [];
   } catch(e) {
-    grid.innerHTML=`
-      <div class="empty">
-        <div class="empty-icon">⚠️</div>
-        <div style="font-size:17px;font-weight:700;color:var(--red);margin-bottom:8px">Connection Error</div>
-        <div style="font-size:14px;color:var(--text2);word-break:break-all;max-width:320px;margin:0 auto">${e.message}</div>
-        <button class="btn btn-secondary" style="margin-top:16px;width:auto;padding:10px 24px" onclick="loadDashboard()">🔄 Retry</button>
-      </div>`;
-    setOnline(false);
+    toast('⚠ Load failed: ' + e.message, true);
+    allEntries = [];
   }
 }
 
-async function syncNow() { await loadDashboard(); showToast('Refreshed','success'); }
+/* ══════════════════════════════════════════════════
+   PAGE NAVIGATION
+══════════════════════════════════════════════════ */
+function showPage(name) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('page-' + name).classList.add('active');
+  document.getElementById('tab-' + name).classList.add('active');
+  if (name === 'log') renderLog();
+  if (name === 'score') renderScore();
+  if (name === 'dashboard') renderDashboard();
+}
 
-// ══════════════════════════════════════════════
-//  ENTRY FORM
-// ══════════════════════════════════════════════
-function initForm() {
-  document.getElementById('fDate').value=todayStr();
-  // dept buttons
-  const sel=document.getElementById('formDeptSelector');
-  sel.innerHTML='';
-  DEPTS.forEach(d=>{
-    const btn=document.createElement('button');
-    btn.className='dept-btn'; btn.textContent=d.name; btn.dataset.code=d.code;
-    btn.onclick=()=>selectDept(d.code);
-    sel.appendChild(btn);
-  });
-  // history filter
-  const hf=document.getElementById('histDeptFilter');
-  hf.innerHTML='<option value="">All Departments</option>';
-  DEPTS.forEach(d=>{ const o=document.createElement('option'); o.value=d.code; o.textContent=d.name; hf.appendChild(o); });
-  // score months
-  const sms=document.getElementById('scoreMonthSel');
-  const now=new Date();
-  for(let i=0;i<12;i++) {
-    const d=new Date(now.getFullYear(),now.getMonth()-i,1);
-    const val=d.toISOString().slice(0,7);
-    const o=document.createElement('option'); o.value=val; o.textContent=val;
-    if(i===0) o.selected=true;
-    sms.appendChild(o);
+/* ══════════════════════════════════════════════════
+   STEP NAVIGATION
+══════════════════════════════════════════════════ */
+function goStep(n) {
+  // Validate before advancing
+  if (n > currentStep) {
+    if (!validateStep(currentStep)) return;
   }
-  document.getElementById('histMonth').value=monthStr();
-  // live recalc triggers
-  // fAvail and fOT — direct ID inputs
-  ['fAvail','fOT'].forEach(id=>{
-    const el=document.getElementById(id);
-    if(el) el.addEventListener('input',liveRecalc);
-  });
-  // fAllIn / fAllOut no longer exist as single inputs — handled via oninput on transfer-qty elements
-}
-
-function selectDept(code) {
-  selectedDept=code;
-  document.querySelectorAll('.dept-btn').forEach(b=>b.classList.toggle('active',b.dataset.code===code));
-  const dept=DEPTS.find(d=>d.code===code);
-  document.getElementById('formDeptLabel').textContent=dept.name;
-  renderProdTable(code);
-  populateTransferSelects();
-  liveRecalc();
-}
-
-function renderProdTable(code) {
-  const wrap=document.getElementById('modelTableWrap');
-  const models=MODELS_BY_DEPT[code]||[];
-  let html=`<table class="prod-table">
-    <thead><tr>
-      <th style="text-align:left;min-width:140px">Model / Variant</th>
-      <th>KPW</th>
-      <th>Delivery Qty</th>
-      <th>Stock Begin</th>
-      <th>Stock End</th>
-      <th>Prod Qty</th>
-    </tr></thead><tbody>`;
-  models.forEach((m,i)=>{
-    const [model,variant,kpw]=m;
-    const label=variant?`${model} · ${variant}`:model;
-    const isTbd=kpw===null;
-    html+=`<tr class="${isTbd?'tbd-row':''}">
-      <td>${label}${isTbd?' ⚠':''}</td>
-      <td class="kpw-cell ${isTbd?'tbd-kpw':''}">${isTbd?'⚠ TBD':kpw}</td>
-      <td><input class="tbl-inp" type="number" min="0" step="1" data-i="${i}" data-f="d" placeholder="0" oninput="liveRecalc()"></td>
-      <td><input class="tbl-inp" type="number" min="0" step="1" data-i="${i}" data-f="b" placeholder="0" oninput="liveRecalc()"></td>
-      <td><input class="tbl-inp" type="number" min="0" step="1" data-i="${i}" data-f="e" placeholder="0" oninput="liveRecalc()"></td>
-      <td class="prod-cell" id="pq_${i}">—</td>
-    </tr>`;
-  });
-  html+='</tbody></table>';
-  wrap.innerHTML=html;
-}
-
-function getModelRows() {
-  if(!selectedDept) return [];
-  return (MODELS_BY_DEPT[selectedDept]||[]).map((m,i)=>{
-    const d=Number(document.querySelector(`[data-i="${i}"][data-f="d"]`)?.value||0);
-    const b=Number(document.querySelector(`[data-i="${i}"][data-f="b"]`)?.value||0);
-    const e=Number(document.querySelector(`[data-i="${i}"][data-f="e"]`)?.value||0);
-    const pq=calcProdQty(d,b,e);
-    const cell=document.getElementById(`pq_${i}`);
-    if(cell) cell.textContent=pq!==0?pq:'—';
-    return {model_name:m[0],variant:m[1],kpw:m[2],delivery_qty:d,stock_begin:b,stock_end:e,pq};
+  currentStep = n;
+  [1,2,3,4].forEach(i => {
+    document.getElementById('step'+i).style.display = i === n ? '' : 'none';
+    const dot = document.getElementById('sd'+i);
+    dot.classList.toggle('done', i < n);
+    dot.classList.toggle('active', i === n);
   });
 }
 
-function liveRecalc() {
-  try {
-    const rows=getModelRows();
-    const needed=calcNeeded(rows);
-    const availEl=document.getElementById('fAvail');
-    const otEl=document.getElementById('fOT');
-    const avail=(availEl?Number(availEl.value)||0:0)+(otEl?Number(otEl.value)||0:0);
-    const allIn  = collectTransfers('in').reduce((s,t)=>s+t.qty,0);
-    const allOut = collectTransfers('out').reduce((s,t)=>s+t.qty,0);
-    const ach=needed>0?calcAchieve(avail,allIn,needed,allOut):null;
-    const pen=calcPenalty(ach);
-    const cls=achClass(ach);
-
-    const mN=document.getElementById('mNeeded');
-    const mA=document.getElementById('mAvail');
-    const mAch=document.getElementById('mAch');
-    const mP=document.getElementById('mPen');
-    const bar=document.getElementById('achBar');
-
-    if(mN) mN.textContent=fmtN(needed);
-    if(mA) mA.textContent=fmtN(avail);
-    if(mAch){ mAch.textContent=fmtAch(ach); mAch.className=`meter-val ${cls}`; }
-    if(mP) mP.textContent=pen!==0?pen.toFixed(0):'0';
-
-    if(bar){
-      const pct=ach!==null?Math.min(ach*100,115):0;
-      const color=cls==='ok'?'var(--green)':cls==='warn'?'var(--warn)':cls==='crit'?'var(--red)':'var(--border)';
-      bar.style.width=pct+'%'; bar.style.background=color;
+function validateStep(s) {
+  if (s === 1) {
+    if (!document.getElementById('f-date').value) { toast('Select a date'); return false; }
+    if (!document.getElementById('f-dept').value) { toast('Select a department'); return false; }
+  }
+  if (s === 2) {
+    const dept = document.getElementById('f-dept').value;
+    if (dept === 'GM') {
+      const total = getGMTotalQty();
+      if (total < 0) { toast('Invalid GM quantities'); return false; }
     }
-  } catch(err){ /* silent during init */ }
+  }
+  return true;
 }
 
-function resetForm() {
-  document.getElementById('fDate').value=todayStr();
-  ['fAvail','fOT','fVac','fNotes'].forEach(id=>document.getElementById(id).value='');
-  // Reset transfer rows — keep only row 0, clear values
-  ['allInRows','allOutRows'].forEach(containerId=>{
-    const c=document.getElementById(containerId);
-    const first=c.querySelector('.transfer-item');
-    c.innerHTML=''; c.appendChild(first);
-    first.querySelector('select').value='';
-    first.querySelector('input').value='';
-  });
-  selectedDept=null;
-  document.querySelectorAll('.dept-btn').forEach(b=>b.classList.remove('active'));
-  document.getElementById('formDeptLabel').textContent='Select a department first';
-  document.getElementById('modelTableWrap').innerHTML='<div style="padding:24px;text-align:center;color:var(--text2);font-size:16px">← Complete Step 1 first</div>';
-  ['mNeeded','mAvail','mAch','mPen'].forEach(id=>document.getElementById(id).textContent='—');
-  document.getElementById('achBar').style.width='0%';
+/* ══════════════════════════════════════════════════
+   DEPT CHANGE — renders correct Step 2 content
+══════════════════════════════════════════════════ */
+function onDeptChange() {
+  const dept = document.getElementById('f-dept').value;
+  const body = document.getElementById('step2-body');
+  if (dept === 'GM') {
+    body.innerHTML = renderGMModelTable();
+  } else {
+    body.innerHTML = `
+      <div class="field">
+        <label>Delivery Quantity (total)</label>
+        <input type="number" id="f-del-qty" min="0" placeholder="0" style="font-size:22px;font-weight:700;padding:14px;"/>
+      </div>`;
+  }
 }
 
-
-// ── TRANSFER HELPERS
-function getDeptOptions(excludeCode) {
-  return DEPTS.filter(d=>d.code!==excludeCode)
-    .map(d=>`<option value="${d.code}">${d.name}</option>`).join('');
+/* ══════════════════════════════════════════════════
+   GM MODEL TABLE
+══════════════════════════════════════════════════ */
+function renderGMModelTable() {
+  const rows = GM_MODELS.map(m => `
+    <tr>
+      <td>
+        <div class="model-name">${m.name}</div>
+        <div class="model-kpw">KPW: ${m.kpw != null ? m.kpw : '—'}</div>
+      </td>
+      <td style="text-align:right;">
+        <input type="number" class="gm-qty-input" id="gm-qty-${m.id}"
+          min="0" placeholder="0" oninput="updateGMTotals()"/>
+      </td>
+    </tr>`).join('');
+  return `
+    <div style="font-size:11px;color:var(--muted);margin-bottom:8px;font-weight:600;">
+      Enter production quantity per GM model
+    </div>
+    <table class="gm-model-table">
+      <thead><tr><th>Model</th><th style="text-align:right;">Qty (units)</th></tr></thead>
+      <tbody>${rows}</tbody>
+      <tfoot>
+        <tr class="gm-total-row">
+          <td>TOTAL</td>
+          <td style="text-align:right;" id="gm-total-qty">0</td>
+        </tr>
+      </tfoot>
+    </table>
+    <div class="gm-needed-label" id="gm-needed-label">Needed workers: —</div>`;
 }
 
-function populateTransferSelects() {
-  document.querySelectorAll('.transfer-dept').forEach(sel=>{
-    const current=sel.value;
-    sel.innerHTML=`<option value="">— ${sel.id&&sel.id.includes('In')?'From':'To'} Department —</option>`
-      + getDeptOptions(selectedDept||'');
-    if(current) sel.value=current;
-  });
-}
-
-function addTransferRow(dir) {
-  const containerId = dir==='in'?'allInRows':'allOutRows';
-  const container   = document.getElementById(containerId);
-  const idx         = container.querySelectorAll('.transfer-item').length;
-  const labelWord   = dir==='in'?'From':'To';
-  const div=document.createElement('div');
-  div.className='transfer-item';
-  div.innerHTML=`
-    <select class="transfer-dept" id="fAll${dir==='in'?'In':'Out'}Dept${idx}">
-      <option value="">— ${labelWord} Department —</option>
-      ${getDeptOptions(selectedDept||'')}
-    </select>
-    <input class="transfer-qty" type="number" min="0" step="0.5" placeholder="0"
-      id="fAll${dir==='in'?'In':'Out'}Qty${idx}" oninput="liveRecalc()">
-    <button class="transfer-remove-btn" onclick="this.closest('.transfer-item').remove();liveRecalc()">✕</button>`;
-  container.appendChild(div);
-}
-
-function collectTransfers(dir) {
-  const container=document.getElementById(dir==='in'?'allInRows':'allOutRows');
-  if(!container) return [];
-  const result=[];
-  container.querySelectorAll('.transfer-item').forEach(item=>{
-    const sel=item.querySelector('select');
-    const inp=item.querySelector('input');
-    if(!sel||!inp) return;
-    const qty=Number(inp.value)||0;
-    if(qty>0) result.push({dept: sel.value||'Unknown', qty});
+function getGMModelQtys() {
+  const result = {};
+  GM_MODELS.forEach(m => {
+    const el = document.getElementById('gm-qty-' + m.id);
+    result[m.id] = el ? (parseFloat(el.value) || 0) : 0;
   });
   return result;
 }
 
-async function submitEntry() {
-  if(!selectedDept) { showToast('Step 1: Select a department','error'); return; }
-  const date=document.getElementById('fDate').value;
-  if(!date) { showToast('Step 2: Enter the date','error'); return; }
-  const avail=Number(document.getElementById('fAvail').value)||0;
-  if(!avail) { showToast('Step 2: Enter available workers','error'); return; }
+function getGMTotalQty() {
+  return Object.values(getGMModelQtys()).reduce((s, v) => s + v, 0);
+}
 
-  const rows=getModelRows();
-  const needed=calcNeeded(rows);
-  const ot    =Number(document.getElementById('fOT').value)||0;
-  const vac   =Number(document.getElementById('fVac').value)||0;
-  const notes =document.getElementById('fNotes').value.trim();
+function updateGMTotals() {
+  const qtys = getGMModelQtys();
+  const total = Object.values(qtys).reduce((s, v) => s + v, 0);
+  document.getElementById('gm-total-qty').textContent = total;
 
-  // Collect transfer rows
-  const allInTransfers  = collectTransfers('in');   // [{dept, qty}]
-  const allOutTransfers = collectTransfers('out');
-  const allIn  = allInTransfers.reduce((s,t)=>s+t.qty,0);
-  const allOut = allOutTransfers.reduce((s,t)=>s+t.qty,0);
+  // Compute needed workers from per-model KPW
+  let needed = 0;
+  GM_MODELS.forEach(m => {
+    if (m.kpw != null && qtys[m.id] > 0) needed += qtys[m.id] / m.kpw;
+  });
+  const lbl = document.getElementById('gm-needed-label');
+  lbl.textContent = needed > 0 ? 'Needed workers: ' + needed.toFixed(2) : 'Needed workers: —';
+}
 
-  const availShifts=avail*1+ot;
-  const ach  =needed>0?calcAchieve(availShifts,allIn,needed,allOut):null;
-  const pen  =calcPenalty(ach);
-  const vacR =calcVacRatio(vac,availShifts);
+/* ══════════════════════════════════════════════════
+   COMPUTE GM NEEDED FROM STORED MODEL QTYS
+══════════════════════════════════════════════════ */
+function computeGMNeeded(modelQtysObj) {
+  let needed = 0;
+  GM_MODELS.forEach(m => {
+    const qty = modelQtysObj[m.id] || 0;
+    if (m.kpw != null && qty > 0) needed += qty / m.kpw;
+  });
+  return needed;
+}
 
-  const payload={
-    entry_date:       date,
-    department_code:  selectedDept,
-    available_workers:avail,
-    actual_working_days:1,
-    over_time_shifts: ot,
-    all_in_shifts:    allIn,
-    all_out_shifts:   allOut,
-    vacations:        vac,
-    needed_workers:   needed,
-    achievement:      ach,
-    penalty:          pen,
-    vacation_ratio:   vacR,
-    submitted_by:     'PM',
-    notes,
-    model_rows_json:  JSON.stringify(rows.filter(r=>r.delivery_qty>0||r.stock_begin>0||r.stock_end>0)),
-    transfers_json:   JSON.stringify({in: allInTransfers, out: allOutTransfers}),
+/* ══════════════════════════════════════════════════
+   TRANSFERS
+══════════════════════════════════════════════════ */
+function addTransfer(dir) {
+  const fromSel = document.getElementById(dir === 'in' ? 'in-from' : 'out-to');
+  const qtySel  = document.getElementById(dir === 'in' ? 'in-qty' : 'out-qty');
+  const dept = fromSel.value;
+  const qty  = parseFloat(qtySel.value);
+  if (!dept || !qty || qty <= 0) { toast('Select dept and qty'); return; }
+  const list = dir === 'in' ? inTransfers : outTransfers;
+  list.push({ dept, qty });
+  fromSel.value = ''; qtySel.value = '';
+  renderTransferTags();
+}
+
+function removeTransfer(dir, idx) {
+  if (dir === 'in') inTransfers.splice(idx, 1);
+  else outTransfers.splice(idx, 1);
+  renderTransferTags();
+}
+
+function renderTransferTags() {
+  document.getElementById('in-tags').innerHTML =
+    inTransfers.map((t,i) => `<span class="transfer-tag">${DEPT_LABELS[t.dept] || t.dept} +${t.qty}<button onclick="removeTransfer('in',${i})">×</button></span>`).join('');
+  document.getElementById('out-tags').innerHTML =
+    outTransfers.map((t,i) => `<span class="transfer-tag" style="background:#fee2e2;color:#991b1b;">${DEPT_LABELS[t.dept] || t.dept} −${t.qty}<button onclick="removeTransfer('out',${i})" style="color:#991b1b;">×</button></span>`).join('');
+}
+
+/* ══════════════════════════════════════════════════
+   CONFIRM MODAL
+══════════════════════════════════════════════════ */
+function openConfirm() {
+  const dept = document.getElementById('f-dept').value;
+  const date = document.getElementById('f-date').value;
+  const avail = parseFloat(document.getElementById('f-avail').value) || 0;
+  const ot    = parseFloat(document.getElementById('f-ot').value) || 0;
+  const vac   = parseFloat(document.getElementById('f-vac').value) || 0;
+  const abs   = parseFloat(document.getElementById('f-abs').value) || 0;
+  const stkB  = parseFloat(document.getElementById('f-stk-begin').value) || 0;
+  const stkE  = parseFloat(document.getElementById('f-stk-end').value) || 0;
+
+  let delQty = 0, neededWkrs = 0, gmBreakdownHtml = '';
+
+  if (dept === 'GM') {
+    const gmQtys = getGMModelQtys();
+    delQty = Object.values(gmQtys).reduce((s,v) => s+v, 0);
+    neededWkrs = computeGMNeeded(gmQtys);
+    const bmRows = GM_MODELS.map(m => {
+      const q = gmQtys[m.id] || 0;
+      return q > 0 ? `<tr><td class="cgm-model">${m.name}</td><td class="cgm-qty">${q}</td></tr>` : '';
+    }).join('');
+    gmBreakdownHtml = `<table class="confirm-gm-table"><tbody>${bmRows}</tbody></table>`;
+  } else {
+    delQty = parseFloat(document.getElementById('f-del-qty').value) || 0;
+    neededWkrs = DEPT_KPW[dept] ? delQty / DEPT_KPW[dept] : 0;
+  }
+
+  const prodQty = delQty + stkE - stkB;
+  const totalIn  = inTransfers.reduce((s,t) => s+t.qty, 0);
+  const totalOut = outTransfers.reduce((s,t) => s+t.qty, 0);
+  const availShifts = avail + ot;
+  const ach = (neededWkrs + totalOut) > 0 ? (availShifts + totalIn) / (neededWkrs + totalOut) : 0;
+  const achPct = (ach * 100).toFixed(1);
+
+  document.getElementById('confirm-content').innerHTML = `
+    <div class="confirm-row"><span class="confirm-label">Date</span><span class="confirm-value">${date}</span></div>
+    <div class="confirm-row"><span class="confirm-label">Department</span><span class="confirm-value">${DEPT_LABELS[dept]}</span></div>
+    <div class="confirm-row"><span class="confirm-label">Delivery Qty</span><span class="confirm-value">${delQty}${dept==='GM' ? ' (multi-model)' : ''}</span></div>
+    ${dept === 'GM' ? '<div class="confirm-row"><span class="confirm-label">By Model</span><span class="confirm-value" style="text-align:right;">' + gmBreakdownHtml + '</span></div>' : ''}
+    <div class="confirm-row"><span class="confirm-label">Production Qty</span><span class="confirm-value">${prodQty}</span></div>
+    <div class="confirm-row"><span class="confirm-label">Available Workers</span><span class="confirm-value">${avail} (+${ot} OT)</span></div>
+    <div class="confirm-row"><span class="confirm-label">Needed Workers</span><span class="confirm-value">${neededWkrs.toFixed(2)}</span></div>
+    <div class="confirm-row"><span class="confirm-label">All-In / All-Out</span><span class="confirm-value">+${totalIn} / −${totalOut}</span></div>
+    <div class="confirm-row"><span class="confirm-label">Achievement</span><span class="confirm-value" style="color:${ach>=0.99?'var(--ok)':'var(--danger)'};">${achPct}%</span></div>
+  `;
+  document.getElementById('confirm-modal').classList.add('open');
+}
+
+function closeConfirm() { document.getElementById('confirm-modal').classList.remove('open'); }
+
+/* ══════════════════════════════════════════════════
+   SAVE ENTRY
+══════════════════════════════════════════════════ */
+async function saveEntry() {
+  closeConfirm();
+  const dept  = document.getElementById('f-dept').value;
+  const date  = document.getElementById('f-date').value;
+  const avail = parseFloat(document.getElementById('f-avail').value) || 0;
+  const ot    = parseFloat(document.getElementById('f-ot').value) || 0;
+  const vac   = parseFloat(document.getElementById('f-vac').value) || 0;
+  const abs   = parseFloat(document.getElementById('f-abs').value) || 0;
+  const stkB  = parseFloat(document.getElementById('f-stk-begin').value) || 0;
+  const stkE  = parseFloat(document.getElementById('f-stk-end').value) || 0;
+
+  let delQty = 0, neededWkrs = 0, gm_model_qtys = null;
+
+  if (dept === 'GM') {
+    const gmQtys = getGMModelQtys();
+    gm_model_qtys = gmQtys;
+    delQty = Object.values(gmQtys).reduce((s,v) => s+v, 0);
+    neededWkrs = computeGMNeeded(gmQtys);
+  } else {
+    delQty = parseFloat(document.getElementById('f-del-qty').value) || 0;
+    neededWkrs = DEPT_KPW[dept] ? delQty / DEPT_KPW[dept] : 0;
+  }
+
+  const prodQty = delQty + stkE - stkB;
+
+  const payload = {
+    entry_date: date,
+    dept_code: dept,
+    delivery_qty: delQty,
+    production_qty: prodQty,
+    stock_begin: stkB,
+    stock_end: stkE,
+    available_workers: avail,
+    overtime_shifts: ot,
+    vacations: vac,
+    absences: abs,
+    needed_workers: parseFloat(neededWkrs.toFixed(4)),
+    all_in: inTransfers.reduce((s,t) => s+t.qty, 0),
+    all_out: outTransfers.reduce((s,t) => s+t.qty, 0),
+    transfers_json: JSON.stringify({ in: inTransfers, out: outTransfers }),
+    gm_model_qtys: gm_model_qtys ? JSON.stringify(gm_model_qtys) : null
   };
 
-  if(!isOnline) {
-    pendingQueue.push(payload); saveQueue();
-    showToast('Saved offline — syncs when online','info');
-    resetForm(); return;
-  }
   try {
-    await doInsert(payload);
-    showToast(`Day saved ✓  (${date})`, 'success');
+    await sbFetch('/rest/v1/' + TABLE, {
+      method: 'POST',
+      body: JSON.stringify(payload),
+      headers: { 'Prefer': 'return=minimal' }
+    });
+    toast('✓ Entry saved');
     resetForm();
-  } catch(e) { showToast('Save failed: '+e.message,'error'); }
+    await loadEntries();
+    renderDashboard();
+    renderLog();
+  } catch(e) {
+    toast('⚠ Save failed: ' + e.message, true);
+  }
 }
 
-async function doInsert(payload) {
-  // INSERT only — no upsert. Each day = new row.
-  await sbFetch('capacity_entries', {
-    method:'POST',
-    body:JSON.stringify(payload),
-    headers:{ 'Prefer':'return=minimal' },
-  });
+function resetForm() {
+  inTransfers = []; outTransfers = [];
+  document.getElementById('f-dept').value = '';
+  document.getElementById('f-avail').value = '';
+  document.getElementById('f-ot').value = '';
+  document.getElementById('f-vac').value = '';
+  document.getElementById('f-abs').value = '';
+  document.getElementById('f-stk-begin').value = '';
+  document.getElementById('f-stk-end').value = '';
+  document.getElementById('step2-body').innerHTML = '';
+  renderTransferTags();
+  goStep(1);
+  showPage('dashboard');
 }
 
-// ══════════════════════════════════════════════
-//  HISTORY — daily log
-// ══════════════════════════════════════════════
+/* ══════════════════════════════════════════════════
+   DASHBOARD
+══════════════════════════════════════════════════ */
+function renderDashboard() {
+  const month = new Date().toISOString().slice(0,7);
+  const mtdEntries = allEntries.filter(e => e.entry_date && e.entry_date.startsWith(month));
+  const grid = document.getElementById('dept-cards-grid');
+  const tbody = document.getElementById('summary-tbody');
 
-function formatTransfers(json, dir) {
-  try {
-    const data = JSON.parse(json||'{}');
-    const transfers = data[dir]||[];
-    if(!transfers.length) return '';
-    const names = transfers.map(t=>{
-      const d=DEPTS.find(x=>x.code===t.dept);
-      return `${d?d.short:t.dept}(${t.qty})`;
-    });
-    return ` <span style="font-size:11px;color:var(--blue);font-family:var(--font-mono)">[${names.join(', ')}]</span>`;
-  } catch(e){ return ''; }
+  const aggr = aggregateByDept(mtdEntries);
+  const cards = DEPTS.map(d => {
+    const a = aggr[d] || { available:0, all_in:0, needed:0, all_out:0 };
+    const ach = (a.needed + a.all_out) > 0 ? (a.available + a.all_in) / (a.needed + a.all_out) : 0;
+    const pct = (ach * 100).toFixed(1);
+    const cls = ach >= 0.99 ? 'ok' : ach >= 0.95 ? 'warn' : 'bad';
+    return `<div class="dept-card">
+      <div class="dname">${DEPT_LABELS[d]}</div>
+      <div class="dach ${cls}">${pct}%</div>
+      <div class="dsub">Avail: ${a.available.toFixed(1)} | Needed: ${a.needed.toFixed(1)}</div>
+      ${ach < 0.99 && (a.needed + a.all_out) > 0 ? `<div class="dpen">Penalty: ${Math.abs((ach - 0.99) * 300).toFixed(0)} EGP</div>` : ''}
+    </div>`;
+  }).join('');
+  grid.innerHTML = cards || '<div style="text-align:center;color:var(--muted);font-size:12px;grid-column:1/-1;padding:20px;">No entries this month</div>';
+
+  tbody.innerHTML = DEPTS.map(d => {
+    const a = aggr[d] || { available:0, all_in:0, needed:0, all_out:0 };
+    const ach = (a.needed + a.all_out) > 0 ? (a.available + a.all_in) / (a.needed + a.all_out) : 0;
+    const pct = (ach * 100).toFixed(1);
+    const pen = ach < 0.99 && (a.needed + a.all_out) > 0 ? Math.abs((ach - 0.99) * 300).toFixed(0) : '—';
+    const badge = ach >= 0.99 ? 'badge-ok' : ach >= 0.95 ? 'badge-warn' : 'badge-bad';
+    return `<tr>
+      <td style="font-weight:600;">${DEPT_LABELS[d]}</td>
+      <td>${a.available.toFixed(1)}</td>
+      <td>${a.needed.toFixed(1)}</td>
+      <td><span class="badge ${badge}">${pct}%</span></td>
+      <td style="color:var(--danger);font-weight:700;">${pen !== '—' ? pen + ' EGP' : '—'}</td>
+    </tr>`;
+  }).join('');
 }
 
-async function loadHistory() {
-  const list=document.getElementById('histList');
-  list.innerHTML='<div class="spinner"></div>';
-  const dept =document.getElementById('histDeptFilter').value;
-  const month=document.getElementById('histMonth').value||monthStr();
-  const from=month+'-01', to=month+'-31';
-  try {
-    let path=`capacity_entries?entry_date=gte.${from}&entry_date=lte.${to}&order=entry_date.desc`;
-    if(dept) path+=`&department_code=eq.${dept}`;
-    const rows=await sbFetch(path);
-    if(!rows||!rows.length) {
-      list.innerHTML='<div class="empty"><div class="empty-icon">📭</div>No entries for this period</div>';
-      return;
+/* ══════════════════════════════════════════════════
+   LOG
+══════════════════════════════════════════════════ */
+function renderLog() {
+  const month = document.getElementById('log-month-sel').value;
+  const dept  = document.getElementById('log-dept-sel').value;
+  let entries = allEntries.filter(e => e.entry_date && e.entry_date.startsWith(month));
+  if (dept !== 'ALL') entries = entries.filter(e => e.dept_code === dept);
+  entries.sort((a,b) => b.entry_date.localeCompare(a.entry_date));
+
+  const tbody = document.getElementById('log-tbody');
+  if (!entries.length) { tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;color:var(--muted);padding:20px;">No entries</td></tr>'; return; }
+
+  tbody.innerHTML = entries.map(e => {
+    const ach = (e.needed_workers + (e.all_out||0)) > 0
+      ? ((e.available_workers + (e.overtime_shifts||0) + (e.all_in||0)) / (e.needed_workers + (e.all_out||0)) * 100).toFixed(1)
+      : '—';
+    const achColor = parseFloat(ach) >= 99 ? 'var(--ok)' : 'var(--danger)';
+
+    // GM breakdown
+    let gmHtml = '';
+    if (e.dept_code === 'GM' && e.gm_model_qtys) {
+      let mqs;
+      try { mqs = typeof e.gm_model_qtys === 'string' ? JSON.parse(e.gm_model_qtys) : e.gm_model_qtys; } catch(ex) { mqs = {}; }
+      const lines = GM_MODELS.filter(m => mqs[m.id] > 0).map(m => `${m.name}:${mqs[m.id]}`).join(' | ');
+      if (lines) gmHtml = `<div class="gm-breakdown">${lines}</div>`;
     }
-    list.innerHTML='';
-    rows.forEach(r=>{
-      const d=DEPTS.find(x=>x.code===r.department_code);
-      const cls=achClass(r.achievement);
-      const modelRows=JSON.parse(r.model_rows_json||'[]');
-      const card=document.createElement('div');
-      card.className='hist-card';
-      card.innerHTML=`
-        <div class="hist-card-top">
-          <div>
-            <div class="hist-date">📅 ${r.entry_date}</div>
-            <div class="hist-dept">${d?d.name:r.department_code}</div>
-          </div>
-          <div style="display:flex;flex-direction:column;align-items:flex-end;gap:4px">
-            <div class="ach-badge ${cls}">${fmtAch(r.achievement)}</div>
-            ${Number(r.penalty||0)>0?`<div style="font-size:13px;color:var(--red);font-weight:600">${Number(r.penalty).toFixed(0)} LE</div>`:''}
-            <button class="del-btn" onclick="deleteEntry('${r.id}',this)">🗑 Delete</button>
-          </div>
-        </div>
-        <div class="hist-stats-row">
-          <div class="hist-stat">Workers: <strong>${r.available_workers}</strong></div>
-          <div class="hist-stat">Avail: <strong>${fmtN(Number(r.available_workers)*1+(r.over_time_shifts||0))}</strong></div>
-          <div class="hist-stat">Needed: <strong>${fmtN(r.needed_workers)}</strong></div>
-          <div class="hist-stat">OT: <strong>${r.over_time_shifts||0}</strong></div>
-          <div class="hist-stat">AllIn: <strong>${r.all_in_shifts||0}</strong>${formatTransfers(r.transfers_json,'in')}</div>
-          <div class="hist-stat">AllOut: <strong>${r.all_out_shifts||0}</strong>${formatTransfers(r.transfers_json,'out')}</div>
-        </div>
-        ${modelRows.length?`
-        <div class="hist-models">
-          <div style="font-weight:600;margin-bottom:4px;font-size:12px;color:var(--text2)">PRODUCTION:</div>
-          <div class="hist-model-row">
-            ${modelRows.map(m=>`<span class="hist-model-tag">${m.model_name}${m.variant?' · '+m.variant:''} = ${m.production_qty}</span>`).join('')}
-          </div>
-        </div>`:''}        ${r.notes?`<div style="font-size:13px;color:var(--text2);margin-top:6px;padding-top:6px;border-top:1px solid var(--bg4)">📝 ${r.notes}</div>`:''}
-      `;
-      list.appendChild(card);
-    });
-  } catch(e) { list.innerHTML=`<div class="empty">Error: ${e.message}</div>`; }
+
+    return `<tr>
+      <td>${e.entry_date ? e.entry_date.slice(5) : '—'}</td>
+      <td style="font-weight:600;">${DEPT_LABELS[e.dept_code] || e.dept_code}</td>
+      <td>${e.delivery_qty || 0}${gmHtml}</td>
+      <td>${(e.available_workers||0) + (e.overtime_shifts||0)}</td>
+      <td style="color:${achColor};font-weight:700;">${ach}%</td>
+      <td><button class="btn-danger" onclick="promptDelete('${e.id}')">✕</button></td>
+    </tr>`;
+  }).join('');
 }
 
-async function deleteEntry(id, btn) {
-  if(!confirm('Delete this daily entry?')) return;
+/* ══════════════════════════════════════════════════
+   SCORE
+══════════════════════════════════════════════════ */
+function renderScore() {
+  const month = document.getElementById('score-month-sel').value;
+  const entries = allEntries.filter(e => e.entry_date && e.entry_date.startsWith(month));
+  const aggr = aggregateByDept(entries);
+
+  document.getElementById('score-tbody').innerHTML = DEPTS.map(d => {
+    const a = aggr[d] || { available:0, all_in:0, needed:0, all_out:0 };
+    const ach = (a.needed + a.all_out) > 0 ? (a.available + a.all_in) / (a.needed + a.all_out) : 0;
+    const pct = (ach * 100).toFixed(2);
+    const pen = ach < 0.99 && (a.needed + a.all_out) > 0 ? Math.abs((ach - 0.99) * 300).toFixed(0) : 0;
+    const badge = ach >= 0.99 ? 'badge-ok' : ach >= 0.95 ? 'badge-warn' : 'badge-bad';
+    return `<tr>
+      <td style="font-weight:700;">${DEPT_LABELS[d]}</td>
+      <td>${a.available.toFixed(1)}</td>
+      <td>${a.all_in.toFixed(1)}</td>
+      <td>${a.needed.toFixed(2)}</td>
+      <td>${a.all_out.toFixed(1)}</td>
+      <td><span class="badge ${badge}">${pct}%</span></td>
+      <td style="color:var(--danger);font-weight:700;">${pen > 0 ? pen + ' EGP' : '—'}</td>
+    </tr>`;
+  }).join('');
+}
+
+/* ══════════════════════════════════════════════════
+   AGGREGATION
+══════════════════════════════════════════════════ */
+function aggregateByDept(entries) {
+  const aggr = {};
+  DEPTS.forEach(d => { aggr[d] = { available:0, all_in:0, needed:0, all_out:0 }; });
+  entries.forEach(e => {
+    const d = e.dept_code;
+    if (!aggr[d]) return;
+    const avShifts = (e.available_workers||0) + (e.overtime_shifts||0);
+    aggr[d].available += avShifts;
+    aggr[d].all_in    += e.all_in  || 0;
+    aggr[d].all_out   += e.all_out || 0;
+
+    // GM: recompute needed from model qtys if available
+    if (d === 'GM' && e.gm_model_qtys) {
+      let mqs;
+      try { mqs = typeof e.gm_model_qtys === 'string' ? JSON.parse(e.gm_model_qtys) : e.gm_model_qtys; } catch(ex) { mqs = {}; }
+      aggr[d].needed += computeGMNeeded(mqs);
+    } else {
+      aggr[d].needed += e.needed_workers || 0;
+    }
+  });
+  return aggr;
+}
+
+/* ══════════════════════════════════════════════════
+   DELETE
+══════════════════════════════════════════════════ */
+function promptDelete(id) {
+  pendingDeleteId = id;
+  document.getElementById('delete-modal').classList.add('open');
+}
+function closeDelete() { document.getElementById('delete-modal').classList.remove('open'); pendingDeleteId = null; }
+
+async function confirmDelete() {
+  const pass = prompt('Enter delete password:');
+  if (pass !== DELETE_PASS) { toast('⚠ Incorrect password'); return; }
+  closeDelete();
   try {
-    await sbFetch(`capacity_entries?id=eq.${id}`,{method:'DELETE',headers:{'Prefer':'return=minimal'}});
-    btn.closest('.hist-card').remove();
-    showToast('Entry deleted','success');
-  } catch(e) { showToast('Delete failed: '+e.message,'error'); }
+    await sbFetch('/rest/v1/' + TABLE + '?id=eq.' + pendingDeleteId, { method: 'DELETE' });
+    toast('Entry deleted');
+    await loadEntries();
+    renderLog();
+    renderDashboard();
+  } catch(e) {
+    toast('⚠ Delete failed: ' + e.message, true);
+  }
 }
 
-// ══════════════════════════════════════════════
-//  SCOREBOARD — MTD aggregation
-// ══════════════════════════════════════════════
-async function loadScoreboard() {
-  const sc=document.getElementById('scoreList');
-  sc.innerHTML='<div class="spinner"></div>';
-  const month=document.getElementById('scoreMonthSel').value||monthStr();
-  document.getElementById('scoreMonth').textContent=`Month-to-Date · ${month}`;
-  const from=month+'-01', to=month+'-31';
-  try {
-    const rows=await sbFetch(`capacity_entries?entry_date=gte.${from}&entry_date=lte.${to}&order=entry_date.asc`);
-    const byDept={};
-    (rows||[]).forEach(r=>{
-      if(!byDept[r.department_code]) byDept[r.department_code]=[];
-      byDept[r.department_code].push(r);
-    });
-    const sorted=DEPTS.map(d=>{
-      const rs=byDept[d.code]||[];
-      const mtd=rs.length?aggregateMTD(rs):null;
-      return {dept:d,mtd,days:rs.length};
-    }).sort((a,b)=>{
-      const aa=a.mtd?(a.mtd.achievement||0):-1;
-      const bb=b.mtd?(b.mtd.achievement||0):-1;
-      return bb-aa;
-    });
-    const totalPen=sorted.reduce((s,x)=>s+(x.mtd?x.mtd.penalty:0),0);
-    sc.innerHTML='';
-    // total penalty bar
-    const pbar=document.createElement('div');
-    pbar.className='score-total-bar';
-    pbar.innerHTML=`
-      <div class="score-total-lbl">Total Monthly Penalty</div>
-      <div class="score-total-val" style="color:${totalPen>0?'var(--red)':'var(--green)'}">${totalPen>0?totalPen.toFixed(0)+' LE':'✓ 0 LE'}</div>`;
-    sc.appendChild(pbar);
-
-    sorted.forEach((item,idx)=>{
-      const {dept,mtd,days}=item;
-      const cls=mtd?achClass(mtd.achievement):'nd';
-      const pen=mtd?mtd.penalty:0;
-      const row=document.createElement('div');
-      row.className='score-row';
-      row.innerHTML=`
-        <div class="score-rank">#${idx+1}</div>
-        <div>
-          <div class="score-dept-name">${dept.name}</div>
-          <div class="score-dept-sub">${days} day${days!==1?'s':''} · ${mtd?fmtN(mtd.needed)+' needed shifts':'No data'}</div>
-        </div>
-        <div class="score-ach ${cls}">${fmtAch(mtd?.achievement)}</div>
-        <div class="score-pen${pen===0?' zero':''}">${pen>0?'-'+pen.toFixed(0)+' LE':'—'}</div>`;
-      sc.appendChild(row);
-    });
-  } catch(e) { sc.innerHTML=`<div class="empty">Error: ${e.message}</div>`; }
+/* ══════════════════════════════════════════════════
+   TOAST
+══════════════════════════════════════════════════ */
+function toast(msg, err=false) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.style.background = err ? 'var(--danger)' : '#1e293b';
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 3000);
 }
-
-// ══════════════════════════════════════════════
-//  INIT
-// ══════════════════════════════════════════════
-function init() {
-  setOnline(navigator.onLine);
-  initForm();
-  loadDashboard();
-  if(isOnline && pendingQueue.length) flushQueue();
-}
-document.addEventListener('DOMContentLoaded', init);
-
-// PWA manifest
-const manifest={name:'MOBICA Capacity',short_name:'Capacity',start_url:'./',display:'standalone',
-  theme_color:'#dbeeff',background_color:'#dbeeff',
-  icons:[{src:"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' fill='%23dbeeff'/%3E%3Ccircle cx='50' cy='50' r='40' fill='%230969da'/%3E%3Ctext x='50' y='64' text-anchor='middle' font-family='Arial' font-weight='bold' font-size='36' fill='%23fff'%3EM%3C/text%3E%3C/svg%3E",sizes:'192x192',type:'image/svg+xml'}]};
-const blob=new Blob([JSON.stringify(manifest)],{type:'application/json'});
-document.getElementById('manifest-placeholder').href=URL.createObjectURL(blob);
 </script>
 </body>
 </html>
