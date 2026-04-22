@@ -247,8 +247,8 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(
             <option value="GM">General Motors (GM)</option>
             <option value="NISSAN">Nissan</option>
             <option value="EXCEED">Mercedes & Exeed</option>
-            <option value="BMW">BMW</option>
-            <option value="GEELY">Geely (AAV)</option>
+            <option value="BMW">BMW & Geely</option>
+            <option value="AAV">AAV & Toyota</option>
             <option value="ESAF">Proton (ESAF)</option>
             <option value="GHABBOUR">Ghabbour</option>
             <option value="KASRAWY">Kasrawy</option>
@@ -387,8 +387,8 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(
       <option value="GM">GM</option>
       <option value="NISSAN">Nissan</option>
       <option value="EXCEED">Mercedes/Exeed</option>
-      <option value="BMW">BMW</option>
-      <option value="GEELY">Geely</option>
+      <option value="BMW">BMW & Geely</option>
+      <option value="AAV">AAV & Toyota</option>
       <option value="ESAF">Proton</option>
       <option value="GHABBOUR">Ghabbour</option>
       <option value="KASRAWY">Kasrawy</option>
@@ -486,7 +486,6 @@ const DEPT_MODELS = {
     { id: 'VL20',      name: 'VL20',          kpw: 13.32 },
     { id: '310vl1',    name: '310 Lv1',       kpw: 4.47  },
     { id: '310vl2',    name: '310 Lv2',       kpw: 4.47  },
-    { id: 'BRACKET',   name: 'BRACKET',       kpw: null  }
   ],
   NISSAN: [
     { id: 'MC15_BLK',  name: 'MC15 Black',    kpw: 7.5   },
@@ -515,14 +514,6 @@ const DEPT_MODELS = {
     { id: 'SX_GK',     name: 'SX GK (Geely)', kpw: 2.65  },
     { id: 'SX_GL',     name: 'SX GL (Geely)', kpw: 2.65  }
   ],
-  GEELY: [
-    { id: 'SS_GS',     name: 'SS GS',         kpw: 3.876 },
-    { id: 'SS_GF',     name: 'SS GF',         kpw: 2.69  },
-    { id: 'SS_GF_BLK', name: 'SS GF Black',   kpw: 2.69  },
-    { id: 'SX_GF',     name: 'SX GF',         kpw: 2.65  },
-    { id: 'SX_GK',     name: 'SX GK',         kpw: 2.65  },
-    { id: 'SX_GL',     name: 'SX GL',         kpw: 2.65  }
-  ],
   ESAF: [
     { id: 'PROTON',    name: 'Proton',         kpw: 4.99  }
   ],
@@ -548,10 +539,10 @@ const DEPT_MODELS = {
 // Backward-compat alias
 const GM_MODELS = DEPT_MODELS.GM;
 
-const DEPTS = ['GM','NISSAN','EXCEED','BMW','GEELY','ESAF','GHABBOUR','KASRAWY'];
+const DEPTS = ['GM','NISSAN','EXCEED','BMW','AAV','ESAF','GHABBOUR','KASRAWY'];
 const DEPT_LABELS = {
   GM:'GM', NISSAN:'Nissan', EXCEED:'Mercedes/Exeed',
-  BMW:'BMW', GEELY:'Geely', ESAF:'Proton', GHABBOUR:'Ghabbour', KASRAWY:'Kasrawy'
+  BMW:'BMW & Geely', AAV:'AAV & Toyota', ESAF:'Proton', GHABBOUR:'Ghabbour', KASRAWY:'Kasrawy'
 };
 
 /* ══════════════════════════════════════════════════
