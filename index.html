@@ -1271,10 +1271,12 @@ async function confirmDelete() {
   const passEl = document.getElementById('delete-pass-input');
   const pass = passEl ? passEl.value : '';
   if (pass !== DELETE_PASS) { toast('⚠ Incorrect password'); return; }
+  if (!pendingDeleteId) { toast('⚠ No entry selected'); return; }
+  const idToDelete = pendingDeleteId;  // capture before closeDelete resets it
   closeDelete();
   try {
-    await sbFetch('/rest/v1/' + TABLE + '?id=eq.' + pendingDeleteId, { method: 'DELETE' });
-    toast('Entry deleted');
+    await sbFetch('/rest/v1/' + TABLE + '?id=eq.' + idToDelete, { method: 'DELETE' });
+    toast('✓ Entry deleted');
     await loadEntries();
     renderLog();
     renderDashboard();
