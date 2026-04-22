@@ -1,1 +1,1283 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1"/>
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate"/>
+<meta http-equiv="Pragma" content="no-cache"/>
+<meta http-equiv="Expires" content="0"/>
+<meta name="theme-color" content="#1a4a7a"/>
+<title>MOBICA Assembly Capacity</title>
+<link rel="manifest" href="manifest.json"/>
+<style>
+:root{
+  --bg:#e8f4fc;
+  --card:#ffffff;
+  --primary:#1a4a7a;
+  --primary-light:#2a6aaa;
+  --accent:#0d8de6;
+  --accent2:#f59e0b;
+  --danger:#dc2626;
+  --ok:#16a34a;
+  --warn:#d97706;
+  --text:#1e293b;
+  --muted:#64748b;
+  --border:#cbd5e1;
+  --step-done:#c7e8fc;
+  --step-active:#1a4a7a;
+  --shadow:0 2px 12px rgba(26,74,122,0.12);
+  --radius:12px;
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--text);min-height:100vh;}
 
+/* ── HEADER ── */
+.header{background:var(--primary);color:#fff;padding:10px 16px;display:flex;align-items:center;gap:10px;position:sticky;top:0;z-index:100;box-shadow:0 2px 8px rgba(0,0,0,0.25);}
+.header img{height:36px;border-radius:4px;}
+.header-title{flex:1;}
+.header-title h1{font-size:14px;font-weight:700;letter-spacing:.5px;}
+.header-title p{font-size:10px;opacity:.75;margin-top:1px;}
+.hbtn{background:rgba(255,255,255,0.15);border:none;color:#fff;border-radius:6px;padding:6px 10px;font-size:11px;cursor:pointer;font-weight:600;}
+
+/* ── TAB BAR ── */
+.tabs{display:flex;background:var(--primary);padding:0 8px 8px;}
+.tab{flex:1;text-align:center;padding:8px 4px;color:rgba(255,255,255,0.6);font-size:11px;font-weight:600;cursor:pointer;border-radius:8px;transition:.2s;}
+.tab.active{background:rgba(255,255,255,0.2);color:#fff;}
+
+/* ── CONTENT AREA ── */
+.page{display:none;padding:12px;}
+.page.active{display:block;}
+
+/* ── CARDS ── */
+.card{background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);margin-bottom:12px;overflow:hidden;}
+.card-head{padding:10px 14px;font-size:12px;font-weight:700;color:var(--primary);border-bottom:1px solid var(--border);display:flex;align-items:center;gap:6px;}
+.card-body{padding:12px 14px;}
+
+/* ── STEP FORM ── */
+.step-bar{display:flex;gap:6px;padding:12px 14px;background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);margin-bottom:12px;}
+.step-dot{flex:1;height:6px;border-radius:3px;background:var(--border);transition:.3s;}
+.step-dot.done{background:var(--accent);}
+.step-dot.active{background:var(--primary);}
+
+.step-label{text-align:center;font-size:11px;color:var(--muted);margin-bottom:12px;font-weight:600;letter-spacing:.3px;}
+
+.field{margin-bottom:14px;}
+.field label{display:block;font-size:11px;font-weight:700;color:var(--primary);margin-bottom:6px;letter-spacing:.3px;text-transform:uppercase;}
+.field input,.field select,.field textarea{width:100%;padding:10px 12px;border:1.5px solid var(--border);border-radius:8px;font-size:14px;font-family:inherit;color:var(--text);background:#fff;outline:none;transition:.2s;}
+.field input:focus,.field select:focus{border-color:var(--accent);}
+.field select{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='%2364748b' viewBox='0 0 16 16'%3E%3Cpath d='M7.247 11.14L2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 12px center;}
+
+/* ── GM MODEL TABLE ── */
+.gm-model-table{width:100%;border-collapse:collapse;margin-top:4px;}
+.gm-model-table th{font-size:10px;font-weight:700;color:var(--primary);text-transform:uppercase;letter-spacing:.3px;padding:6px 8px;background:#e8f4fc;text-align:left;}
+.gm-model-table td{padding:5px 6px;border-bottom:1px solid #e2eaf2;vertical-align:middle;}
+.gm-model-table tr:last-child td{border-bottom:none;}
+.gm-model-table .model-name{font-size:12px;font-weight:600;color:var(--text);white-space:nowrap;}
+.gm-model-table .model-kpw{font-size:10px;color:var(--muted);}
+.gm-qty-input{width:80px;padding:6px 8px;border:1.5px solid var(--border);border-radius:6px;font-size:14px;font-family:inherit;color:var(--text);text-align:center;outline:none;transition:.2s;}
+.gm-qty-input:focus{border-color:var(--accent);}
+.gm-total-row td{font-weight:700;color:var(--primary);font-size:12px;padding-top:8px;border-top:2px solid var(--primary);}
+.gm-needed-label{font-size:10px;color:var(--muted);margin-top:6px;text-align:right;}
+
+/* ── WORKER FIELDS GRID ── */
+.worker-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.worker-grid .field{margin-bottom:0;}
+
+/* ── TRANSFER SECTION ── */
+.transfer-header{font-size:11px;font-weight:700;color:var(--primary);margin-bottom:8px;text-transform:uppercase;letter-spacing:.3px;}
+.transfer-row{display:flex;gap:8px;align-items:center;margin-bottom:8px;}
+.transfer-row select{flex:2;padding:8px 10px;border:1.5px solid var(--border);border-radius:8px;font-size:13px;}
+.transfer-row input{flex:1;padding:8px 10px;border:1.5px solid var(--border);border-radius:8px;font-size:13px;text-align:center;}
+.transfer-row button{padding:8px 10px;border:none;border-radius:8px;cursor:pointer;font-size:14px;font-weight:700;}
+.btn-add-transfer{background:#e8f4fc;color:var(--primary);border:1.5px dashed var(--accent);padding:8px;width:100%;border-radius:8px;font-size:12px;cursor:pointer;font-weight:600;margin-top:4px;}
+.transfer-tag{display:inline-flex;align-items:center;gap:6px;background:#dbeafe;color:#1d4ed8;border-radius:16px;padding:4px 10px;font-size:11px;font-weight:600;margin:3px;}
+.transfer-tag button{background:none;border:none;color:#1d4ed8;cursor:pointer;font-size:14px;line-height:1;padding:0;}
+.transfer-section-divider{display:flex;align-items:center;gap:8px;margin:12px 0 8px;font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;}
+.transfer-section-divider::before,.transfer-section-divider::after{content:'';flex:1;height:1px;background:var(--border);}
+.other-transfer-row{display:flex;gap:8px;align-items:center;margin-bottom:8px;}
+.other-transfer-row input[type="text"]{flex:2;padding:8px 10px;border:1.5px solid var(--border);border-radius:8px;font-size:13px;}
+.other-transfer-row input[type="number"]{flex:1;padding:8px 10px;border:1.5px solid var(--border);border-radius:8px;font-size:13px;text-align:center;}
+.other-transfer-row button{padding:8px 12px;border:none;border-radius:8px;cursor:pointer;font-size:14px;font-weight:700;}
+.transfer-tag-other-in{background:#dcfce7;color:#15803d;}
+.transfer-tag-other-in button{color:#15803d;}
+.transfer-tag-other-out{background:#fef3c7;color:#92400e;}
+.transfer-tag-other-out button{color:#92400e;}
+
+/* ── SUGGESTIONS ── */
+.suggest-card{background:#fffbeb;border:1.5px solid #f59e0b;border-radius:10px;padding:10px 12px;margin-bottom:10px;display:none;}
+.suggest-card.visible{display:block;}
+.suggest-title{font-size:11px;font-weight:700;color:#92400e;text-transform:uppercase;letter-spacing:.3px;margin-bottom:8px;display:flex;align-items:center;gap:6px;}
+.suggest-item{display:flex;align-items:center;gap:8px;margin-bottom:6px;padding:7px 8px;background:#fff;border-radius:8px;border:1px solid #fde68a;}
+.suggest-item .s-label{flex:1;font-size:12px;font-weight:600;color:#78350f;}
+.suggest-item .s-qty{font-size:13px;font-weight:800;color:#92400e;min-width:36px;text-align:right;}
+.suggest-item .s-edit{width:60px;padding:5px 6px;border:1.5px solid #f59e0b;border-radius:6px;font-size:13px;font-weight:700;text-align:center;color:#78350f;background:#fffbeb;}
+.suggest-item .s-accept{background:#f59e0b;color:#fff;border:none;border-radius:6px;padding:5px 10px;font-size:11px;font-weight:700;cursor:pointer;white-space:nowrap;}
+.suggest-item .s-dismiss{background:none;border:none;color:#9ca3af;cursor:pointer;font-size:16px;padding:0 2px;line-height:1;}
+.suggest-note{font-size:10px;color:#92400e;opacity:.7;margin-top:6px;}
+
+/* ── BUTTONS ── */
+.btn-primary{width:100%;padding:13px;background:var(--primary);color:#fff;border:none;border-radius:10px;font-size:15px;font-weight:700;cursor:pointer;letter-spacing:.5px;margin-top:8px;transition:.2s;}
+.btn-primary:active{background:var(--primary-light);}
+.btn-primary:disabled{background:var(--border);color:var(--muted);cursor:default;}
+.btn-outline{width:100%;padding:11px;background:transparent;color:var(--primary);border:2px solid var(--primary);border-radius:10px;font-size:14px;font-weight:700;cursor:pointer;margin-top:8px;}
+.btn-danger{background:var(--danger);color:#fff;border:none;border-radius:6px;padding:4px 10px;font-size:11px;cursor:pointer;font-weight:600;}
+
+/* ── DASHBOARD CARDS ── */
+.dept-cards{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.dept-card{background:var(--card);border-radius:10px;padding:10px 12px;box-shadow:var(--shadow);border-left:4px solid var(--primary);}
+.dept-card .dname{font-size:11px;font-weight:700;color:var(--primary);}
+.dept-card .dach{font-size:20px;font-weight:800;color:var(--text);margin:4px 0;}
+.dept-card .dach.ok{color:var(--ok);}
+.dept-card .dach.warn{color:var(--warn);}
+.dept-card .dach.bad{color:var(--danger);}
+.dept-card .dsub{font-size:10px;color:var(--muted);}
+.dept-card .dpen{font-size:10px;color:var(--danger);font-weight:700;margin-top:2px;}
+
+/* ── SUMMARY TABLE ── */
+.summary-tbl{width:100%;border-collapse:collapse;font-size:12px;}
+.summary-tbl th{background:#e8f4fc;color:var(--primary);font-weight:700;padding:7px 8px;text-align:center;font-size:10px;text-transform:uppercase;}
+.summary-tbl td{padding:7px 8px;border-bottom:1px solid #e9eef4;text-align:center;}
+.summary-tbl tr:last-child td{border-bottom:none;}
+.badge{display:inline-block;padding:2px 8px;border-radius:10px;font-size:10px;font-weight:700;}
+.badge-ok{background:#dcfce7;color:#15803d;}
+.badge-warn{background:#fef3c7;color:#92400e;}
+.badge-bad{background:#fee2e2;color:#991b1b;}
+
+/* ── LOG TABLE ── */
+.log-tbl{width:100%;border-collapse:collapse;font-size:11px;}
+.log-tbl th{background:#e8f4fc;color:var(--primary);font-weight:700;padding:6px 8px;text-align:left;}
+.log-tbl td{padding:6px 8px;border-bottom:1px solid #e9eef4;vertical-align:top;}
+.log-tbl tr:hover td{background:#f8fafc;}
+.gm-breakdown{font-size:10px;color:var(--muted);margin-top:2px;}
+
+/* ── TOAST ── */
+#toast{position:fixed;bottom:80px;left:50%;transform:translateX(-50%);background:#1e293b;color:#fff;padding:10px 20px;border-radius:20px;font-size:13px;font-weight:600;opacity:0;transition:opacity .3s;pointer-events:none;z-index:999;white-space:nowrap;}
+#toast.show{opacity:1;}
+
+/* ── CONFIRM MODAL ── */
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:200;align-items:flex-end;}
+.modal-overlay.open{display:flex;}
+.modal{background:#fff;border-radius:20px 20px 0 0;padding:20px;width:100%;max-height:80vh;overflow-y:auto;}
+.modal h3{font-size:15px;font-weight:800;color:var(--primary);margin-bottom:14px;}
+.confirm-row{display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border);font-size:13px;}
+.confirm-row:last-child{border-bottom:none;}
+.confirm-label{color:var(--muted);font-weight:600;}
+.confirm-value{font-weight:700;text-align:right;}
+.confirm-gm-table{width:100%;border-collapse:collapse;margin:4px 0;font-size:12px;}
+.confirm-gm-table td{padding:3px 6px;}
+.confirm-gm-table .cgm-model{color:var(--muted);}
+.confirm-gm-table .cgm-qty{font-weight:700;text-align:right;}
+
+/* ── SCROLLBAR ── */
+::-webkit-scrollbar{width:4px;height:4px;}
+::-webkit-scrollbar-track{background:transparent;}
+::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px;}
+
+/* ── BOTTOM NAV SPACING ── */
+.page{padding-bottom:80px;}
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div class="header">
+  <img src="data:image/png;base64,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" alt="MOBICA"/>
+  <div class="header-title">
+    <h1>ASSEMBLY CAPACITY SYSTEM</h1>
+    <p id="header-month">Loading...</p>
+  </div>
+  <button class="hbtn" onclick="showPage('entry')">+ ENTRY</button>
+</div>
+
+<!-- TAB BAR -->
+<div class="tabs">
+  <div class="tab active" onclick="showPage('dashboard')" id="tab-dashboard">📊 Dashboard</div>
+  <div class="tab" onclick="showPage('entry')" id="tab-entry">✏️ Entry</div>
+  <div class="tab" onclick="showPage('log')" id="tab-log">📋 Log</div>
+  <div class="tab" onclick="showPage('score')" id="tab-score">🏆 Score</div>
+</div>
+
+<!-- ════════════════════════════════════════════
+     PAGE: DASHBOARD
+════════════════════════════════════════════ -->
+<div class="page active" id="page-dashboard">
+  <div class="card">
+    <div class="card-head">📊 MTD Achievement — <span id="db-month-label">—</span></div>
+    <div class="card-body">
+      <div class="dept-cards" id="dept-cards-grid">
+        <div style="text-align:center;color:var(--muted);font-size:12px;grid-column:1/-1;padding:20px;">Loading...</div>
+      </div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-head">📈 MTD Summary</div>
+    <div class="card-body" style="padding:0;">
+      <table class="summary-tbl" id="summary-tbl">
+        <thead><tr><th>Dept</th><th>Avail.</th><th>Needed</th><th>Achieve.</th><th>Penalty</th></tr></thead>
+        <tbody id="summary-tbody"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════════
+     PAGE: ENTRY FORM (4 steps)
+════════════════════════════════════════════ -->
+<div class="page" id="page-entry">
+  <div class="step-bar">
+    <div class="step-dot active" id="sd1"></div>
+    <div class="step-dot" id="sd2"></div>
+    <div class="step-dot" id="sd3"></div>
+    <div class="step-dot" id="sd4"></div>
+  </div>
+
+  <!-- STEP 1: Date + Department -->
+  <div id="step1">
+    <div class="step-label">STEP 1 OF 4 — DATE & DEPARTMENT</div>
+    <div class="card">
+      <div class="card-body">
+        <div class="field">
+          <label>Date</label>
+          <input type="date" id="f-date"/>
+        </div>
+        <div class="field">
+          <label>Department</label>
+          <select id="f-dept" onchange="onDeptChange()">
+            <option value="">Select department...</option>
+            <option value="GM">General Motors (GM)</option>
+            <option value="NISSAN">Nissan</option>
+            <option value="EXCEED">Mercedes & Exeed</option>
+            <option value="BMW">BMW & Geely</option>
+            <option value="AAV">AAV & Toyota</option>
+            <option value="ESAF">Proton (ESAF)</option>
+            <option value="GHABBOUR">Ghabbour</option>
+            <option value="KASRAWY">Kasrawy</option>
+          </select>
+        </div>
+      </div>
+    </div>
+    <button class="btn-primary" onclick="goStep(2)">NEXT →</button>
+  </div>
+
+  <!-- STEP 2: Production Quantities -->
+  <div id="step2" style="display:none;">
+    <div class="step-label">STEP 2 OF 4 — PRODUCTION QUANTITIES</div>
+    <div class="card" id="step2-card">
+      <div class="card-body" id="step2-body">
+        <!-- Populated dynamically: GM gets model table, others get single field -->
+      </div>
+    </div>
+    <button class="btn-outline" onclick="goStep(1)">← BACK</button>
+    <button class="btn-primary" onclick="goStep(3)">NEXT →</button>
+  </div>
+
+  <!-- STEP 3: Workers & Attendance -->
+  <div id="step3" style="display:none;">
+    <div class="step-label">STEP 3 OF 4 — WORKERS & ATTENDANCE</div>
+    <div class="card">
+      <div class="card-body">
+        <div class="worker-grid">
+          <div class="field">
+            <label>Available Workers</label>
+            <input type="number" id="f-avail" min="0" step="0.5" placeholder="0"/>
+          </div>
+          <div class="field">
+            <label>Overtime Shifts</label>
+            <input type="number" id="f-ot" min="0" step="0.5" placeholder="0"/>
+          </div>
+          <div class="field">
+            <label>Vacations</label>
+            <input type="number" id="f-vac" min="0" step="0.5" placeholder="0"/>
+          </div>
+          <div class="field">
+            <label>Absences</label>
+            <input type="number" id="f-abs" min="0" step="0.5" placeholder="0"/>
+          </div>
+        </div>
+        <div class="field" style="margin-top:8px;">
+          <label>Stock Begin</label>
+          <input type="number" id="f-stk-begin" min="0" placeholder="0"/>
+        </div>
+        <div class="field">
+          <label>Stock End</label>
+          <input type="number" id="f-stk-end" min="0" placeholder="0"/>
+        </div>
+      </div>
+    </div>
+    <button class="btn-outline" onclick="goStep(2)">← BACK</button>
+    <button class="btn-primary" onclick="goStep(4)">NEXT →</button>
+  </div>
+
+  <!-- STEP 4: Transfers -->
+  <div id="step4" style="display:none;">
+    <div class="step-label">STEP 4 OF 4 — WORKER TRANSFERS</div>
+
+    <!-- ── SUGGESTIONS BANNER ── -->
+    <div class="suggest-card" id="suggest-card">
+      <div class="suggest-title">⚠ Suggested IN — from other dept entries today</div>
+      <div id="suggest-list"></div>
+      <div class="suggest-note">These depts recorded a transfer OUT to your department today. Accept to confirm, or dismiss to ignore.</div>
+    </div>
+
+    <!-- ── ALL-IN ── -->
+    <div class="card" style="margin-bottom:10px;">
+      <div class="card-head">➕ All-IN (workers received)</div>
+      <div class="card-body">
+
+        <div class="transfer-section-divider">From department</div>
+        <div id="in-tags"></div>
+        <div class="transfer-row">
+          <select id="in-from">
+            <option value="">From dept...</option>
+          </select>
+          <input type="number" id="in-qty" min="0" step="0.5" placeholder="shifts"/>
+          <button style="background:#dbeafe;color:#1d4ed8;border-radius:8px;border:none;padding:8px 12px;cursor:pointer;font-weight:700;" onclick="addTransfer('in')">＋</button>
+        </div>
+
+        <div class="transfer-section-divider">Other source</div>
+        <div id="other-in-tags"></div>
+        <div class="other-transfer-row">
+          <input type="text" id="other-in-source" placeholder="e.g. New hire, 3rd party, Agency..."/>
+          <input type="number" id="other-in-qty" min="0" step="0.5" placeholder="shifts"/>
+          <button style="background:#dcfce7;color:#15803d;" onclick="addOtherTransfer('in')">＋</button>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ── ALL-OUT ── -->
+    <div class="card">
+      <div class="card-head">➖ All-OUT (workers lost)</div>
+      <div class="card-body">
+
+        <div class="transfer-section-divider">To department</div>
+        <div id="out-tags"></div>
+        <div class="transfer-row">
+          <select id="out-to">
+            <option value="">To dept...</option>
+          </select>
+          <input type="number" id="out-qty" min="0" step="0.5" placeholder="shifts"/>
+          <button style="background:#fee2e2;color:#991b1b;border-radius:8px;border:none;padding:8px 12px;cursor:pointer;font-weight:700;" onclick="addTransfer('out')">＋</button>
+        </div>
+
+        <div class="transfer-section-divider">Other reason</div>
+        <div id="other-out-tags"></div>
+        <div class="other-transfer-row">
+          <input type="text" id="other-out-reason" placeholder="e.g. Unplanned stoppage, Maintenance..."/>
+          <input type="number" id="other-out-qty" min="0" step="0.5" placeholder="shifts"/>
+          <button style="background:#fef3c7;color:#92400e;" onclick="addOtherTransfer('out')">＋</button>
+        </div>
+
+      </div>
+    </div>
+
+    <button class="btn-outline" onclick="goStep(3)">← BACK</button>
+    <button class="btn-primary" onclick="openConfirm()">REVIEW & SAVE ✓</button>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════════
+     PAGE: DAILY LOG
+════════════════════════════════════════════ -->
+<div class="page" id="page-log">
+  <div style="display:flex;gap:8px;margin-bottom:10px;align-items:center;">
+    <select id="log-month-sel" style="flex:1;padding:8px;border:1.5px solid var(--border);border-radius:8px;font-size:13px;" onchange="renderLog()"></select>
+    <select id="log-dept-sel" style="flex:1;padding:8px;border:1.5px solid var(--border);border-radius:8px;font-size:13px;" onchange="renderLog()">
+      <option value="ALL">All Depts</option>
+      <option value="GM">GM</option>
+      <option value="NISSAN">Nissan</option>
+      <option value="EXCEED">Mercedes/Exeed</option>
+      <option value="BMW">BMW & Geely</option>
+      <option value="AAV">AAV & Toyota</option>
+      <option value="ESAF">Proton</option>
+      <option value="GHABBOUR">Ghabbour</option>
+      <option value="KASRAWY">Kasrawy</option>
+    </select>
+  </div>
+  <div class="card">
+    <div class="card-body" style="padding:0;overflow-x:auto;">
+      <table class="log-tbl">
+        <thead><tr><th>Date</th><th>Dept</th><th>Del.Qty</th><th>Avail.</th><th>Ach.%</th><th>Del</th></tr></thead>
+        <tbody id="log-tbody"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════════
+     PAGE: SCOREBOARD
+════════════════════════════════════════════ -->
+<div class="page" id="page-score">
+  <div class="field" style="margin-bottom:10px;">
+    <select id="score-month-sel" style="width:100%;padding:9px 12px;border:1.5px solid var(--border);border-radius:8px;font-size:13px;" onchange="renderScore()"></select>
+  </div>
+  <div class="card">
+    <div class="card-body" style="padding:0;overflow-x:auto;">
+      <table class="summary-tbl">
+        <thead>
+          <tr>
+            <th>Dept</th><th>Avail.</th><th>All-In</th><th>Needed</th><th>All-Out</th>
+            <th>Achieve.</th><th>Penalty</th>
+          </tr>
+        </thead>
+        <tbody id="score-tbody"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- CONFIRM MODAL -->
+<div class="modal-overlay" id="confirm-modal">
+  <div class="modal">
+    <h3>✓ Confirm Entry</h3>
+    <div id="confirm-content"></div>
+    <button class="btn-primary" onclick="saveEntry()">SAVE ENTRY</button>
+    <button class="btn-outline" onclick="closeConfirm()">EDIT</button>
+  </div>
+</div>
+
+<!-- DELETE CONFIRM MODAL -->
+<div class="modal-overlay" id="delete-modal">
+  <div class="modal">
+    <h3>⚠ Confirm Delete</h3>
+    <p style="font-size:13px;color:var(--muted);margin-bottom:14px;">This will permanently remove this daily entry.</p>
+    <button class="btn-primary" style="background:var(--danger);" onclick="confirmDelete()">DELETE</button>
+    <button class="btn-outline" onclick="closeDelete()">CANCEL</button>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<script>
+/* ══════════════════════════════════════════════════
+   SUPABASE CONFIG
+══════════════════════════════════════════════════ */
+const VERSION = 'v2026-04-22-fix3';
+const SB_URL = 'https://ojsmjqwjsdornetdqiyu.supabase.co';
+const SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9qc21qcXdqc2Rvcm5ldGRxaXl1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU1MTM1NTgsImV4cCI6MjA5MTA4OTU1OH0.ThQBFXNp1wC-7bteu95Fuiertz1t69TbyLqpna_rjVQ';
+const TABLE = 'capacity_entries';
+const DELETE_PASS = 'mobica2026';
+
+async function sbFetch(path, opts={}) {
+  const { headers: extraHeaders, ...restOpts } = opts;
+  const r = await fetch(SB_URL + path, {
+    ...restOpts,
+    headers: {
+      'apikey': SB_KEY,
+      'Authorization': 'Bearer ' + SB_KEY,
+      'Content-Type': 'application/json',
+      ...(extraHeaders || {})
+    }
+  });
+  if (!r.ok) throw new Error(await r.text());
+  const t = await r.text();
+  return t ? JSON.parse(t) : null;
+}
+
+/* ══════════════════════════════════════════════════
+   KPW DATA — GM models with individual KPW
+══════════════════════════════════════════════════ */
+// ── ALL DEPT MODELS WITH KPW — from F05/M.A-Q-P-05 ──
+const DEPT_MODELS = {
+  GM: [
+    { id: 'RT50_F',    name: 'RT50 Fabric',   kpw: 9.2   },
+    { id: 'RT50_L',    name: 'RT50 Leather',  kpw: 9.2   },
+    { id: 'VL01',      name: 'VL01',          kpw: 12.12 },
+    { id: 'VL20',      name: 'VL20',          kpw: 13.32 },
+    { id: '310vl1',    name: '310 Lv1',       kpw: 4.47  },
+    { id: '310vl2',    name: '310 Lv2',       kpw: 4.47  },
+  ],
+  NISSAN: [
+    { id: 'MC15_SEAT', name: 'MC15 Seat',     kpw: 7.5   },
+    { id: 'MC15_DOOR', name: 'MC15 Door (DP)',kpw: 30.94 },
+    { id: 'L12F',      name: 'L12F',          kpw: 3.5   }
+  ],
+  EXCEED: [
+    { id: 'GLE',       name: 'GLE',           kpw: 1.36  },
+    { id: 'GLS',       name: 'GLS',           kpw: 0.47  },
+    { id: 'RX',        name: 'RX',            kpw: 1.7   },
+    { id: 'VX',        name: 'VX',            kpw: 0.74  },
+    { id: 'AMG',       name: 'AMG',           kpw: 1.36  },
+    { id: 'VAN',       name: 'Van (Suzuki)',   kpw: 12.91 }
+  ],
+  BMW: [
+    { id: 'G45_15',    name: 'G45-15',        kpw: 1.4   },
+    { id: 'G45_85',    name: 'G45-85',        kpw: 1.4   },
+    { id: 'G06',       name: 'G06',           kpw: 1.31  },
+    { id: 'G05_EU25',  name: 'G05 EU25',      kpw: 1.31  },
+    { id: 'G05_EU35',  name: 'G05 EU35',      kpw: 1.31  },
+    { id: 'G07',       name: 'G07',           kpw: 0.81  },
+    { id: 'SS_GS',     name: 'SS GS (Geely)', kpw: 3.876 },
+    { id: 'SS_GF_SEAT',name: 'SS GF Seat',    kpw: 2.69  },
+    { id: 'SS_GF_DP',  name: 'SS GF DP',      kpw: 2.62  },
+    { id: 'SS_GF_BLK', name: 'SS GF Black',   kpw: 2.69  },
+    { id: 'SX_GF',     name: 'SX GF (Geely)', kpw: 2.65  },
+    { id: 'SX_GK',     name: 'SX GK (Geely)', kpw: 2.65  },
+    { id: 'SX_GL',     name: 'SX GL (Geely)', kpw: 2.65  }
+  ],
+  ESAF: [
+    { id: 'PROTON_SEAT', name: 'Proton Seat',   kpw: 4.99  },
+    { id: 'PROTON_DP',   name: 'Proton DP',     kpw: 13.7  }
+  ],
+  GHABBOUR: [
+    { id: 'T7BL',      name: 'T7BL (قماش)',   kpw: 3.09194  },
+    { id: 'T7HL',      name: 'T7HL (جلد)',    kpw: 3.239305 }
+  ],
+  KASRAWY: [
+    { id: 'GOLDEN_DR', name: 'Golden Dragon',  kpw: 1.06  },
+    { id: 'JETOUR',    name: 'Jetour',         kpw: 1.88  },
+    { id: 'JACK',      name: 'Jack',           kpw: 3.06  },
+    { id: 'ZEMEX',     name: 'Zemex',          kpw: 1.03  }
+  ],
+  AAV: [
+    { id: 'W4_SEAT',   name: 'W4 Seat',            kpw: 0.92  },
+    { id: 'W4_DP',     name: 'W4 DP',              kpw: 1.34  },
+    { id: 'FOR_SEAT',  name: 'Fortuner Seat (Lth)',kpw: 1.89  },
+    { id: 'FOR_DOOR',  name: 'Fortuner Door (Lth)',kpw: 5.05  },
+    { id: 'C43_L2',    name: 'Citroen C43 L2',     kpw: 4.44  },
+    { id: 'C43_L3',    name: 'Citroen C43 L3',     kpw: 4.44  }
+  ]
+};
+
+// Backward-compat alias
+const GM_MODELS = DEPT_MODELS.GM;
+
+const DEPTS = ['GM','NISSAN','EXCEED','BMW','AAV','ESAF','GHABBOUR','KASRAWY'];
+const DEPT_LABELS = {
+  GM:'GM', NISSAN:'Nissan', EXCEED:'Mercedes/Exeed',
+  BMW:'BMW & Geely', AAV:'AAV & Toyota', ESAF:'Proton', GHABBOUR:'Ghabbour', KASRAWY:'Kasrawy'
+};
+
+/* ══════════════════════════════════════════════════
+   STATE
+══════════════════════════════════════════════════ */
+let allEntries = [];
+let inTransfers      = [];   // dept-to-dept IN
+let outTransfers     = [];   // dept-to-dept OUT
+let otherInTransfers = [];   // other sources IN (new hire, 3rd party, etc.)
+let otherOutTransfers= [];   // other reasons OUT (stoppage, maintenance, etc.)
+let pendingDeleteId = null;
+let currentStep = 1;
+
+/* ══════════════════════════════════════════════════
+   INIT
+══════════════════════════════════════════════════ */
+document.addEventListener('DOMContentLoaded', async () => {
+  console.log('MOBICA Capacity System loaded:', VERSION);
+  const today = new Date().toISOString().slice(0, 10);
+  document.getElementById('f-date').value = today;
+  updateHeaderMonth(today);
+  populateTransferDropdowns();
+  populateMonthSelects();
+  await loadEntries();
+  renderDashboard();
+  renderLog();
+  renderScore();
+});
+
+function updateHeaderMonth(dateStr) {
+  const d = new Date(dateStr + 'T00:00:00');
+  const label = d.toLocaleDateString('en-GB', { month: 'long', year: 'numeric' });
+  document.getElementById('header-month').textContent = label;
+  document.getElementById('db-month-label').textContent = label;
+}
+
+function getCurrentMonth() {
+  const now = new Date();
+  return now.getFullYear() + '-' + String(now.getMonth() + 1).padStart(2, '0');
+}
+
+function populateTransferDropdowns() {
+  ['in-from','out-to'].forEach(id => {
+    const sel = document.getElementById(id);
+    sel.innerHTML = '<option value="">Select dept...</option>';
+    DEPTS.forEach(d => {
+      const o = document.createElement('option');
+      o.value = d; o.textContent = DEPT_LABELS[d];
+      sel.appendChild(o);
+    });
+  });
+}
+
+function populateMonthSelects() {
+  const months = [];
+  const now = new Date();
+  for (let i = 0; i < 12; i++) {
+    const y = now.getFullYear();
+    const mo = now.getMonth() - i;
+    const d = new Date(y, mo, 1);
+    // Use local year/month to avoid UTC timezone shift
+    const yStr  = d.getFullYear();
+    const mStr  = String(d.getMonth() + 1).padStart(2, '0');
+    const value = yStr + '-' + mStr;
+    const label = d.toLocaleDateString('en-GB', {month:'long', year:'numeric'});
+    months.push({ value, label });
+  }
+  ['log-month-sel','score-month-sel'].forEach(id => {
+    const sel = document.getElementById(id);
+    sel.innerHTML = '';
+    months.forEach(m => {
+      const o = document.createElement('option');
+      o.value = m.value; o.textContent = m.label;
+      sel.appendChild(o);
+    });
+  });
+}
+
+/* ══════════════════════════════════════════════════
+   LOAD DATA
+══════════════════════════════════════════════════ */
+async function loadEntries() {
+  try {
+    const data = await sbFetch('/rest/v1/' + TABLE + '?select=*&order=entry_date.desc', { method: 'GET' });
+    allEntries = data || [];
+  } catch(e) {
+    toast('⚠ Load failed: ' + e.message, true);
+    allEntries = [];
+  }
+}
+
+/* ══════════════════════════════════════════════════
+   PAGE NAVIGATION
+══════════════════════════════════════════════════ */
+function showPage(name) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('page-' + name).classList.add('active');
+  document.getElementById('tab-' + name).classList.add('active');
+  if (name === 'log') renderLog();
+  if (name === 'score') renderScore();
+  if (name === 'dashboard') renderDashboard();
+}
+
+/* ══════════════════════════════════════════════════
+   STEP NAVIGATION
+══════════════════════════════════════════════════ */
+function goStep(n) {
+  // Validate before advancing
+  if (n > currentStep) {
+    if (!validateStep(currentStep)) return;
+  }
+  currentStep = n;
+  [1,2,3,4].forEach(i => {
+    document.getElementById('step'+i).style.display = i === n ? '' : 'none';
+    const dot = document.getElementById('sd'+i);
+    dot.classList.toggle('done', i < n);
+    dot.classList.toggle('active', i === n);
+  });
+  if (n === 4) loadSuggestions();
+}
+
+function validateStep(s) {
+  if (s === 1) {
+    if (!document.getElementById('f-date').value) { toast('Select a date'); return false; }
+    if (!document.getElementById('f-dept').value) { toast('Select a department'); return false; }
+  }
+  if (s === 2) {
+    const dept = document.getElementById('f-dept').value;
+    const deptModels = DEPT_MODELS[dept];
+    if (deptModels && deptModels.length > 0) {
+      if (getModelTotalQty() < 0) { toast('Invalid quantities'); return false; }
+    }
+  }
+  return true;
+}
+
+/* ══════════════════════════════════════════════════
+   DEPT CHANGE — renders correct Step 2 content
+══════════════════════════════════════════════════ */
+function onDeptChange() {
+  const dept = document.getElementById('f-dept').value;
+  const body = document.getElementById('step2-body');
+  const models = DEPT_MODELS[dept];
+  if (models && models.length > 0) {
+    body.innerHTML = renderModelTable(dept, models);
+  } else {
+    body.innerHTML = `
+      <div class="field">
+        <label>Delivery Quantity (total)</label>
+        <input type="number" id="f-del-qty" min="0" placeholder="0" style="font-size:22px;font-weight:700;padding:14px;"/>
+      </div>`;
+  }
+}
+
+/* ══════════════════════════════════════════════════
+   UNIVERSAL MODEL TABLE — all departments
+══════════════════════════════════════════════════ */
+function renderModelTable(dept, models) {
+  const rows = models.map(m => `
+    <tr>
+      <td>
+        <div class="model-name">${m.name}</div>
+        <div class="model-kpw">KPW: ${m.kpw != null ? m.kpw : '—'}</div>
+      </td>
+      <td style="text-align:right;">
+        <input type="number" class="gm-qty-input" id="mdl-qty-${m.id}"
+          min="0" placeholder="0" oninput="updateModelTotals()"/>
+      </td>
+    </tr>`).join('');
+  return `
+    <div style="font-size:11px;color:var(--muted);margin-bottom:8px;font-weight:600;">
+      Enter production quantity per model
+    </div>
+    <table class="gm-model-table">
+      <thead><tr><th>Model</th><th style="text-align:right;">Qty (units)</th></tr></thead>
+      <tbody>${rows}</tbody>
+      <tfoot>
+        <tr class="gm-total-row">
+          <td>TOTAL</td>
+          <td style="text-align:right;" id="mdl-total-qty">0</td>
+        </tr>
+      </tfoot>
+    </table>
+    <div class="gm-needed-label" id="mdl-needed-label">Needed workers: —</div>`;
+}
+
+function getCurrentModels() {
+  const dept = document.getElementById('f-dept').value;
+  return DEPT_MODELS[dept] || [];
+}
+
+function getModelQtys() {
+  const result = {};
+  getCurrentModels().forEach(m => {
+    const el = document.getElementById('mdl-qty-' + m.id);
+    result[m.id] = el ? (parseFloat(el.value) || 0) : 0;
+  });
+  return result;
+}
+
+function getModelTotalQty() {
+  return Object.values(getModelQtys()).reduce((s, v) => s + v, 0);
+}
+
+function updateModelTotals() {
+  const models = getCurrentModels();
+  const qtys = getModelQtys();
+  const total = Object.values(qtys).reduce((s, v) => s + v, 0);
+  const totalEl = document.getElementById('mdl-total-qty');
+  if (totalEl) totalEl.textContent = total;
+  let needed = 0;
+  models.forEach(m => {
+    if (m.kpw != null && qtys[m.id] > 0) needed += qtys[m.id] / m.kpw;
+  });
+  const lbl = document.getElementById('mdl-needed-label');
+  if (lbl) lbl.textContent = needed > 0 ? 'Needed workers: ' + needed.toFixed(2) : 'Needed workers: —';
+}
+
+/* ══════════════════════════════════════════════════
+   COMPUTE NEEDED FROM STORED MODEL QTYS
+══════════════════════════════════════════════════ */
+function computeNeededFromModels(dept, modelQtysObj) {
+  const models = DEPT_MODELS[dept] || [];
+  let needed = 0;
+  models.forEach(m => {
+    const qty = modelQtysObj[m.id] || 0;
+    if (m.kpw != null && qty > 0) needed += qty / m.kpw;
+  });
+  return needed;
+}
+
+// Backward compat
+function computeGMNeeded(modelQtysObj) { return computeNeededFromModels('GM', modelQtysObj); }
+function getGMModelQtys() { return getModelQtys(); }
+function getGMTotalQty()  { return getModelTotalQty(); }
+
+/* ══════════════════════════════════════════════════
+   TRANSFERS — dept-to-dept
+══════════════════════════════════════════════════ */
+function addTransfer(dir) {
+  const fromSel = document.getElementById(dir === 'in' ? 'in-from' : 'out-to');
+  const qtySel  = document.getElementById(dir === 'in' ? 'in-qty'  : 'out-qty');
+  const dept = fromSel.value;
+  const qty  = parseFloat(qtySel.value);
+  if (!dept || !qty || qty <= 0) { toast('Select dept and enter qty'); return; }
+  const list = dir === 'in' ? inTransfers : outTransfers;
+  list.push({ dept, qty });
+  fromSel.value = ''; qtySel.value = '';
+  renderTransferTags();
+}
+
+function removeTransfer(dir, idx) {
+  if (dir === 'in') inTransfers.splice(idx, 1);
+  else outTransfers.splice(idx, 1);
+  renderTransferTags();
+}
+
+/* ══════════════════════════════════════════════════
+   TRANSFERS — other source / other reason
+══════════════════════════════════════════════════ */
+function addOtherTransfer(dir) {
+  const labelEl = document.getElementById(dir === 'in' ? 'other-in-source' : 'other-out-reason');
+  const qtyEl   = document.getElementById(dir === 'in' ? 'other-in-qty'    : 'other-out-qty');
+  const label = labelEl.value.trim();
+  const qty   = parseFloat(qtyEl.value);
+  if (!label) { toast(dir === 'in' ? 'Enter source description' : 'Enter reason description'); return; }
+  if (!qty || qty <= 0) { toast('Enter a valid number of shifts'); return; }
+  const list = dir === 'in' ? otherInTransfers : otherOutTransfers;
+  list.push({ label, qty });
+  labelEl.value = ''; qtyEl.value = '';
+  renderTransferTags();
+}
+
+function removeOtherTransfer(dir, idx) {
+  if (dir === 'in') otherInTransfers.splice(idx, 1);
+  else otherOutTransfers.splice(idx, 1);
+  renderTransferTags();
+}
+
+function renderTransferTags() {
+  // Dept IN tags
+  document.getElementById('in-tags').innerHTML =
+    inTransfers.map((t,i) =>
+      `<span class="transfer-tag">${DEPT_LABELS[t.dept] || t.dept} +${t.qty}
+       <button onclick="removeTransfer('in',${i})">×</button></span>`
+    ).join('');
+
+  // Other IN tags
+  document.getElementById('other-in-tags').innerHTML =
+    otherInTransfers.map((t,i) =>
+      `<span class="transfer-tag transfer-tag-other-in">${t.label} +${t.qty}
+       <button onclick="removeOtherTransfer('in',${i})">×</button></span>`
+    ).join('');
+
+  // Dept OUT tags
+  document.getElementById('out-tags').innerHTML =
+    outTransfers.map((t,i) =>
+      `<span class="transfer-tag" style="background:#fee2e2;color:#991b1b;">
+       ${DEPT_LABELS[t.dept] || t.dept} −${t.qty}
+       <button onclick="removeTransfer('out',${i})" style="color:#991b1b;">×</button></span>`
+    ).join('');
+
+  // Other OUT tags
+  document.getElementById('other-out-tags').innerHTML =
+    otherOutTransfers.map((t,i) =>
+      `<span class="transfer-tag transfer-tag-other-out">${t.label} −${t.qty}
+       <button onclick="removeOtherTransfer('out',${i})">×</button></span>`
+    ).join('');
+}
+
+/* ══════════════════════════════════════════════════
+   SUGGESTIONS — soft-mirror of other dept OUT → this dept
+══════════════════════════════════════════════════ */
+function loadSuggestions() {
+  const thisDept = document.getElementById('f-dept').value;
+  const date     = document.getElementById('f-date').value;
+  if (!thisDept || !date) return;
+
+  // Scan all entries for same date where transfers_json has OUT → thisDept
+  const suggestions = [];
+  allEntries.forEach(e => {
+    if (String(e.entry_date).slice(0,10) !== date) return;
+    if (e.dept_code === thisDept) return;  // skip own dept
+    if (!e.transfers_json) return;
+    let tj;
+    try { tj = typeof e.transfers_json === 'string' ? JSON.parse(e.transfers_json) : e.transfers_json; }
+    catch(ex) { return; }
+    const outs = tj.out || [];
+    outs.forEach(t => {
+      if (t.dept === thisDept) {
+        // Check if already accepted (already in inTransfers)
+        const already = inTransfers.some(it => it.dept === e.dept_code && it.qty === t.qty);
+        if (!already) {
+          suggestions.push({ fromDept: e.dept_code, qty: t.qty });
+        }
+      }
+    });
+  });
+
+  const card = document.getElementById('suggest-card');
+  const list = document.getElementById('suggest-list');
+
+  if (!suggestions.length) {
+    card.classList.remove('visible');
+    list.innerHTML = '';
+    return;
+  }
+
+  card.classList.add('visible');
+  list.innerHTML = suggestions.map((s, i) => `
+    <div class="suggest-item" id="sug-${i}">
+      <span class="s-label">From ${DEPT_LABELS[s.fromDept] || s.fromDept}</span>
+      <input class="s-edit" type="number" id="sug-qty-${i}" value="${s.qty}" min="0" step="0.5"/>
+      <button class="s-accept" onclick="acceptSuggestion(${i},'${s.fromDept}')">✓ Accept</button>
+      <button class="s-dismiss" onclick="dismissSuggestion(${i})" title="Dismiss">✕</button>
+    </div>`).join('');
+}
+
+function acceptSuggestion(idx, fromDept) {
+  const qtyEl = document.getElementById('sug-qty-' + idx);
+  const qty = parseFloat(qtyEl.value);
+  if (!qty || qty <= 0) { toast('Enter a valid qty before accepting'); return; }
+  // Add to confirmed IN transfers
+  inTransfers.push({ dept: fromDept, qty });
+  renderTransferTags();
+  // Remove suggestion row
+  const row = document.getElementById('sug-' + idx);
+  if (row) row.remove();
+  // Hide card if no more suggestions
+  if (!document.getElementById('suggest-list').children.length) {
+    document.getElementById('suggest-card').classList.remove('visible');
+  }
+  toast('✓ Transfer accepted: ' + DEPT_LABELS[fromDept] + ' +' + qty);
+}
+
+function dismissSuggestion(idx) {
+  const row = document.getElementById('sug-' + idx);
+  if (row) row.remove();
+  if (!document.getElementById('suggest-list').children.length) {
+    document.getElementById('suggest-card').classList.remove('visible');
+  }
+}
+function autoFlushPendingTransfers() {
+  // Auto-add any filled-in but un-confirmed dept transfers
+  const inFrom = document.getElementById('in-from');
+  const inQty  = document.getElementById('in-qty');
+  if (inFrom && inFrom.value && parseFloat(inQty.value) > 0) {
+    inTransfers.push({ dept: inFrom.value, qty: parseFloat(inQty.value) });
+    inFrom.value = ''; inQty.value = '';
+  }
+  const outTo  = document.getElementById('out-to');
+  const outQty = document.getElementById('out-qty');
+  if (outTo && outTo.value && parseFloat(outQty.value) > 0) {
+    outTransfers.push({ dept: outTo.value, qty: parseFloat(outQty.value) });
+    outTo.value = ''; outQty.value = '';
+  }
+  // Auto-add any filled-in other source/reason
+  const otherInSrc = document.getElementById('other-in-source');
+  const otherInQ   = document.getElementById('other-in-qty');
+  if (otherInSrc && otherInSrc.value.trim() && parseFloat(otherInQ.value) > 0) {
+    otherInTransfers.push({ label: otherInSrc.value.trim(), qty: parseFloat(otherInQ.value) });
+    otherInSrc.value = ''; otherInQ.value = '';
+  }
+  const otherOutRsn = document.getElementById('other-out-reason');
+  const otherOutQ   = document.getElementById('other-out-qty');
+  if (otherOutRsn && otherOutRsn.value.trim() && parseFloat(otherOutQ.value) > 0) {
+    otherOutTransfers.push({ label: otherOutRsn.value.trim(), qty: parseFloat(otherOutQ.value) });
+    otherOutRsn.value = ''; otherOutQ.value = '';
+  }
+  renderTransferTags();
+}
+
+function openConfirm() {
+  autoFlushPendingTransfers();
+  const dept = document.getElementById('f-dept').value;
+  const date = document.getElementById('f-date').value;
+  const avail = parseFloat(document.getElementById('f-avail').value) || 0;
+  const ot    = parseFloat(document.getElementById('f-ot').value) || 0;
+  const vac   = parseFloat(document.getElementById('f-vac').value) || 0;
+  const abs   = parseFloat(document.getElementById('f-abs').value) || 0;
+  const stkB  = parseFloat(document.getElementById('f-stk-begin').value) || 0;
+  const stkE  = parseFloat(document.getElementById('f-stk-end').value) || 0;
+
+  let delQty = 0, neededWkrs = 0, modelBreakdownHtml = '';
+  const deptModels = DEPT_MODELS[dept];
+
+  if (deptModels && deptModels.length > 0) {
+    const mQtys = getModelQtys();
+    delQty = Object.values(mQtys).reduce((s,v) => s+v, 0);
+    neededWkrs = computeNeededFromModels(dept, mQtys);
+    const bmRows = deptModels.map(m => {
+      const q = mQtys[m.id] || 0;
+      return q > 0 ? `<tr><td class="cgm-model">${m.name}</td><td class="cgm-qty">${q}</td></tr>` : '';
+    }).join('');
+    if (bmRows) modelBreakdownHtml = `<table class="confirm-gm-table"><tbody>${bmRows}</tbody></table>`;
+  } else {
+    delQty = parseFloat(document.getElementById('f-del-qty').value) || 0;
+    neededWkrs = delQty > 0 ? delQty : 0;
+  }
+
+  const prodQty = delQty + stkE - stkB;
+  const deptIn    = inTransfers.reduce((s,t) => s+t.qty, 0);
+  const otherIn   = otherInTransfers.reduce((s,t) => s+t.qty, 0);
+  const deptOut   = outTransfers.reduce((s,t) => s+t.qty, 0);
+  const otherOut  = otherOutTransfers.reduce((s,t) => s+t.qty, 0);
+  const totalIn   = deptIn + otherIn;
+  const totalOut  = deptOut + otherOut;
+  const availShifts = avail + ot;
+  const ach = (neededWkrs + totalOut) > 0 ? (availShifts + totalIn) / (neededWkrs + totalOut) : 0;
+  const achPct = (ach * 100).toFixed(1);
+
+  const inDetail  = [
+    ...inTransfers.map(t => `${DEPT_LABELS[t.dept]||t.dept} +${t.qty}`),
+    ...otherInTransfers.map(t => `${t.label} +${t.qty}`)
+  ].join(', ') || '—';
+  const outDetail = [
+    ...outTransfers.map(t => `${DEPT_LABELS[t.dept]||t.dept} −${t.qty}`),
+    ...otherOutTransfers.map(t => `${t.label} −${t.qty}`)
+  ].join(', ') || '—';
+
+  document.getElementById('confirm-content').innerHTML = `
+    <div class="confirm-row"><span class="confirm-label">Date</span><span class="confirm-value">${date}</span></div>
+    <div class="confirm-row"><span class="confirm-label">Department</span><span class="confirm-value">${DEPT_LABELS[dept]}</span></div>
+    <div class="confirm-row"><span class="confirm-label">Delivery Qty</span><span class="confirm-value">${delQty}${deptModels ? ' (per model)' : ''}</span></div>
+    ${modelBreakdownHtml ? '<div class="confirm-row"><span class="confirm-label">By Model</span><span class="confirm-value" style="text-align:right;">' + modelBreakdownHtml + '</span></div>' : ''}
+    <div class="confirm-row"><span class="confirm-label">Production Qty</span><span class="confirm-value">${prodQty}</span></div>
+    <div class="confirm-row"><span class="confirm-label">Available Workers</span><span class="confirm-value">${avail} (+${ot} OT)</span></div>
+    <div class="confirm-row"><span class="confirm-label">Needed Workers</span><span class="confirm-value">${neededWkrs.toFixed(2)}</span></div>
+    <div class="confirm-row"><span class="confirm-label">All-IN (+${totalIn})</span><span class="confirm-value" style="font-size:11px;color:var(--muted);">${inDetail}</span></div>
+    <div class="confirm-row"><span class="confirm-label">All-OUT (−${totalOut})</span><span class="confirm-value" style="font-size:11px;color:var(--muted);">${outDetail}</span></div>
+    <div class="confirm-row"><span class="confirm-label">Achievement</span><span class="confirm-value" style="color:${ach>=0.99?'var(--ok)':'var(--danger)'};">${achPct}%</span></div>
+  `;
+  document.getElementById('confirm-modal').classList.add('open');
+}
+
+function closeConfirm() { document.getElementById('confirm-modal').classList.remove('open'); }
+
+/* ══════════════════════════════════════════════════
+   SAVE ENTRY
+══════════════════════════════════════════════════ */
+async function saveEntry() {
+  closeConfirm();
+  const dept  = document.getElementById('f-dept').value;
+  const date  = document.getElementById('f-date').value;
+  const avail = parseFloat(document.getElementById('f-avail').value) || 0;
+  const ot    = parseFloat(document.getElementById('f-ot').value) || 0;
+  const vac   = parseFloat(document.getElementById('f-vac').value) || 0;
+  const abs   = parseFloat(document.getElementById('f-abs').value) || 0;
+  const stkB  = parseFloat(document.getElementById('f-stk-begin').value) || 0;
+  const stkE  = parseFloat(document.getElementById('f-stk-end').value) || 0;
+
+  let delQty = 0, neededWkrs = 0, gm_model_qtys = null;
+  const deptModels = DEPT_MODELS[dept];
+
+  if (deptModels && deptModels.length > 0) {
+    const mQtys = getModelQtys();
+    gm_model_qtys = mQtys;   // reuse same column for all depts
+    delQty = Object.values(mQtys).reduce((s,v) => s+v, 0);
+    neededWkrs = computeNeededFromModels(dept, mQtys);
+  } else {
+    delQty = parseFloat(document.getElementById('f-del-qty').value) || 0;
+    neededWkrs = 0;
+  }
+
+  const prodQty = delQty + stkE - stkB;
+  const totalIn  = inTransfers.reduce((s,t) => s+t.qty, 0)
+                 + otherInTransfers.reduce((s,t) => s+t.qty, 0);
+  const totalOut = outTransfers.reduce((s,t) => s+t.qty, 0)
+                 + otherOutTransfers.reduce((s,t) => s+t.qty, 0);
+
+  const payload = {
+    entry_date: date,
+    dept_code: dept,
+    delivery_qty: delQty,
+    production_qty: prodQty,
+    stock_begin: stkB,
+    stock_end: stkE,
+    available_workers: avail,
+    overtime_shifts: ot,
+    vacations: vac,
+    absences: abs,
+    needed_workers: parseFloat(neededWkrs.toFixed(4)),
+    all_in:  totalIn,
+    all_out: totalOut,
+    transfers_json: JSON.stringify({
+      in:       inTransfers,
+      out:      outTransfers,
+      other_in: otherInTransfers,
+      other_out: otherOutTransfers
+    }),
+    gm_model_qtys: gm_model_qtys ? JSON.stringify(gm_model_qtys) : null
+  };
+
+  try {
+    await sbFetch('/rest/v1/' + TABLE, {
+      method: 'POST',
+      body: JSON.stringify(payload),
+      headers: { 'Prefer': 'return=minimal' }
+    });
+    toast('✓ Entry saved');
+    resetForm();
+    await loadEntries();
+    renderDashboard();
+    renderLog();
+  } catch(e) {
+    toast('⚠ Save failed: ' + e.message, true);
+  }
+}
+
+function resetForm() {
+  inTransfers = []; outTransfers = [];
+  otherInTransfers = []; otherOutTransfers = [];
+  document.getElementById('f-dept').value = '';
+  document.getElementById('f-avail').value = '';
+  document.getElementById('f-ot').value = '';
+  document.getElementById('f-vac').value = '';
+  document.getElementById('f-abs').value = '';
+  document.getElementById('f-stk-begin').value = '';
+  document.getElementById('f-stk-end').value = '';
+  document.getElementById('step2-body').innerHTML = '';
+  renderTransferTags();
+  goStep(1);
+  showPage('dashboard');
+}
+
+/* ══════════════════════════════════════════════════
+   DASHBOARD
+══════════════════════════════════════════════════ */
+function renderDashboard() {
+  const month = getCurrentMonth();
+  const mtdEntries = allEntries.filter(e => e.entry_date && String(e.entry_date).slice(0,7) === month);
+  const grid = document.getElementById('dept-cards-grid');
+  const tbody = document.getElementById('summary-tbody');
+
+  const aggr = aggregateByDept(mtdEntries);
+  const cards = DEPTS.map(d => {
+    const a = aggr[d] || { available:0, all_in:0, needed:0, all_out:0 };
+    const ach = (a.needed + a.all_out) > 0 ? (a.available + a.all_in) / (a.needed + a.all_out) : 0;
+    const pct = (ach * 100).toFixed(1);
+    const cls = ach >= 0.99 ? 'ok' : ach >= 0.95 ? 'warn' : 'bad';
+    return `<div class="dept-card">
+      <div class="dname">${DEPT_LABELS[d]}</div>
+      <div class="dach ${cls}">${pct}%</div>
+      <div class="dsub">Avail: ${a.available.toFixed(1)} | Needed: ${a.needed.toFixed(1)}</div>
+      ${ach < 0.99 && (a.needed + a.all_out) > 0 ? `<div class="dpen">Penalty: ${Math.abs((ach - 0.99) * 300).toFixed(0)} EGP</div>` : ''}
+    </div>`;
+  }).join('');
+  grid.innerHTML = cards || '<div style="text-align:center;color:var(--muted);font-size:12px;grid-column:1/-1;padding:20px;">No entries this month</div>';
+
+  tbody.innerHTML = DEPTS.map(d => {
+    const a = aggr[d] || { available:0, all_in:0, needed:0, all_out:0 };
+    const ach = (a.needed + a.all_out) > 0 ? (a.available + a.all_in) / (a.needed + a.all_out) : 0;
+    const pct = (ach * 100).toFixed(1);
+    const pen = ach < 0.99 && (a.needed + a.all_out) > 0 ? Math.abs((ach - 0.99) * 300).toFixed(0) : '—';
+    const badge = ach >= 0.99 ? 'badge-ok' : ach >= 0.95 ? 'badge-warn' : 'badge-bad';
+    return `<tr>
+      <td style="font-weight:600;">${DEPT_LABELS[d]}</td>
+      <td>${a.available.toFixed(1)}</td>
+      <td>${a.needed.toFixed(1)}</td>
+      <td><span class="badge ${badge}">${pct}%</span></td>
+      <td style="color:var(--danger);font-weight:700;">${pen !== '—' ? pen + ' EGP' : '—'}</td>
+    </tr>`;
+  }).join('');
+}
+
+/* ══════════════════════════════════════════════════
+   LOG
+══════════════════════════════════════════════════ */
+function renderLog() {
+  const month = document.getElementById('log-month-sel').value;
+  const dept  = document.getElementById('log-dept-sel').value;
+  let entries = allEntries.filter(e => e.entry_date && String(e.entry_date).slice(0,7) === month);
+  if (dept !== 'ALL') entries = entries.filter(e => e.dept_code === dept);
+  entries.sort((a,b) => String(b.entry_date).localeCompare(String(a.entry_date)));
+
+  const tbody = document.getElementById('log-tbody');
+  if (!entries.length) { tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;color:var(--muted);padding:20px;">No entries</td></tr>'; return; }
+
+  tbody.innerHTML = entries.map(e => {
+    const ach = (e.needed_workers + (e.all_out||0)) > 0
+      ? ((e.available_workers + (e.overtime_shifts||0) + (e.all_in||0)) / (e.needed_workers + (e.all_out||0)) * 100).toFixed(1)
+      : '—';
+    const achColor = parseFloat(ach) >= 99 ? 'var(--ok)' : 'var(--danger)';
+
+    // Model breakdown for all depts
+    let gmHtml = '';
+    if (e.gm_model_qtys) {
+      let mqs;
+      try { mqs = typeof e.gm_model_qtys === 'string' ? JSON.parse(e.gm_model_qtys) : e.gm_model_qtys; } catch(ex) { mqs = {}; }
+      const models = DEPT_MODELS[e.dept_code] || [];
+      const lines = models.filter(m => mqs[m.id] > 0).map(m => `${m.name}:${mqs[m.id]}`).join(' | ');
+      if (lines) gmHtml = `<div class="gm-breakdown">${lines}</div>`;
+    }
+
+    return `<tr>
+      <td>${e.entry_date ? String(e.entry_date).slice(5,10) : '—'}</td>
+      <td style="font-weight:600;">${DEPT_LABELS[e.dept_code] || e.dept_code}</td>
+      <td>${e.delivery_qty || 0}${gmHtml}</td>
+      <td>${(e.available_workers||0) + (e.overtime_shifts||0)}</td>
+      <td style="color:${achColor};font-weight:700;">${ach}%</td>
+      <td><button class="btn-danger" onclick="promptDelete('${e.id}')">✕</button></td>
+    </tr>`;
+  }).join('');
+}
+
+/* ══════════════════════════════════════════════════
+   SCORE
+══════════════════════════════════════════════════ */
+function renderScore() {
+  const month = document.getElementById('score-month-sel').value;
+  const entries = allEntries.filter(e => e.entry_date && String(e.entry_date).slice(0,7) === month);
+  const aggr = aggregateByDept(entries);
+
+  document.getElementById('score-tbody').innerHTML = DEPTS.map(d => {
+    const a = aggr[d] || { available:0, all_in:0, needed:0, all_out:0 };
+    const ach = (a.needed + a.all_out) > 0 ? (a.available + a.all_in) / (a.needed + a.all_out) : 0;
+    const pct = (ach * 100).toFixed(2);
+    const pen = ach < 0.99 && (a.needed + a.all_out) > 0 ? Math.abs((ach - 0.99) * 300).toFixed(0) : 0;
+    const badge = ach >= 0.99 ? 'badge-ok' : ach >= 0.95 ? 'badge-warn' : 'badge-bad';
+    return `<tr>
+      <td style="font-weight:700;">${DEPT_LABELS[d]}</td>
+      <td>${a.available.toFixed(1)}</td>
+      <td>${a.all_in.toFixed(1)}</td>
+      <td>${a.needed.toFixed(2)}</td>
+      <td>${a.all_out.toFixed(1)}</td>
+      <td><span class="badge ${badge}">${pct}%</span></td>
+      <td style="color:var(--danger);font-weight:700;">${pen > 0 ? pen + ' EGP' : '—'}</td>
+    </tr>`;
+  }).join('');
+}
+
+/* ══════════════════════════════════════════════════
+   AGGREGATION
+══════════════════════════════════════════════════ */
+function aggregateByDept(entries) {
+  const aggr = {};
+  DEPTS.forEach(d => { aggr[d] = { available:0, all_in:0, needed:0, all_out:0 }; });
+  entries.forEach(e => {
+    const d = e.dept_code;
+    if (!aggr[d]) return;
+    const avShifts = (e.available_workers||0) + (e.overtime_shifts||0);
+    aggr[d].available += avShifts;
+    aggr[d].all_in    += e.all_in  || 0;
+    aggr[d].all_out   += e.all_out || 0;
+
+    // Recompute needed from stored model qtys if available
+    if (e.gm_model_qtys) {
+      let mqs;
+      try { mqs = typeof e.gm_model_qtys === 'string' ? JSON.parse(e.gm_model_qtys) : e.gm_model_qtys; } catch(ex) { mqs = {}; }
+      aggr[d].needed += computeNeededFromModels(d, mqs);
+    } else {
+      aggr[d].needed += e.needed_workers || 0;
+    }
+  });
+  return aggr;
+}
+
+/* ══════════════════════════════════════════════════
+   DELETE
+══════════════════════════════════════════════════ */
+function promptDelete(id) {
+  pendingDeleteId = id;
+  document.getElementById('delete-modal').classList.add('open');
+}
+function closeDelete() { document.getElementById('delete-modal').classList.remove('open'); pendingDeleteId = null; }
+
+async function confirmDelete() {
+  const pass = prompt('Enter delete password:');
+  if (pass !== DELETE_PASS) { toast('⚠ Incorrect password'); return; }
+  closeDelete();
+  try {
+    await sbFetch('/rest/v1/' + TABLE + '?id=eq.' + pendingDeleteId, { method: 'DELETE' });
+    toast('Entry deleted');
+    await loadEntries();
+    renderLog();
+    renderDashboard();
+  } catch(e) {
+    toast('⚠ Delete failed: ' + e.message, true);
+  }
+}
+
+/* ══════════════════════════════════════════════════
+   TOAST
+══════════════════════════════════════════════════ */
+function toast(msg, err=false) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.style.background = err ? 'var(--danger)' : '#1e293b';
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 3000);
+}
+</script>
+</body>
+</html>
