@@ -3,6 +3,9 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1"/>
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate"/>
+<meta http-equiv="Pragma" content="no-cache"/>
+<meta http-equiv="Expires" content="0"/>
 <meta name="theme-color" content="#1a4a7a"/>
 <title>MOBICA Assembly Capacity</title>
 <link rel="manifest" href="manifest.json"/>
@@ -449,6 +452,7 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(
 /* ══════════════════════════════════════════════════
    SUPABASE CONFIG
 ══════════════════════════════════════════════════ */
+const VERSION = 'v2026-04-22-fix3';
 const SB_URL = 'https://ojsmjqwjsdornetdqiyu.supabase.co';
 const SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9qc21qcXdqc2Rvcm5ldGRxaXl1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU1MTM1NTgsImV4cCI6MjA5MTA4OTU1OH0.ThQBFXNp1wC-7bteu95Fuiertz1t69TbyLqpna_rjVQ';
 const TABLE = 'capacity_entries';
@@ -513,6 +517,7 @@ let currentStep = 1;
    INIT
 ══════════════════════════════════════════════════ */
 document.addEventListener('DOMContentLoaded', async () => {
+  console.log('MOBICA Capacity System loaded:', VERSION);
   const today = new Date().toISOString().slice(0, 10);
   document.getElementById('f-date').value = today;
   updateHeaderMonth(today);
