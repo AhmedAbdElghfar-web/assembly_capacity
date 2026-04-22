@@ -256,7 +256,7 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(
         </div>
       </div>
     </div>
-    <button class="btn-primary" onclick="goStep(2)">NEXT â†’</button>
+    <button class="btn-primary" onclick="goStep(2)">NEXT →</button>
   </div>
 
   <!-- STEP 2: Production Quantities -->
@@ -735,7 +735,7 @@ function renderModelTable(dept, models) {
         </tr>
       </tfoot>
     </table>
-    <div class="gm-needed-label" id="mdl-needed-label">Needed workers: â€”</div>`;
+    <div class="gm-needed-label" id="mdl-needed-label">Needed workers: —</div>`;
 }
 
 function getCurrentModels() {
@@ -767,7 +767,7 @@ function updateModelTotals() {
     if (m.kpw != null && qtys[m.id] > 0) needed += qtys[m.id] / m.kpw;
   });
   const lbl = document.getElementById('mdl-needed-label');
-  if (lbl) lbl.textContent = needed > 0 ? 'Needed workers: ' + needed.toFixed(2) : 'Needed workers: â€”';
+  if (lbl) lbl.textContent = needed > 0 ? 'Needed workers: ' + needed.toFixed(2) : 'Needed workers: —';
 }
 
 /* â•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گ
@@ -1008,7 +1008,7 @@ function openConfirm() {
     ...otherInTransfers.map(t => `${t.label} +${t.qty}`)
   ];
   if (ot > 0) inDetailArr.push(`Extra Shifts +${ot}`);
-  const inDetail = inDetailArr.join(', ') || 'â€”';
+  const inDetail = inDetailArr.join(', ') || '—';
 
   let outDetailArr = [
     ...outTransfers.map(t => `${DEPT_LABELS[t.dept]||t.dept} âˆ’${t.qty}`),
@@ -1016,7 +1016,7 @@ function openConfirm() {
   ];
   if (vac > 0) outDetailArr.push(`Vacations âˆ’${vac}`);
   if (abs > 0) outDetailArr.push(`Absences âˆ’${abs}`);
-  const outDetail = outDetailArr.join(', ') || 'â€”';
+  const outDetail = outDetailArr.join(', ') || '—';
 
   document.getElementById('confirm-content').innerHTML = `
     <div class="confirm-row"><span class="confirm-label">Date</span><span class="confirm-value">${date}</span></div>
@@ -1151,14 +1151,14 @@ function renderDashboard() {
     const a = aggr[d] || { available:0, all_in:0, needed:0, all_out:0 };
     const ach = (a.available + a.all_in) > 0 ? (a.needed + a.all_out) / (a.available + a.all_in) : 0;
     const pct = (ach * 100).toFixed(1);
-    const pen = ach < 0.99 && (a.available + a.all_in) > 0 ? Math.abs((ach - 0.99) * 300).toFixed(0) : 'â€”';
+    const pen = ach < 0.99 && (a.available + a.all_in) > 0 ? Math.abs((ach - 0.99) * 300).toFixed(0) : '—';
     const badge = ach >= 0.99 ? 'badge-ok' : ach >= 0.95 ? 'badge-warn' : 'badge-bad';
     return `<tr>
       <td style="font-weight:600;">${DEPT_LABELS[d]}</td>
       <td>${a.available.toFixed(1)}</td>
       <td>${a.needed.toFixed(1)}</td>
       <td><span class="badge ${badge}">${pct}%</span></td>
-      <td style="color:var(--danger);font-weight:700;">${pen !== 'â€”' ? pen + ' EGP' : 'â€”'}</td>
+      <td style="color:var(--danger);font-weight:700;">${pen !== '—' ? pen + ' EGP' : '—'}</td>
     </tr>`;
   }).join('');
 }
@@ -1179,7 +1179,7 @@ function renderLog() {
   tbody.innerHTML = entries.map(e => {
     const avail = (e.available_workers||0) + (e.overtime_shifts||0) + (e.all_in||0);
     const needed = (e.needed_workers||0) + (e.all_out||0) + (e.vacations||0) + (e.absences||0);
-    const ach = avail > 0 ? (needed / avail * 100).toFixed(1) : 'â€”';
+    const ach = avail > 0 ? (needed / avail * 100).toFixed(1) : '—';
     const achColor = parseFloat(ach) >= 99 ? 'var(--ok)' : 'var(--danger)';
 
     // Model breakdown for all depts
@@ -1193,12 +1193,12 @@ function renderLog() {
     }
 
     return `<tr>
-      <td>${e.entry_date ? String(e.entry_date).slice(5,10) : 'â€”'}</td>
+      <td>${e.entry_date ? String(e.entry_date).slice(5,10) : '—'}</td>
       <td style="font-weight:600;">${DEPT_LABELS[e.dept_code] || e.dept_code}</td>
       <td>${e.delivery_qty || 0}${gmHtml}</td>
       <td>${(e.available_workers||0) + (e.overtime_shifts||0)}</td>
       <td style="color:${achColor};font-weight:700;">${ach}%</td>
-      <td><button class="btn-danger" onclick="promptDelete('${e.id}')">âœ•</button></td>
+      <td><button class="btn-danger" onclick="promptDelete('${e.id}')">✕</button></td>
     </tr>`;
   }).join('');
 }
@@ -1224,7 +1224,7 @@ function renderScore() {
       <td>${a.needed.toFixed(2)}</td>
       <td>${a.all_out.toFixed(1)}</td>
       <td><span class="badge ${badge}">${pct}%</span></td>
-      <td style="color:var(--danger);font-weight:700;">${pen > 0 ? pen + ' EGP' : 'â€”'}</td>
+      <td style="color:var(--danger);font-weight:700;">${pen > 0 ? pen + ' EGP' : '—'}</td>
     </tr>`;
   }).join('');
 }
@@ -1276,18 +1276,18 @@ function closeDelete() {
 async function confirmDelete() {
   const passEl = document.getElementById('delete-pass-input');
   const pass = passEl ? passEl.value : '';
-  if (pass !== DELETE_PASS) { toast('âڑ  Incorrect password'); return; }
-  if (!pendingDeleteId) { toast('âڑ  No entry selected'); return; }
+  if (pass !== DELETE_PASS) { toast('⚠️ Incorrect password'); return; }
+  if (!pendingDeleteId) { toast('⚠️ No entry selected'); return; }
   const idToDelete = pendingDeleteId;  // capture before closeDelete resets it
   closeDelete();
   try {
     await sbFetch('/rest/v1/' + TABLE + '?id=eq.' + idToDelete, { method: 'DELETE' });
-    toast('âœ“ Entry deleted');
+    toast('✓ Entry deleted');
     await loadEntries();
     renderLog();
     renderDashboard();
   } catch(e) {
-    toast('âڑ  Delete failed: ' + e.message, true);
+    toast('⚠️ Delete failed: ' + e.message, true);
   }
 }
 
