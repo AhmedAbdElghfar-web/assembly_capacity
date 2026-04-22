@@ -100,6 +100,18 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(
 .transfer-tag-other-out{background:#fef3c7;color:#92400e;}
 .transfer-tag-other-out button{color:#92400e;}
 
+/* ── SUGGESTIONS ── */
+.suggest-card{background:#fffbeb;border:1.5px solid #f59e0b;border-radius:10px;padding:10px 12px;margin-bottom:10px;display:none;}
+.suggest-card.visible{display:block;}
+.suggest-title{font-size:11px;font-weight:700;color:#92400e;text-transform:uppercase;letter-spacing:.3px;margin-bottom:8px;display:flex;align-items:center;gap:6px;}
+.suggest-item{display:flex;align-items:center;gap:8px;margin-bottom:6px;padding:7px 8px;background:#fff;border-radius:8px;border:1px solid #fde68a;}
+.suggest-item .s-label{flex:1;font-size:12px;font-weight:600;color:#78350f;}
+.suggest-item .s-qty{font-size:13px;font-weight:800;color:#92400e;min-width:36px;text-align:right;}
+.suggest-item .s-edit{width:60px;padding:5px 6px;border:1.5px solid #f59e0b;border-radius:6px;font-size:13px;font-weight:700;text-align:center;color:#78350f;background:#fffbeb;}
+.suggest-item .s-accept{background:#f59e0b;color:#fff;border:none;border-radius:6px;padding:5px 10px;font-size:11px;font-weight:700;cursor:pointer;white-space:nowrap;}
+.suggest-item .s-dismiss{background:none;border:none;color:#9ca3af;cursor:pointer;font-size:16px;padding:0 2px;line-height:1;}
+.suggest-note{font-size:10px;color:#92400e;opacity:.7;margin-top:6px;}
+
 /* ── BUTTONS ── */
 .btn-primary{width:100%;padding:13px;background:var(--primary);color:#fff;border:none;border-radius:10px;font-size:15px;font-weight:700;cursor:pointer;letter-spacing:.5px;margin-top:8px;transition:.2s;}
 .btn-primary:active{background:var(--primary-light);}
@@ -296,6 +308,13 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(
   <!-- STEP 4: Transfers -->
   <div id="step4" style="display:none;">
     <div class="step-label">STEP 4 OF 4 — WORKER TRANSFERS</div>
+
+    <!-- ── SUGGESTIONS BANNER ── -->
+    <div class="suggest-card" id="suggest-card">
+      <div class="suggest-title">⚠ Suggested IN — from other dept entries today</div>
+      <div id="suggest-list"></div>
+      <div class="suggest-note">These depts recorded a transfer OUT to your department today. Accept to confirm, or dismiss to ignore.</div>
+    </div>
 
     <!-- ── ALL-IN ── -->
     <div class="card" style="margin-bottom:10px;">
@@ -577,6 +596,7 @@ function goStep(n) {
     dot.classList.toggle('done', i < n);
     dot.classList.toggle('active', i === n);
   });
+  if (n === 4) loadSuggestions();
 }
 
 function validateStep(s) {
@@ -757,8 +777,77 @@ function renderTransferTags() {
 }
 
 /* ══════════════════════════════════════════════════
-   CONFIRM MODAL
+   SUGGESTIONS — soft-mirror of other dept OUT → this dept
 ══════════════════════════════════════════════════ */
+function loadSuggestions() {
+  const thisDept = document.getElementById('f-dept').value;
+  const date     = document.getElementById('f-date').value;
+  if (!thisDept || !date) return;
+
+  // Scan all entries for same date where transfers_json has OUT → thisDept
+  const suggestions = [];
+  allEntries.forEach(e => {
+    if (e.entry_date !== date) return;
+    if (e.dept_code === thisDept) return;  // skip own dept
+    if (!e.transfers_json) return;
+    let tj;
+    try { tj = typeof e.transfers_json === 'string' ? JSON.parse(e.transfers_json) : e.transfers_json; }
+    catch(ex) { return; }
+    const outs = tj.out || [];
+    outs.forEach(t => {
+      if (t.dept === thisDept) {
+        // Check if already accepted (already in inTransfers)
+        const already = inTransfers.some(it => it.dept === e.dept_code && it.qty === t.qty);
+        if (!already) {
+          suggestions.push({ fromDept: e.dept_code, qty: t.qty });
+        }
+      }
+    });
+  });
+
+  const card = document.getElementById('suggest-card');
+  const list = document.getElementById('suggest-list');
+
+  if (!suggestions.length) {
+    card.classList.remove('visible');
+    list.innerHTML = '';
+    return;
+  }
+
+  card.classList.add('visible');
+  list.innerHTML = suggestions.map((s, i) => `
+    <div class="suggest-item" id="sug-${i}">
+      <span class="s-label">From ${DEPT_LABELS[s.fromDept] || s.fromDept}</span>
+      <input class="s-edit" type="number" id="sug-qty-${i}" value="${s.qty}" min="0" step="0.5"/>
+      <button class="s-accept" onclick="acceptSuggestion(${i},'${s.fromDept}')">✓ Accept</button>
+      <button class="s-dismiss" onclick="dismissSuggestion(${i})" title="Dismiss">✕</button>
+    </div>`).join('');
+}
+
+function acceptSuggestion(idx, fromDept) {
+  const qtyEl = document.getElementById('sug-qty-' + idx);
+  const qty = parseFloat(qtyEl.value);
+  if (!qty || qty <= 0) { toast('Enter a valid qty before accepting'); return; }
+  // Add to confirmed IN transfers
+  inTransfers.push({ dept: fromDept, qty });
+  renderTransferTags();
+  // Remove suggestion row
+  const row = document.getElementById('sug-' + idx);
+  if (row) row.remove();
+  // Hide card if no more suggestions
+  if (!document.getElementById('suggest-list').children.length) {
+    document.getElementById('suggest-card').classList.remove('visible');
+  }
+  toast('✓ Transfer accepted: ' + DEPT_LABELS[fromDept] + ' +' + qty);
+}
+
+function dismissSuggestion(idx) {
+  const row = document.getElementById('sug-' + idx);
+  if (row) row.remove();
+  if (!document.getElementById('suggest-list').children.length) {
+    document.getElementById('suggest-card').classList.remove('visible');
+  }
+}
 function openConfirm() {
   const dept = document.getElementById('f-dept').value;
   const date = document.getElementById('f-date').value;
