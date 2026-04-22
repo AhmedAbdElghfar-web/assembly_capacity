@@ -89,6 +89,16 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(
 .btn-add-transfer{background:#e8f4fc;color:var(--primary);border:1.5px dashed var(--accent);padding:8px;width:100%;border-radius:8px;font-size:12px;cursor:pointer;font-weight:600;margin-top:4px;}
 .transfer-tag{display:inline-flex;align-items:center;gap:6px;background:#dbeafe;color:#1d4ed8;border-radius:16px;padding:4px 10px;font-size:11px;font-weight:600;margin:3px;}
 .transfer-tag button{background:none;border:none;color:#1d4ed8;cursor:pointer;font-size:14px;line-height:1;padding:0;}
+.transfer-section-divider{display:flex;align-items:center;gap:8px;margin:12px 0 8px;font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;}
+.transfer-section-divider::before,.transfer-section-divider::after{content:'';flex:1;height:1px;background:var(--border);}
+.other-transfer-row{display:flex;gap:8px;align-items:center;margin-bottom:8px;}
+.other-transfer-row input[type="text"]{flex:2;padding:8px 10px;border:1.5px solid var(--border);border-radius:8px;font-size:13px;}
+.other-transfer-row input[type="number"]{flex:1;padding:8px 10px;border:1.5px solid var(--border);border-radius:8px;font-size:13px;text-align:center;}
+.other-transfer-row button{padding:8px 12px;border:none;border-radius:8px;cursor:pointer;font-size:14px;font-weight:700;}
+.transfer-tag-other-in{background:#dcfce7;color:#15803d;}
+.transfer-tag-other-in button{color:#15803d;}
+.transfer-tag-other-out{background:#fef3c7;color:#92400e;}
+.transfer-tag-other-out button{color:#92400e;}
 
 /* ── BUTTONS ── */
 .btn-primary{width:100%;padding:13px;background:var(--primary);color:#fff;border:none;border-radius:10px;font-size:15px;font-weight:700;cursor:pointer;letter-spacing:.5px;margin-top:8px;transition:.2s;}
@@ -286,11 +296,15 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(
   <!-- STEP 4: Transfers -->
   <div id="step4" style="display:none;">
     <div class="step-label">STEP 4 OF 4 — WORKER TRANSFERS</div>
-    <div class="card">
+
+    <!-- ── ALL-IN ── -->
+    <div class="card" style="margin-bottom:10px;">
+      <div class="card-head">➕ All-IN (workers received)</div>
       <div class="card-body">
-        <div class="transfer-header">All-IN (received from other depts)</div>
+
+        <div class="transfer-section-divider">From department</div>
         <div id="in-tags"></div>
-        <div class="transfer-row" id="in-row">
+        <div class="transfer-row">
           <select id="in-from">
             <option value="">From dept...</option>
           </select>
@@ -298,17 +312,43 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(
           <button style="background:#dbeafe;color:#1d4ed8;border-radius:8px;border:none;padding:8px 12px;cursor:pointer;font-weight:700;" onclick="addTransfer('in')">＋</button>
         </div>
 
-        <div class="transfer-header" style="margin-top:14px;">All-OUT (sent to other depts)</div>
+        <div class="transfer-section-divider">Other source</div>
+        <div id="other-in-tags"></div>
+        <div class="other-transfer-row">
+          <input type="text" id="other-in-source" placeholder="e.g. New hire, 3rd party, Agency..."/>
+          <input type="number" id="other-in-qty" min="0" step="0.5" placeholder="shifts"/>
+          <button style="background:#dcfce7;color:#15803d;" onclick="addOtherTransfer('in')">＋</button>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ── ALL-OUT ── -->
+    <div class="card">
+      <div class="card-head">➖ All-OUT (workers lost)</div>
+      <div class="card-body">
+
+        <div class="transfer-section-divider">To department</div>
         <div id="out-tags"></div>
-        <div class="transfer-row" id="out-row">
+        <div class="transfer-row">
           <select id="out-to">
             <option value="">To dept...</option>
           </select>
           <input type="number" id="out-qty" min="0" step="0.5" placeholder="shifts"/>
           <button style="background:#fee2e2;color:#991b1b;border-radius:8px;border:none;padding:8px 12px;cursor:pointer;font-weight:700;" onclick="addTransfer('out')">＋</button>
         </div>
+
+        <div class="transfer-section-divider">Other reason</div>
+        <div id="other-out-tags"></div>
+        <div class="other-transfer-row">
+          <input type="text" id="other-out-reason" placeholder="e.g. Unplanned stoppage, Maintenance..."/>
+          <input type="number" id="other-out-qty" min="0" step="0.5" placeholder="shifts"/>
+          <button style="background:#fef3c7;color:#92400e;" onclick="addOtherTransfer('out')">＋</button>
+        </div>
+
       </div>
     </div>
+
     <button class="btn-outline" onclick="goStep(3)">← BACK</button>
     <button class="btn-primary" onclick="openConfirm()">REVIEW & SAVE ✓</button>
   </div>
@@ -437,8 +477,10 @@ const DEPT_LABELS = {
    STATE
 ══════════════════════════════════════════════════ */
 let allEntries = [];
-let inTransfers  = [];
-let outTransfers = [];
+let inTransfers      = [];   // dept-to-dept IN
+let outTransfers     = [];   // dept-to-dept OUT
+let otherInTransfers = [];   // other sources IN (new hire, 3rd party, etc.)
+let otherOutTransfers= [];   // other reasons OUT (stoppage, maintenance, etc.)
 let pendingDeleteId = null;
 let currentStep = 1;
 
@@ -641,14 +683,14 @@ function computeGMNeeded(modelQtysObj) {
 }
 
 /* ══════════════════════════════════════════════════
-   TRANSFERS
+   TRANSFERS — dept-to-dept
 ══════════════════════════════════════════════════ */
 function addTransfer(dir) {
   const fromSel = document.getElementById(dir === 'in' ? 'in-from' : 'out-to');
-  const qtySel  = document.getElementById(dir === 'in' ? 'in-qty' : 'out-qty');
+  const qtySel  = document.getElementById(dir === 'in' ? 'in-qty'  : 'out-qty');
   const dept = fromSel.value;
   const qty  = parseFloat(qtySel.value);
-  if (!dept || !qty || qty <= 0) { toast('Select dept and qty'); return; }
+  if (!dept || !qty || qty <= 0) { toast('Select dept and enter qty'); return; }
   const list = dir === 'in' ? inTransfers : outTransfers;
   list.push({ dept, qty });
   fromSel.value = ''; qtySel.value = '';
@@ -661,11 +703,57 @@ function removeTransfer(dir, idx) {
   renderTransferTags();
 }
 
+/* ══════════════════════════════════════════════════
+   TRANSFERS — other source / other reason
+══════════════════════════════════════════════════ */
+function addOtherTransfer(dir) {
+  const labelEl = document.getElementById(dir === 'in' ? 'other-in-source' : 'other-out-reason');
+  const qtyEl   = document.getElementById(dir === 'in' ? 'other-in-qty'    : 'other-out-qty');
+  const label = labelEl.value.trim();
+  const qty   = parseFloat(qtyEl.value);
+  if (!label) { toast(dir === 'in' ? 'Enter source description' : 'Enter reason description'); return; }
+  if (!qty || qty <= 0) { toast('Enter a valid number of shifts'); return; }
+  const list = dir === 'in' ? otherInTransfers : otherOutTransfers;
+  list.push({ label, qty });
+  labelEl.value = ''; qtyEl.value = '';
+  renderTransferTags();
+}
+
+function removeOtherTransfer(dir, idx) {
+  if (dir === 'in') otherInTransfers.splice(idx, 1);
+  else otherOutTransfers.splice(idx, 1);
+  renderTransferTags();
+}
+
 function renderTransferTags() {
+  // Dept IN tags
   document.getElementById('in-tags').innerHTML =
-    inTransfers.map((t,i) => `<span class="transfer-tag">${DEPT_LABELS[t.dept] || t.dept} +${t.qty}<button onclick="removeTransfer('in',${i})">×</button></span>`).join('');
+    inTransfers.map((t,i) =>
+      `<span class="transfer-tag">${DEPT_LABELS[t.dept] || t.dept} +${t.qty}
+       <button onclick="removeTransfer('in',${i})">×</button></span>`
+    ).join('');
+
+  // Other IN tags
+  document.getElementById('other-in-tags').innerHTML =
+    otherInTransfers.map((t,i) =>
+      `<span class="transfer-tag transfer-tag-other-in">${t.label} +${t.qty}
+       <button onclick="removeOtherTransfer('in',${i})">×</button></span>`
+    ).join('');
+
+  // Dept OUT tags
   document.getElementById('out-tags').innerHTML =
-    outTransfers.map((t,i) => `<span class="transfer-tag" style="background:#fee2e2;color:#991b1b;">${DEPT_LABELS[t.dept] || t.dept} −${t.qty}<button onclick="removeTransfer('out',${i})" style="color:#991b1b;">×</button></span>`).join('');
+    outTransfers.map((t,i) =>
+      `<span class="transfer-tag" style="background:#fee2e2;color:#991b1b;">
+       ${DEPT_LABELS[t.dept] || t.dept} −${t.qty}
+       <button onclick="removeTransfer('out',${i})" style="color:#991b1b;">×</button></span>`
+    ).join('');
+
+  // Other OUT tags
+  document.getElementById('other-out-tags').innerHTML =
+    otherOutTransfers.map((t,i) =>
+      `<span class="transfer-tag transfer-tag-other-out">${t.label} −${t.qty}
+       <button onclick="removeOtherTransfer('out',${i})">×</button></span>`
+    ).join('');
 }
 
 /* ══════════════════════════════════════════════════
@@ -698,11 +786,24 @@ function openConfirm() {
   }
 
   const prodQty = delQty + stkE - stkB;
-  const totalIn  = inTransfers.reduce((s,t) => s+t.qty, 0);
-  const totalOut = outTransfers.reduce((s,t) => s+t.qty, 0);
+  const deptIn    = inTransfers.reduce((s,t) => s+t.qty, 0);
+  const otherIn   = otherInTransfers.reduce((s,t) => s+t.qty, 0);
+  const deptOut   = outTransfers.reduce((s,t) => s+t.qty, 0);
+  const otherOut  = otherOutTransfers.reduce((s,t) => s+t.qty, 0);
+  const totalIn   = deptIn + otherIn;
+  const totalOut  = deptOut + otherOut;
   const availShifts = avail + ot;
   const ach = (neededWkrs + totalOut) > 0 ? (availShifts + totalIn) / (neededWkrs + totalOut) : 0;
   const achPct = (ach * 100).toFixed(1);
+
+  const inDetail  = [
+    ...inTransfers.map(t => `${DEPT_LABELS[t.dept]||t.dept} +${t.qty}`),
+    ...otherInTransfers.map(t => `${t.label} +${t.qty}`)
+  ].join(', ') || '—';
+  const outDetail = [
+    ...outTransfers.map(t => `${DEPT_LABELS[t.dept]||t.dept} −${t.qty}`),
+    ...otherOutTransfers.map(t => `${t.label} −${t.qty}`)
+  ].join(', ') || '—';
 
   document.getElementById('confirm-content').innerHTML = `
     <div class="confirm-row"><span class="confirm-label">Date</span><span class="confirm-value">${date}</span></div>
@@ -712,7 +813,8 @@ function openConfirm() {
     <div class="confirm-row"><span class="confirm-label">Production Qty</span><span class="confirm-value">${prodQty}</span></div>
     <div class="confirm-row"><span class="confirm-label">Available Workers</span><span class="confirm-value">${avail} (+${ot} OT)</span></div>
     <div class="confirm-row"><span class="confirm-label">Needed Workers</span><span class="confirm-value">${neededWkrs.toFixed(2)}</span></div>
-    <div class="confirm-row"><span class="confirm-label">All-In / All-Out</span><span class="confirm-value">+${totalIn} / −${totalOut}</span></div>
+    <div class="confirm-row"><span class="confirm-label">All-IN (+${totalIn})</span><span class="confirm-value" style="font-size:11px;color:var(--muted);">${inDetail}</span></div>
+    <div class="confirm-row"><span class="confirm-label">All-OUT (−${totalOut})</span><span class="confirm-value" style="font-size:11px;color:var(--muted);">${outDetail}</span></div>
     <div class="confirm-row"><span class="confirm-label">Achievement</span><span class="confirm-value" style="color:${ach>=0.99?'var(--ok)':'var(--danger)'};">${achPct}%</span></div>
   `;
   document.getElementById('confirm-modal').classList.add('open');
@@ -747,6 +849,10 @@ async function saveEntry() {
   }
 
   const prodQty = delQty + stkE - stkB;
+  const totalIn  = inTransfers.reduce((s,t) => s+t.qty, 0)
+                 + otherInTransfers.reduce((s,t) => s+t.qty, 0);
+  const totalOut = outTransfers.reduce((s,t) => s+t.qty, 0)
+                 + otherOutTransfers.reduce((s,t) => s+t.qty, 0);
 
   const payload = {
     entry_date: date,
@@ -760,9 +866,14 @@ async function saveEntry() {
     vacations: vac,
     absences: abs,
     needed_workers: parseFloat(neededWkrs.toFixed(4)),
-    all_in: inTransfers.reduce((s,t) => s+t.qty, 0),
-    all_out: outTransfers.reduce((s,t) => s+t.qty, 0),
-    transfers_json: JSON.stringify({ in: inTransfers, out: outTransfers }),
+    all_in:  totalIn,
+    all_out: totalOut,
+    transfers_json: JSON.stringify({
+      in:       inTransfers,
+      out:      outTransfers,
+      other_in: otherInTransfers,
+      other_out: otherOutTransfers
+    }),
     gm_model_qtys: gm_model_qtys ? JSON.stringify(gm_model_qtys) : null
   };
 
@@ -784,6 +895,7 @@ async function saveEntry() {
 
 function resetForm() {
   inTransfers = []; outTransfers = [];
+  otherInTransfers = []; otherOutTransfers = [];
   document.getElementById('f-dept').value = '';
   document.getElementById('f-avail').value = '';
   document.getElementById('f-ot').value = '';
