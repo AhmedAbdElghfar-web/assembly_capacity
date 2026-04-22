@@ -853,7 +853,7 @@ function loadSuggestions() {
   // Scan all entries for same date where transfers_json has OUT → thisDept
   const suggestions = [];
   allEntries.forEach(e => {
-    if (e.entry_date !== date) return;
+    if (String(e.entry_date).slice(0,10) !== date) return;
     if (e.dept_code === thisDept) return;  // skip own dept
     if (!e.transfers_json) return;
     let tj;
@@ -1071,7 +1071,7 @@ function resetForm() {
 ══════════════════════════════════════════════════ */
 function renderDashboard() {
   const month = new Date().toISOString().slice(0,7);
-  const mtdEntries = allEntries.filter(e => e.entry_date && e.entry_date.startsWith(month));
+  const mtdEntries = allEntries.filter(e => e.entry_date && String(e.entry_date).slice(0,7) === month);
   const grid = document.getElementById('dept-cards-grid');
   const tbody = document.getElementById('summary-tbody');
 
@@ -1112,9 +1112,9 @@ function renderDashboard() {
 function renderLog() {
   const month = document.getElementById('log-month-sel').value;
   const dept  = document.getElementById('log-dept-sel').value;
-  let entries = allEntries.filter(e => e.entry_date && e.entry_date.startsWith(month));
+  let entries = allEntries.filter(e => e.entry_date && String(e.entry_date).slice(0,7) === month);
   if (dept !== 'ALL') entries = entries.filter(e => e.dept_code === dept);
-  entries.sort((a,b) => b.entry_date.localeCompare(a.entry_date));
+  entries.sort((a,b) => String(b.entry_date).localeCompare(String(a.entry_date)));
 
   const tbody = document.getElementById('log-tbody');
   if (!entries.length) { tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;color:var(--muted);padding:20px;">No entries</td></tr>'; return; }
@@ -1136,7 +1136,7 @@ function renderLog() {
     }
 
     return `<tr>
-      <td>${e.entry_date ? e.entry_date.slice(5) : '—'}</td>
+      <td>${e.entry_date ? String(e.entry_date).slice(5,10) : '—'}</td>
       <td style="font-weight:600;">${DEPT_LABELS[e.dept_code] || e.dept_code}</td>
       <td>${e.delivery_qty || 0}${gmHtml}</td>
       <td>${(e.available_workers||0) + (e.overtime_shifts||0)}</td>
@@ -1151,7 +1151,7 @@ function renderLog() {
 ══════════════════════════════════════════════════ */
 function renderScore() {
   const month = document.getElementById('score-month-sel').value;
-  const entries = allEntries.filter(e => e.entry_date && e.entry_date.startsWith(month));
+  const entries = allEntries.filter(e => e.entry_date && String(e.entry_date).slice(0,7) === month);
   const aggr = aggregateByDept(entries);
 
   document.getElementById('score-tbody').innerHTML = DEPTS.map(d => {
