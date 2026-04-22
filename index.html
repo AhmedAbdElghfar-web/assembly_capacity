@@ -1000,7 +1000,7 @@ function openConfirm() {
   const totalIn   = deptIn + otherIn;
   const totalOut  = deptOut + otherOut;
   const availShifts = avail + ot;
-  const ach = (neededWkrs + totalOut) > 0 ? (availShifts + totalIn) / (neededWkrs + totalOut) : 0;
+  const ach = (availShifts + totalIn) > 0 ? (neededWkrs + totalOut) / (availShifts + totalIn) : 0;
   const achPct = (ach * 100).toFixed(1);
 
   const inDetail  = [
@@ -1129,23 +1129,23 @@ function renderDashboard() {
   const aggr = aggregateByDept(mtdEntries);
   const cards = DEPTS.map(d => {
     const a = aggr[d] || { available:0, all_in:0, needed:0, all_out:0 };
-    const ach = (a.needed + a.all_out) > 0 ? (a.available + a.all_in) / (a.needed + a.all_out) : 0;
+    const ach = (a.available + a.all_in) > 0 ? (a.needed + a.all_out) / (a.available + a.all_in) : 0;
     const pct = (ach * 100).toFixed(1);
     const cls = ach >= 0.99 ? 'ok' : ach >= 0.95 ? 'warn' : 'bad';
     return `<div class="dept-card">
       <div class="dname">${DEPT_LABELS[d]}</div>
       <div class="dach ${cls}">${pct}%</div>
       <div class="dsub">Avail: ${a.available.toFixed(1)} | Needed: ${a.needed.toFixed(1)}</div>
-      ${ach < 0.99 && (a.needed + a.all_out) > 0 ? `<div class="dpen">Penalty: ${Math.abs((ach - 0.99) * 300).toFixed(0)} EGP</div>` : ''}
+      ${ach < 0.99 && (a.available + a.all_in) > 0 ? `<div class="dpen">Penalty: ${Math.abs((ach - 0.99) * 300).toFixed(0)} EGP</div>` : ''}
     </div>`;
   }).join('');
   grid.innerHTML = cards || '<div style="text-align:center;color:var(--muted);font-size:12px;grid-column:1/-1;padding:20px;">No entries this month</div>';
 
   tbody.innerHTML = DEPTS.map(d => {
     const a = aggr[d] || { available:0, all_in:0, needed:0, all_out:0 };
-    const ach = (a.needed + a.all_out) > 0 ? (a.available + a.all_in) / (a.needed + a.all_out) : 0;
+    const ach = (a.available + a.all_in) > 0 ? (a.needed + a.all_out) / (a.available + a.all_in) : 0;
     const pct = (ach * 100).toFixed(1);
-    const pen = ach < 0.99 && (a.needed + a.all_out) > 0 ? Math.abs((ach - 0.99) * 300).toFixed(0) : '—';
+    const pen = ach < 0.99 && (a.available + a.all_in) > 0 ? Math.abs((ach - 0.99) * 300).toFixed(0) : '—';
     const badge = ach >= 0.99 ? 'badge-ok' : ach >= 0.95 ? 'badge-warn' : 'badge-bad';
     return `<tr>
       <td style="font-weight:600;">${DEPT_LABELS[d]}</td>
@@ -1171,9 +1171,9 @@ function renderLog() {
   if (!entries.length) { tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;color:var(--muted);padding:20px;">No entries</td></tr>'; return; }
 
   tbody.innerHTML = entries.map(e => {
-    const ach = (e.needed_workers + (e.all_out||0)) > 0
-      ? ((e.available_workers + (e.overtime_shifts||0) + (e.all_in||0)) / (e.needed_workers + (e.all_out||0)) * 100).toFixed(1)
-      : '—';
+    const avail = (e.available_workers||0) + (e.overtime_shifts||0) + (e.all_in||0);
+    const needed = (e.needed_workers||0) + (e.all_out||0);
+    const ach = avail > 0 ? (needed / avail * 100).toFixed(1) : '—';
     const achColor = parseFloat(ach) >= 99 ? 'var(--ok)' : 'var(--danger)';
 
     // Model breakdown for all depts
@@ -1207,9 +1207,9 @@ function renderScore() {
 
   document.getElementById('score-tbody').innerHTML = DEPTS.map(d => {
     const a = aggr[d] || { available:0, all_in:0, needed:0, all_out:0 };
-    const ach = (a.needed + a.all_out) > 0 ? (a.available + a.all_in) / (a.needed + a.all_out) : 0;
+    const ach = (a.available + a.all_in) > 0 ? (a.needed + a.all_out) / (a.available + a.all_in) : 0;
     const pct = (ach * 100).toFixed(2);
-    const pen = ach < 0.99 && (a.needed + a.all_out) > 0 ? Math.abs((ach - 0.99) * 300).toFixed(0) : 0;
+    const pen = ach < 0.99 && (a.available + a.all_in) > 0 ? Math.abs((ach - 0.99) * 300).toFixed(0) : 0;
     const badge = ach >= 0.99 ? 'badge-ok' : ach >= 0.95 ? 'badge-warn' : 'badge-bad';
     return `<tr>
       <td style="font-weight:700;">${DEPT_LABELS[d]}</td>
