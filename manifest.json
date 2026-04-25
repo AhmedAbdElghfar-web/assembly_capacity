@@ -1,13 +1,15 @@
 {
-  "name": "MOBICA Assembly Capacity",
-  "short_name": "MOBICA Cap.",
-  "start_url": "/assembly_capacity/",
+  "name": "MOBICA Monthly Capacity",
+  "short_name": "Mobica Monthly",
+  "description": "Monthly Assembly Capacity Achievement System",
+  "start_url": "./mobica_capacity.html",
+  "scope": ".",
   "display": "standalone",
   "background_color": "#e8f4fc",
   "theme_color": "#1a4a7a",
   "icons": [
     {
-      "src": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==",
+      "src": "MOBICA.png",
       "sizes": "192x192",
       "type": "image/png"
     }
