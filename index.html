@@ -799,17 +799,14 @@ function updateStockSummary() {
 }
 
 /* ══════════════════════════════════════════════════
-   COMPUTE NEEDED & STOCK EFFECT
+   COMPUTE NEEDED (DELIVERY-ONLY)
 ══════════════════════════════════════════════════ */
-function computeNeededFromModels(dept, modelQtysObj, stockBeginObj = {}, stockEndObj = {}) {
+function computeNeededFromModels(dept, modelQtysObj) {
   const models = DEPT_MODELS[dept] || [];
   let needed = 0;
   models.forEach(m => {
     const qty = modelQtysObj[m.id] || 0;
-    const stkB = stockBeginObj[m.id] || 0;
-    const stkE = stockEndObj[m.id] || 0;
-    const prodQty = qty + (stkE - stkB);
-    if (m.kpw != null && prodQty > 0) needed += prodQty / m.kpw;
+    if (m.kpw != null && qty > 0) needed += qty / m.kpw;
   });
   return needed;
 }
@@ -1009,7 +1006,8 @@ function openConfirm() {
   if (deptModels && deptModels.length > 0) {
     const mQtys = getModelQtys();
     delQty = Object.values(mQtys).reduce((s,v)=>s+v,0);
-    neededWkrs = computeNeededFromModels(dept, mQtys, stockData.begin, stockData.end);
+    // DELIVERY-ONLY Needed Workers
+    neededWkrs = computeNeededFromModels(dept, mQtys);
     const bmRows = deptModels.map(m => {
       const q = mQtys[m.id] || 0;
       return q > 0 ? `<tr><td class="cgm-model">${m.name}</td><td class="cgm-qty">${q}</td></tr>` : '';
@@ -1025,7 +1023,7 @@ function openConfirm() {
   const otherIn   = otherInTransfers.reduce((s,t) => s+t.qty, 0);
   const deptOut   = outTransfers.reduce((s,t) => s+t.qty, 0);
   const otherOut  = otherOutTransfers.reduce((s,t) => s+t.qty, 0);
-  // NEW: include overtime in All‑IN and vacations+stock in All‑OUT
+  // All‑IN includes overtime; All‑OUT includes vacations + stock shifts
   const totalIn   = deptIn + otherIn + ot;
   const totalOut  = deptOut + otherOut + vac + stockShiftEffect;
 
@@ -1089,7 +1087,8 @@ async function saveEntry() {
     const mQtys = getModelQtys();
     gm_model_qtys = mQtys;
     delQty = Object.values(mQtys).reduce((s,v)=>s+v,0);
-    neededWkrs = computeNeededFromModels(dept, mQtys, stockData.begin, stockData.end);
+    // DELIVERY-ONLY Needed Workers
+    neededWkrs = computeNeededFromModels(dept, mQtys);
   } else {
     delQty = parseFloat(document.getElementById('f-del-qty').value) || 0;
     neededWkrs = 0;
@@ -1267,7 +1266,7 @@ function renderScore() {
 }
 
 /* ══════════════════════════════════════════════════
-   AGGREGATION (UPDATED FOR NEW ALL‑IN/ALL‑OUT)
+   AGGREGATION (DELIVERY-ONLY NEEDED, ALL-IN/OUT INCLUSIVE)
 ══════════════════════════════════════════════════ */
 function aggregateByDept(entries) {
   const aggr = {};
@@ -1275,25 +1274,19 @@ function aggregateByDept(entries) {
   entries.forEach(e => {
     const d = e.dept_code;
     if (!aggr[d]) return;
-    // Base available = workers * days, without overtime (overtime now inside all_in)
+    // Base available = workers * days (without overtime)
     const baseAvail = e.available_shifts || ((e.available_workers||0) * (e.actual_working_days||1));
     aggr[d].available += baseAvail;
-    // Use stored all_in / all_out (which already include overtime & vacations/stock)
+    // all_in and all_out already contain overtime / vacations+stock
     aggr[d].all_in    += e.all_in  || 0;
     aggr[d].all_out   += e.all_out || 0;
 
+    // Needed only from delivery quantities (no stock)
     let needed = 0;
     if (e.gm_model_qtys) {
       let mqs;
       try { mqs = typeof e.gm_model_qtys === 'string' ? JSON.parse(e.gm_model_qtys) : e.gm_model_qtys; } catch(ex) { mqs = {}; }
-      let sB = {}, sE = {};
-      if (e.stock_begin_json) {
-        try { sB = typeof e.stock_begin_json === 'string' ? JSON.parse(e.stock_begin_json) : e.stock_begin_json; } catch(ex) {}
-      }
-      if (e.stock_end_json) {
-        try { sE = typeof e.stock_end_json === 'string' ? JSON.parse(e.stock_end_json) : e.stock_end_json; } catch(ex) {}
-      }
-      needed = computeNeededFromModels(d, mqs, sB, sE);
+      needed = computeNeededFromModels(d, mqs);
     } else {
       needed = e.needed_workers || 0;
     }
