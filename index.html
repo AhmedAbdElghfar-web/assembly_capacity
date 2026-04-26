@@ -30,7 +30,6 @@
 }
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
 body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--text);min-height:100vh;}
-/* Stock per-model table – similar to gm-model-table */
 .stock-model-table { width:100%; border-collapse:collapse; margin-top:8px; font-size:12px; }
 .stock-model-table th { font-size:10px; font-weight:700; color:var(--primary); text-transform:uppercase; letter-spacing:.3px; padding:6px 8px; background:#e8f4fc; text-align:left; }
 .stock-model-table td { padding:4px 6px; border-bottom:1px solid #e2eaf2; vertical-align:middle; }
@@ -38,43 +37,30 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(
 .stock-model-table .stock-input { width:70px; padding:5px 6px; border:1.5px solid var(--border); border-radius:6px; font-size:13px; text-align:center; }
 .stock-model-table .stock-input:focus { border-color:var(--accent); }
 .stk-total-row td { font-weight:700; color:var(--primary); border-top:2px solid var(--primary); padding-top:8px; }
-/* ── HEADER ── */
 .header{background:var(--primary);color:#fff;padding:10px 16px;display:flex;align-items:center;gap:10px;position:sticky;top:0;z-index:100;box-shadow:0 2px 8px rgba(0,0,0,0.25);}
 .header img{height:36px;border-radius:4px;}
 .header-title{flex:1;}
 .header-title h1{font-size:14px;font-weight:700;letter-spacing:.5px;}
 .header-title p{font-size:10px;opacity:.75;margin-top:1px;}
 .hbtn{background:rgba(255,255,255,0.15);border:none;color:#fff;border-radius:6px;padding:6px 10px;font-size:11px;cursor:pointer;font-weight:600;}
-
-/* ── TAB BAR ── */
 .tabs{display:flex;background:var(--primary);padding:0 8px 8px;}
 .tab{flex:1;text-align:center;padding:8px 4px;color:rgba(255,255,255,0.6);font-size:11px;font-weight:600;cursor:pointer;border-radius:8px;transition:.2s;}
 .tab.active{background:rgba(255,255,255,0.2);color:#fff;}
-
-/* ── CONTENT AREA ── */
 .page{display:none;padding:12px;}
 .page.active{display:block;}
-
-/* ── CARDS ── */
 .card{background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);margin-bottom:12px;overflow:hidden;}
 .card-head{padding:10px 14px;font-size:12px;font-weight:700;color:var(--primary);border-bottom:1px solid var(--border);display:flex;align-items:center;gap:6px;}
 .card-body{padding:12px 14px;}
-
-/* ── STEP FORM ── */
 .step-bar{display:flex;gap:6px;padding:12px 14px;background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);margin-bottom:12px;}
 .step-dot{flex:1;height:6px;border-radius:3px;background:var(--border);transition:.3s;}
 .step-dot.done{background:var(--accent);}
 .step-dot.active{background:var(--primary);}
-
 .step-label{text-align:center;font-size:11px;color:var(--muted);margin-bottom:12px;font-weight:600;letter-spacing:.3px;}
-
 .field{margin-bottom:14px;}
 .field label{display:block;font-size:11px;font-weight:700;color:var(--primary);margin-bottom:6px;letter-spacing:.3px;text-transform:uppercase;}
 .field input,.field select,.field textarea{width:100%;padding:10px 12px;border:1.5px solid var(--border);border-radius:8px;font-size:14px;font-family:inherit;color:var(--text);background:#fff;outline:none;transition:.2s;}
 .field input:focus,.field select:focus{border-color:var(--accent);}
 .field select{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='%2364748b' viewBox='0 0 16 16'%3E%3Cpath d='M7.247 11.14L2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 12px center;}
-
-/* ── GM MODEL TABLE ── */
 .gm-model-table{width:100%;border-collapse:collapse;margin-top:4px;}
 .gm-model-table th{font-size:10px;font-weight:700;color:var(--primary);text-transform:uppercase;letter-spacing:.3px;padding:6px 8px;background:#e8f4fc;text-align:left;}
 .gm-model-table td{padding:5px 6px;border-bottom:1px solid #e2eaf2;vertical-align:middle;}
@@ -85,12 +71,8 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(
 .gm-qty-input:focus{border-color:var(--accent);}
 .gm-total-row td{font-weight:700;color:var(--primary);font-size:12px;padding-top:8px;border-top:2px solid var(--primary);}
 .gm-needed-label{font-size:10px;color:var(--muted);margin-top:6px;text-align:right;}
-
-/* ── WORKER FIELDS GRID ── */
 .worker-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
 .worker-grid .field{margin-bottom:0;}
-
-/* ── TRANSFER SECTION ── */
 .transfer-header{font-size:11px;font-weight:700;color:var(--primary);margin-bottom:8px;text-transform:uppercase;letter-spacing:.3px;}
 .transfer-row{display:flex;gap:8px;align-items:center;margin-bottom:8px;}
 .transfer-row select{flex:2;padding:8px 10px;border:1.5px solid var(--border);border-radius:8px;font-size:13px;}
@@ -109,8 +91,6 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(
 .transfer-tag-other-in button{color:#15803d;}
 .transfer-tag-other-out{background:#fef3c7;color:#92400e;}
 .transfer-tag-other-out button{color:#92400e;}
-
-/* ── SUGGESTIONS ── */
 .suggest-card{background:#fffbeb;border:1.5px solid #f59e0b;border-radius:10px;padding:10px 12px;margin-bottom:10px;display:none;}
 .suggest-card.visible{display:block;}
 .suggest-title{font-size:11px;font-weight:700;color:#92400e;text-transform:uppercase;letter-spacing:.3px;margin-bottom:8px;display:flex;align-items:center;gap:6px;}
@@ -121,15 +101,11 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(
 .suggest-item .s-accept{background:#f59e0b;color:#fff;border:none;border-radius:6px;padding:5px 10px;font-size:11px;font-weight:700;cursor:pointer;white-space:nowrap;}
 .suggest-item .s-dismiss{background:none;border:none;color:#9ca3af;cursor:pointer;font-size:16px;padding:0 2px;line-height:1;}
 .suggest-note{font-size:10px;color:#92400e;opacity:.7;margin-top:6px;}
-
-/* ── BUTTONS ── */
 .btn-primary{width:100%;padding:13px;background:var(--primary);color:#fff;border:none;border-radius:10px;font-size:15px;font-weight:700;cursor:pointer;letter-spacing:.5px;margin-top:8px;transition:.2s;}
 .btn-primary:active{background:var(--primary-light);}
 .btn-primary:disabled{background:var(--border);color:var(--muted);cursor:default;}
 .btn-outline{width:100%;padding:11px;background:transparent;color:var(--primary);border:2px solid var(--primary);border-radius:10px;font-size:14px;font-weight:700;cursor:pointer;margin-top:8px;}
 .btn-danger{background:var(--danger);color:#fff;border:none;border-radius:6px;padding:4px 10px;font-size:11px;cursor:pointer;font-weight:600;}
-
-/* ── DASHBOARD CARDS ── */
 .dept-cards{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
 .dept-card{background:var(--card);border-radius:10px;padding:10px 12px;box-shadow:var(--shadow);border-left:4px solid var(--primary);}
 .dept-card .dname{font-size:11px;font-weight:700;color:var(--primary);}
@@ -139,8 +115,6 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(
 .dept-card .dach.bad{color:var(--danger);}
 .dept-card .dsub{font-size:10px;color:var(--muted);}
 .dept-card .dpen{font-size:10px;color:var(--danger);font-weight:700;margin-top:2px;}
-
-/* ── SUMMARY TABLE ── */
 .summary-tbl{width:100%;border-collapse:collapse;font-size:12px;}
 .summary-tbl th{background:#e8f4fc;color:var(--primary);font-weight:700;padding:7px 8px;text-align:center;font-size:10px;text-transform:uppercase;}
 .summary-tbl td{padding:7px 8px;border-bottom:1px solid #e9eef4;text-align:center;}
@@ -149,19 +123,13 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(
 .badge-ok{background:#dcfce7;color:#15803d;}
 .badge-warn{background:#fef3c7;color:#92400e;}
 .badge-bad{background:#fee2e2;color:#991b1b;}
-
-/* ── LOG TABLE ── */
 .log-tbl{width:100%;border-collapse:collapse;font-size:11px;}
 .log-tbl th{background:#e8f4fc;color:var(--primary);font-weight:700;padding:6px 8px;text-align:left;}
 .log-tbl td{padding:6px 8px;border-bottom:1px solid #e9eef4;vertical-align:top;}
 .log-tbl tr:hover td{background:#f8fafc;}
 .gm-breakdown{font-size:10px;color:var(--muted);margin-top:2px;}
-
-/* ── TOAST ── */
 #toast{position:fixed;bottom:80px;left:50%;transform:translateX(-50%);background:#1e293b;color:#fff;padding:10px 20px;border-radius:20px;font-size:13px;font-weight:600;opacity:0;transition:opacity .3s;pointer-events:none;z-index:999;white-space:nowrap;}
 #toast.show{opacity:1;}
-
-/* ── CONFIRM MODAL ── */
 .modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:200;align-items:flex-end;}
 .modal-overlay.open{display:flex;}
 .modal{background:#fff;border-radius:20px 20px 0 0;padding:20px;width:100%;max-height:80vh;overflow-y:auto;}
@@ -174,13 +142,9 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(
 .confirm-gm-table td{padding:3px 6px;}
 .confirm-gm-table .cgm-model{color:var(--muted);}
 .confirm-gm-table .cgm-qty{font-weight:700;text-align:right;}
-
-/* ── SCROLLBAR ── */
 ::-webkit-scrollbar{width:4px;height:4px;}
 ::-webkit-scrollbar-track{background:transparent;}
 ::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px;}
-
-/* ── BOTTOM NAV SPACING ── */
 .page{padding-bottom:80px;}
 </style>
 </head>
@@ -272,45 +236,26 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(
     <div class="step-label">STEP 2 OF 4 — PRODUCTION QUANTITIES</div>
     <div class="card" id="step2-card">
       <div class="card-body" id="step2-body">
-        <!-- Populated dynamically: GM gets model table, others get single field -->
+        <!-- Populated dynamically -->
       </div>
     </div>
     <button class="btn-outline" onclick="goStep(1)">← BACK</button>
     <button class="btn-primary" onclick="goStep(3)">NEXT →</button>
   </div>
 
-  <!-- STEP 3: Workers & Attendance (Monthly) -->
+  <!-- STEP 3: Workers & Attendance -->
   <div id="step3" style="display:none;">
     <div class="step-label">STEP 3 OF 4 — MONTHLY WORKERS & ATTENDANCE</div>
     <div class="card">
       <div class="card-body">
         <div class="worker-grid">
-          <div class="field">
-            <label>Total Available Workers</label>
-            <input type="number" id="f-avail" min="0" step="0.5" placeholder="e.g. 20" oninput="calcAvailShifts()"/>
-          </div>
-          <div class="field">
-            <label>Actual Working Days</label>
-            <input type="number" id="f-workdays" min="0" step="0.1" placeholder="e.g. 22" oninput="calcAvailShifts()"/>
-          </div>
-          <div class="field">
-            <label>Available Shifts (auto)</label>
-            <input type="number" id="f-avail-shifts" readonly style="background:#e8f4fc;font-weight:700;color:var(--primary);" placeholder="0"/>
-          </div>
-          <div class="field">
-            <label>Overtime Shifts</label>
-            <input type="number" id="f-ot" min="0" step="0.5" placeholder="0"/>
-          </div>
-          <div class="field">
-            <label>Vacations</label>
-            <input type="number" id="f-vac" min="0" step="0.5" placeholder="0"/>
-          </div>
-          <div class="field">
-            <label>Absences</label>
-            <input type="number" id="f-abs" min="0" step="0.5" placeholder="0"/>
-          </div>
+          <div class="field"><label>Total Available Workers</label><input type="number" id="f-avail" min="0" step="0.5" placeholder="e.g. 20" oninput="calcAvailShifts()"/></div>
+          <div class="field"><label>Actual Working Days</label><input type="number" id="f-workdays" min="0" step="0.1" placeholder="e.g. 22" oninput="calcAvailShifts()"/></div>
+          <div class="field"><label>Available Shifts (auto)</label><input type="number" id="f-avail-shifts" readonly style="background:#e8f4fc;font-weight:700;color:var(--primary);" placeholder="0"/></div>
+          <div class="field"><label>Overtime Shifts</label><input type="number" id="f-ot" min="0" step="0.5" placeholder="0"/></div>
+          <div class="field"><label>Vacations</label><input type="number" id="f-vac" min="0" step="0.5" placeholder="0"/></div>
+          <div class="field"><label>Absences</label><input type="number" id="f-abs" min="0" step="0.5" placeholder="0"/></div>
         </div>
-        <!-- Per‑Model Stock Table -->
         <div id="step3-stock-area" style="margin-top:12px;"></div>
       </div>
     </div>
@@ -322,28 +267,22 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(
   <div id="step4" style="display:none;">
     <div class="step-label">STEP 4 OF 4 — WORKER TRANSFERS</div>
 
-    <!-- ── SUGGESTIONS BANNER ── -->
     <div class="suggest-card" id="suggest-card">
       <div class="suggest-title">⚠ Suggested IN — from other dept entries today</div>
       <div id="suggest-list"></div>
       <div class="suggest-note">These depts recorded a transfer OUT to your department today. Accept to confirm, or dismiss to ignore.</div>
     </div>
 
-    <!-- ── ALL-IN ── -->
     <div class="card" style="margin-bottom:10px;">
       <div class="card-head">➕ All-IN (workers received)</div>
       <div class="card-body">
-
         <div class="transfer-section-divider">From department</div>
         <div id="in-tags"></div>
         <div class="transfer-row">
-          <select id="in-from">
-            <option value="">From dept...</option>
-          </select>
+          <select id="in-from"><option value="">From dept...</option></select>
           <input type="number" id="in-qty" min="0" step="0.5" placeholder="shifts"/>
           <button style="background:#dbeafe;color:#1d4ed8;border-radius:8px;border:none;padding:8px 12px;cursor:pointer;font-weight:700;" onclick="addTransfer('in')">＋</button>
         </div>
-
         <div class="transfer-section-divider">Other source</div>
         <div id="other-in-tags"></div>
         <div class="other-transfer-row">
@@ -351,25 +290,19 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(
           <input type="number" id="other-in-qty" min="0" step="0.5" placeholder="shifts"/>
           <button style="background:#dcfce7;color:#15803d;" onclick="addOtherTransfer('in')">＋</button>
         </div>
-
       </div>
     </div>
 
-    <!-- ── ALL-OUT ── -->
     <div class="card">
       <div class="card-head">➖ All-OUT (workers lost)</div>
       <div class="card-body">
-
         <div class="transfer-section-divider">To department</div>
         <div id="out-tags"></div>
         <div class="transfer-row">
-          <select id="out-to">
-            <option value="">To dept...</option>
-          </select>
+          <select id="out-to"><option value="">To dept...</option></select>
           <input type="number" id="out-qty" min="0" step="0.5" placeholder="shifts"/>
           <button style="background:#fee2e2;color:#991b1b;border-radius:8px;border:none;padding:8px 12px;cursor:pointer;font-weight:700;" onclick="addTransfer('out')">＋</button>
         </div>
-
         <div class="transfer-section-divider">Other reason</div>
         <div id="other-out-tags"></div>
         <div class="other-transfer-row">
@@ -377,7 +310,6 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(
           <input type="number" id="other-out-qty" min="0" step="0.5" placeholder="shifts"/>
           <button style="background:#fef3c7;color:#92400e;" onclick="addOtherTransfer('out')">＋</button>
         </div>
-
       </div>
     </div>
 
@@ -425,10 +357,7 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(
     <div class="card-body" style="padding:0;overflow-x:auto;">
       <table class="summary-tbl">
         <thead>
-          <tr>
-            <th>Dept</th><th>Avail.</th><th>All-In</th><th>Needed</th><th>All-Out</th>
-            <th>Achieve.</th><th>Penalty</th>
-          </tr>
+          <tr><th>Dept</th><th>Avail.</th><th>All-In</th><th>Needed</th><th>All-Out</th><th>Achieve.</th><th>Penalty</th></tr>
         </thead>
         <tbody id="score-tbody"></tbody>
       </table>
@@ -490,7 +419,7 @@ async function sbFetch(path, opts={}) {
 }
 
 /* ══════════════════════════════════════════════════
-   KPW DATA — ALL DEPARTMENTS
+   KPW DATA
 ══════════════════════════════════════════════════ */
 const DEPT_MODELS = {
   GM: [
@@ -554,7 +483,6 @@ const DEPT_MODELS = {
 };
 
 const GM_MODELS = DEPT_MODELS.GM;
-
 const DEPTS = ['GM','NISSAN','EXCEED','BMW','AAV','ESAF','GHABBOUR','KASRAWY'];
 const DEPT_LABELS = {
   GM:'GM', NISSAN:'Nissan', EXCEED:'Mercedes/Exeed',
@@ -719,7 +647,7 @@ function validateStep(s) {
 }
 
 /* ══════════════════════════════════════════════════
-   DEPT CHANGE — renders correct Step 2 content
+   DEPT CHANGE
 ══════════════════════════════════════════════════ */
 function onDeptChange() {
   const dept = document.getElementById('f-dept').value;
@@ -737,7 +665,7 @@ function onDeptChange() {
 }
 
 /* ══════════════════════════════════════════════════
-   UNIVERSAL MODEL TABLE
+   MODEL TABLE
 ══════════════════════════════════════════════════ */
 function renderModelTable(dept, models) {
   const rows = models.map(m => `
@@ -858,14 +786,12 @@ function updateStockSummary() {
   const { begin, end } = getStockData();
   const models = getCurrentModels();
   let totalBegin = 0, totalEnd = 0, totalShiftEffect = 0;
-
   models.forEach(m => {
     totalBegin += begin[m.id] || 0;
     totalEnd   += end[m.id] || 0;
     const diff = (end[m.id] || 0) - (begin[m.id] || 0);
     if (m.kpw != null) totalShiftEffect += diff / m.kpw;
   });
-
   document.getElementById('stk-begin-total').textContent = totalBegin;
   document.getElementById('stk-end-total').textContent   = totalEnd;
   const lbl = document.getElementById('stock-shift-effect');
@@ -873,7 +799,7 @@ function updateStockSummary() {
 }
 
 /* ══════════════════════════════════════════════════
-   COMPUTE NEEDED (with stock)
+   COMPUTE NEEDED & STOCK EFFECT
 ══════════════════════════════════════════════════ */
 function computeNeededFromModels(dept, modelQtysObj, stockBeginObj = {}, stockEndObj = {}) {
   const models = DEPT_MODELS[dept] || [];
@@ -888,13 +814,23 @@ function computeNeededFromModels(dept, modelQtysObj, stockBeginObj = {}, stockEn
   return needed;
 }
 
-// Backward compat
+function computeStockShiftEffect(stockData, dept) {
+  const models = DEPT_MODELS[dept] || [];
+  let effect = 0;
+  models.forEach(m => {
+    const beg = stockData.begin[m.id] || 0;
+    const end = stockData.end[m.id] || 0;
+    if (m.kpw != null) effect += (end - beg) / m.kpw;
+  });
+  return effect;
+}
+
 function computeGMNeeded(modelQtysObj) { return computeNeededFromModels('GM', modelQtysObj); }
 function getGMModelQtys() { return getModelQtys(); }
 function getGMTotalQty()  { return getModelTotalQty(); }
 
 /* ══════════════════════════════════════════════════
-   TRANSFERS — dept-to-dept
+   TRANSFERS
 ══════════════════════════════════════════════════ */
 function addTransfer(dir) {
   const fromSel = document.getElementById(dir === 'in' ? 'in-from' : 'out-to');
@@ -914,9 +850,6 @@ function removeTransfer(dir, idx) {
   renderTransferTags();
 }
 
-/* ══════════════════════════════════════════════════
-   TRANSFERS — other source / other reason
-══════════════════════════════════════════════════ */
 function addOtherTransfer(dir) {
   const labelEl = document.getElementById(dir === 'in' ? 'other-in-source' : 'other-out-reason');
   const qtyEl   = document.getElementById(dir === 'in' ? 'other-in-qty'    : 'other-out-qty');
@@ -942,20 +875,17 @@ function renderTransferTags() {
       `<span class="transfer-tag">${DEPT_LABELS[t.dept] || t.dept} +${t.qty}
        <button onclick="removeTransfer('in',${i})">×</button></span>`
     ).join('');
-
   document.getElementById('other-in-tags').innerHTML =
     otherInTransfers.map((t,i) =>
       `<span class="transfer-tag transfer-tag-other-in">${t.label} +${t.qty}
        <button onclick="removeOtherTransfer('in',${i})">×</button></span>`
     ).join('');
-
   document.getElementById('out-tags').innerHTML =
     outTransfers.map((t,i) =>
       `<span class="transfer-tag" style="background:#fee2e2;color:#991b1b;">
        ${DEPT_LABELS[t.dept] || t.dept} −${t.qty}
        <button onclick="removeTransfer('out',${i})" style="color:#991b1b;">×</button></span>`
     ).join('');
-
   document.getElementById('other-out-tags').innerHTML =
     otherOutTransfers.map((t,i) =>
       `<span class="transfer-tag transfer-tag-other-out">${t.label} −${t.qty}
@@ -1062,20 +992,19 @@ function openConfirm() {
   autoFlushPendingTransfers();
   const dept = document.getElementById('f-dept').value;
   const month = document.getElementById('f-month').value;
-  const entryDate = month + '-01';
   const avail = parseFloat(document.getElementById('f-avail').value) || 0;
   const ot    = parseFloat(document.getElementById('f-ot').value) || 0;
   const vac   = parseFloat(document.getElementById('f-vac').value) || 0;
   const abs   = parseFloat(document.getElementById('f-abs').value) || 0;
   const workdays = parseFloat(document.getElementById('f-workdays').value) || 0;
-  
+
   let delQty = 0, neededWkrs = 0, modelBreakdownHtml = '';
   const deptModels = DEPT_MODELS[dept];
 
-  // Get stock data once
   const stockData = getStockData();
   const stkB = Object.values(stockData.begin).reduce((s,v)=>s+v,0);
   const stkE = Object.values(stockData.end).reduce((s,v)=>s+v,0);
+  const stockShiftEffect = computeStockShiftEffect(stockData, dept);
 
   if (deptModels && deptModels.length > 0) {
     const mQtys = getModelQtys();
@@ -1096,20 +1025,25 @@ function openConfirm() {
   const otherIn   = otherInTransfers.reduce((s,t) => s+t.qty, 0);
   const deptOut   = outTransfers.reduce((s,t) => s+t.qty, 0);
   const otherOut  = otherOutTransfers.reduce((s,t) => s+t.qty, 0);
-  const totalIn   = deptIn + otherIn;
-  const totalOut  = deptOut + otherOut;
+  // NEW: include overtime in All‑IN and vacations+stock in All‑OUT
+  const totalIn   = deptIn + otherIn + ot;
+  const totalOut  = deptOut + otherOut + vac + stockShiftEffect;
+
   const availShifts = avail * workdays;
   const ach = (availShifts + totalIn) > 0 ? (neededWkrs + totalOut) / (availShifts + totalIn) : 0;
   const achPct = (ach * 100).toFixed(1);
 
   const inDetail  = [
     ...inTransfers.map(t => `${DEPT_LABELS[t.dept]||t.dept} +${t.qty}`),
-    ...otherInTransfers.map(t => `${t.label} +${t.qty}`)
-  ].join(', ') || '—';
+    ...otherInTransfers.map(t => `${t.label} +${t.qty}`),
+    ot ? `Overtime +${ot}` : ''
+  ].filter(Boolean).join(', ') || '—';
   const outDetail = [
     ...outTransfers.map(t => `${DEPT_LABELS[t.dept]||t.dept} −${t.qty}`),
-    ...otherOutTransfers.map(t => `${t.label} −${t.qty}`)
-  ].join(', ') || '—';
+    ...otherOutTransfers.map(t => `${t.label} −${t.qty}`),
+    vac ? `Vacations −${vac}` : '',
+    stockShiftEffect !== 0 ? `Stock Δ ${stockShiftEffect>0?'+':''}${stockShiftEffect.toFixed(2)}` : ''
+  ].filter(Boolean).join(', ') || '—';
 
   document.getElementById('confirm-content').innerHTML = `
     <div class="confirm-row"><span class="confirm-label">Month</span><span class="confirm-value">${month}</span></div>
@@ -1149,6 +1083,7 @@ async function saveEntry() {
   const stockData = getStockData();
   const stkB = Object.values(stockData.begin).reduce((s,v)=>s+v,0);
   const stkE = Object.values(stockData.end).reduce((s,v)=>s+v,0);
+  const stockShiftEffect = computeStockShiftEffect(stockData, dept);
 
   if (deptModels && deptModels.length > 0) {
     const mQtys = getModelQtys();
@@ -1162,9 +1097,9 @@ async function saveEntry() {
 
   const prodQty = delQty + stkE - stkB;
   const totalIn  = inTransfers.reduce((s,t) => s+t.qty, 0)
-                 + otherInTransfers.reduce((s,t) => s+t.qty, 0);
+                 + otherInTransfers.reduce((s,t) => s+t.qty, 0) + ot;
   const totalOut = outTransfers.reduce((s,t) => s+t.qty, 0)
-                 + otherOutTransfers.reduce((s,t) => s+t.qty, 0);
+                 + otherOutTransfers.reduce((s,t) => s+t.qty, 0) + vac + stockShiftEffect;
 
   const payload = {
     entry_date: entryDate,
@@ -1332,7 +1267,7 @@ function renderScore() {
 }
 
 /* ══════════════════════════════════════════════════
-   AGGREGATION (with stock)
+   AGGREGATION (UPDATED FOR NEW ALL‑IN/ALL‑OUT)
 ══════════════════════════════════════════════════ */
 function aggregateByDept(entries) {
   const aggr = {};
@@ -1340,8 +1275,10 @@ function aggregateByDept(entries) {
   entries.forEach(e => {
     const d = e.dept_code;
     if (!aggr[d]) return;
-    const avShifts = (e.available_shifts || ((e.available_workers||0) * (e.actual_working_days||1))) + (e.overtime_shifts||0);
-    aggr[d].available += avShifts;
+    // Base available = workers * days, without overtime (overtime now inside all_in)
+    const baseAvail = e.available_shifts || ((e.available_workers||0) * (e.actual_working_days||1));
+    aggr[d].available += baseAvail;
+    // Use stored all_in / all_out (which already include overtime & vacations/stock)
     aggr[d].all_in    += e.all_in  || 0;
     aggr[d].all_out   += e.all_out || 0;
 
