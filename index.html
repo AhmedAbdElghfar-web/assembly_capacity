@@ -1213,7 +1213,7 @@ function renderLog() {
   if (!entries.length) { tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;color:var(--muted);padding:20px;">No entries</td></tr>'; return; }
 
   tbody.innerHTML = entries.map(e => {
-    const avail = (e.available_shifts || ((e.available_workers||0) * (e.actual_working_days||1))) + (e.overtime_shifts||0);
+    const avail = (e.available_shifts || ((e.available_workers||0) * (e.actual_working_days||1))) + (e.all_in || 0);
     const needed = (e.needed_workers||0) + (e.all_out||0);
     const ach = avail > 0 ? (needed / avail * 100).toFixed(1) : '—';
     const achColor = parseFloat(ach) >= 99 ? 'var(--ok)' : 'var(--danger)';
