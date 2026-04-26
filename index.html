@@ -681,7 +681,7 @@ function renderModelTable(dept, models) {
     </tr>`).join('');
   return `
     <div style="font-size:11px;color:var(--muted);margin-bottom:8px;font-weight:600;">
-      Enter production quantity per model
+      Enter delivery quantity per model
     </div>
     <table class="gm-model-table">
       <thead><tr><th>Model</th><th style="text-align:right;">Qty (units)</th></tr></thead>
@@ -695,7 +695,6 @@ function renderModelTable(dept, models) {
     </table>
     <div class="gm-needed-label" id="mdl-needed-label">Needed workers: —</div>`;
 }
-
 function getCurrentModels() {
   const dept = document.getElementById('f-dept').value;
   return DEPT_MODELS[dept] || [];
