@@ -30,7 +30,14 @@
 }
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
 body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--text);min-height:100vh;}
-
+/* Stock per-model table – similar to gm-model-table */
+.stock-model-table { width:100%; border-collapse:collapse; margin-top:8px; font-size:12px; }
+.stock-model-table th { font-size:10px; font-weight:700; color:var(--primary); text-transform:uppercase; letter-spacing:.3px; padding:6px 8px; background:#e8f4fc; text-align:left; }
+.stock-model-table td { padding:4px 6px; border-bottom:1px solid #e2eaf2; vertical-align:middle; }
+.stock-model-table .model-name { font-size:12px; font-weight:600; }
+.stock-model-table .stock-input { width:70px; padding:5px 6px; border:1.5px solid var(--border); border-radius:6px; font-size:13px; text-align:center; }
+.stock-model-table .stock-input:focus { border-color:var(--accent); }
+.stk-total-row td { font-weight:700; color:var(--primary); border-top:2px solid var(--primary); padding-top:8px; }
 /* ── HEADER ── */
 .header{background:var(--primary);color:#fff;padding:10px 16px;display:flex;align-items:center;gap:10px;position:sticky;top:0;z-index:100;box-shadow:0 2px 8px rgba(0,0,0,0.25);}
 .header img{height:36px;border-radius:4px;}
@@ -303,14 +310,8 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(
             <input type="number" id="f-abs" min="0" step="0.5" placeholder="0"/>
           </div>
         </div>
-        <div class="field" style="margin-top:8px;">
-          <label>Stock Begin (1st of month)</label>
-          <input type="number" id="f-stk-begin" min="0" placeholder="0"/>
-        </div>
-        <div class="field">
-          <label>Stock End (last day of month)</label>
-          <input type="number" id="f-stk-end" min="0" placeholder="0"/>
-        </div>
+       <!-- Per‑Model Stock Table -->
+           <div id="step3-stock-area" style="margin-top:12px;"></div>
       </div>
     </div>
     <button class="btn-outline" onclick="goStep(2)">← BACK</button>
@@ -801,7 +802,77 @@ function updateModelTotals() {
   const lbl = document.getElementById('mdl-needed-label');
   if (lbl) lbl.textContent = needed > 0 ? 'Needed workers: ' + needed.toFixed(2) : 'Needed workers: —';
 }
+/* ══════════════════════════════════════════════════
+   PER-MODEL STOCK (STEP 3)
+══════════════════════════════════════════════════ */
+function buildStockTable() {
+  const dept = document.getElementById('f-dept').value;
+  const models = DEPT_MODELS[dept] || [];
+  const area = document.getElementById('step3-stock-area');
+  if (!area) return;
 
+  if (models.length === 0) {
+    area.innerHTML = `<p style="font-size:12px;color:var(--muted);">No per‑model stock needed for this department.</p>`;
+    return;
+  }
+
+  let html = `
+    <label style="font-size:11px;font-weight:700;color:var(--primary);text-transform:uppercase;letter-spacing:.3px;margin-bottom:8px;display:block;">Stock per Model</label>
+    <table class="stock-model-table">
+      <thead><tr>
+        <th>Model</th>
+        <th>Stock Begin</th>
+        <th>Stock End</th>
+      </tr></thead>
+      <tbody>`;
+
+  models.forEach(m => {
+    html += `<tr>
+      <td><div class="model-name">${m.name}</div></td>
+      <td><input type="number" class="stock-input" id="stk-begin-${m.id}" min="0" placeholder="0" oninput="updateStockSummary()"></td>
+      <td><input type="number" class="stock-input" id="stk-end-${m.id}" min="0" placeholder="0" oninput="updateStockSummary()"></td>
+    </tr>`;
+  });
+
+  html += `</tbody><tfoot><tr class="stk-total-row"><td>Total</td>
+    <td id="stk-begin-total">0</td>
+    <td id="stk-end-total">0</td>
+  </tr></tfoot></table>
+  <div style="margin-top:8px;font-size:11px;color:var(--muted);text-align:right;" id="stock-shift-effect">Stock change shifts: —</div>`;
+
+  area.innerHTML = html;
+  updateStockSummary();
+}
+
+function getStockData() {
+  const begin = {}, end = {};
+  const models = getCurrentModels();
+  models.forEach(m => {
+    const bEl = document.getElementById('stk-begin-' + m.id);
+    const eEl = document.getElementById('stk-end-' + m.id);
+    begin[m.id] = parseFloat(bEl?.value) || 0;
+    end[m.id]   = parseFloat(eEl?.value) || 0;
+  });
+  return { begin, end };
+}
+
+function updateStockSummary() {
+  const { begin, end } = getStockData();
+  const models = getCurrentModels();
+  let totalBegin = 0, totalEnd = 0, totalShiftEffect = 0;
+
+  models.forEach(m => {
+    totalBegin += begin[m.id] || 0;
+    totalEnd   += end[m.id] || 0;
+    const prod = (begin[m.id]? (end[m.id]-begin[m.id]) : 0); // not production yet, just difference
+    if (m.kpw != null) totalShiftEffect += prod / m.kpw;
+  });
+
+  document.getElementById('stk-begin-total').textContent = totalBegin;
+  document.getElementById('stk-end-total').textContent   = totalEnd;
+  const lbl = document.getElementById('stock-shift-effect');
+  if (lbl) lbl.textContent = 'Stock change shifts: ' + (totalShiftEffect !== 0 ? (totalShiftEffect>0?'+':'') + totalShiftEffect.toFixed(2) : '—');
+}
 /* ══════════════════════════════════════════════════
    COMPUTE NEEDED FROM STORED MODEL QTYS
 ══════════════════════════════════════════════════ */
