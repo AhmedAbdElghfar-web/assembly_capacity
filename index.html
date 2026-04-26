@@ -233,7 +233,7 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(
 
   <!-- STEP 2: Production Quantities -->
   <div id="step2" style="display:none;">
-    <div class="step-label">STEP 2 OF 4 — PRODUCTION QUANTITIES</div>
+    <div class="step-label">STEP 2 OF 4 — DELIVERIES QUANTITIES</div>
     <div class="card" id="step2-card">
       <div class="card-body" id="step2-body">
         <!-- Populated dynamically -->
@@ -680,9 +680,9 @@ function renderModelTable(dept, models) {
       </td>
     </tr>`).join('');
   return `
-    <div style="font-size:11px;color:var(--muted);margin-bottom:8px;font-weight:600;">
-      Enter production quantity per model
-    </div>
+    `<div style="font-size:11px;color:var(--muted);margin-bottom:8px;font-weight:600;">
+      Enter delivery quantity per model
+      </div>`
     <table class="gm-model-table">
       <thead><tr><th>Model</th><th style="text-align:right;">Qty (units)</th></tr></thead>
       <tbody>${rows}</tbody>
