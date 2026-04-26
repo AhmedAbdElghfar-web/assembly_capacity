@@ -704,6 +704,7 @@ function goStep(n) {
     dot.classList.toggle('active', i === n);
   });
   if (n === 4) loadSuggestions();
+  if (n === 3) buildStockTable();
 }
 
 function validateStep(s) {
@@ -876,14 +877,18 @@ function updateStockSummary() {
 /* ══════════════════════════════════════════════════
    COMPUTE NEEDED FROM STORED MODEL QTYS
 ══════════════════════════════════════════════════ */
-function computeNeededFromModels(dept, modelQtysObj) {
+function computeNeededFromModels(dept, modelQtysObj, stockBeginObj = {}, stockEndObj = {}) {
   const models = DEPT_MODELS[dept] || [];
   let needed = 0;
   models.forEach(m => {
     const qty = modelQtysObj[m.id] || 0;
-    if (m.kpw != null && qty > 0) needed += qty / m.kpw;
+    const stkB = stockBeginObj[m.id] || 0;
+    const stkE = stockEndObj[m.id] || 0;
+    const prodQty = qty + (stkE - stkB);
+    if (m.kpw != null && prodQty > 0) needed += prodQty / m.kpw;
   });
   return needed;
+}
 }
 
 // Backward compat
