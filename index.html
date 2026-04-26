@@ -934,8 +934,16 @@ async function fetchDeliveryQtys(dept, month) {
     // Query deliveries table for this month
     const startDate = month + '-01';
     const endDate   = month + '-31';
+    // OEM filter per dept — reduces payload size
+    const DEPT_OEMS = {
+      GM: ['GM'], NISSAN: ['NISSAN'], EXCEED: ['EXCEED','Suzuki'],
+      BMW: ['BAMC','GEELY'], AAV: ['AAV','TOYOTA','Citroen'],
+      ESAF: ['ESAF'], GHABBOUR: ['Ghabour'], KASRAWY: ['Kasrawy']
+    };
+    const oems = (DEPT_OEMS[dept] || []).map(o => `"${o}"`).join(',');
+    const oemFilter = oems ? `&oem=in.(${oems})` : '';
     const data = await sbFetch(
-      `/rest/v1/deliveries?select=oem,model,variant,qty&date=gte.${startDate}&date=lte.${endDate}`,
+      `/rest/v1/deliveries?select=oem,model,variant,qty&date=gte.${startDate}&date=lte.${endDate}${oemFilter}&limit=5000`,
       { method: 'GET' }
     );
 
