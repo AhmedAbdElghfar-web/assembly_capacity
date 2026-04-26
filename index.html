@@ -948,20 +948,27 @@ async function fetchDeliveryQtys(dept, month) {
     }
 
     // Aggregate qty per model ID for this dept
-    // Strategy: MINIMUM across variants (bottleneck logic)
-    // First collect all variant qtys per modelId, then take min
-    const modelVariants = {};  // modelId -> [qty, qty, ...]
+    // Step 1: SUM all DN rows per variant key → variant monthly total
+    // Step 2: MIN across variant totals per modelId (bottleneck logic)
+    const variantTotals = {};   // "modelId|variantKey" -> total qty
     data.forEach(row => {
-      const key = `${row.oem}|${row.model}|${row.variant || ''}`;
-      const mapping = DELIVERY_MAP[key];
+      const delivKey = `${row.oem}|${row.model}|${row.variant || ''}`;
+      const mapping = DELIVERY_MAP[delivKey];
       if (!mapping || mapping.dept !== dept) return;
-      if (!modelVariants[mapping.modelId]) modelVariants[mapping.modelId] = [];
-      modelVariants[mapping.modelId].push(row.qty || 0);
+      // Use oem+model+variant as the unique variant key within a modelId
+      const vk = `${mapping.modelId}||${delivKey}`;
+      variantTotals[vk] = (variantTotals[vk] || 0) + (row.qty || 0);
     });
-    // Take minimum variant qty per model
+    // Step 2: group variant totals by modelId, then take min
+    const modelVariantMap = {};   // modelId -> [variantTotal, ...]
+    Object.entries(variantTotals).forEach(([vk, total]) => {
+      const modelId = vk.split('||')[0];
+      if (!modelVariantMap[modelId]) modelVariantMap[modelId] = [];
+      modelVariantMap[modelId].push(total);
+    });
     const modelQtys = {};
-    Object.entries(modelVariants).forEach(([modelId, qtys]) => {
-      modelQtys[modelId] = Math.min(...qtys);
+    Object.entries(modelVariantMap).forEach(([modelId, totals]) => {
+      modelQtys[modelId] = Math.min(...totals);
     });
 
     // Fill inputs
