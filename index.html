@@ -1062,7 +1062,7 @@ function openConfirm() {
 function closeConfirm() { document.getElementById('confirm-modal').classList.remove('open'); }
 
 /* ══════════════════════════════════════════════════
-   SAVE ENTRY
+   SAVE ENTRY  (FIX: removed generated column `available_shifts`)
 ══════════════════════════════════════════════════ */
 async function saveEntry() {
   closeConfirm();
@@ -1087,7 +1087,6 @@ async function saveEntry() {
     const mQtys = getModelQtys();
     gm_model_qtys = mQtys;
     delQty = Object.values(mQtys).reduce((s,v)=>s+v,0);
-    // DELIVERY-ONLY Needed Workers
     neededWkrs = computeNeededFromModels(dept, mQtys);
   } else {
     delQty = parseFloat(document.getElementById('f-del-qty').value) || 0;
@@ -1111,7 +1110,7 @@ async function saveEntry() {
     stock_end_json: stockData.end,
     available_workers: avail,
     actual_working_days: workdays,
-    available_shifts: parseFloat((avail * workdays).toFixed(4)),
+    // available_shifts removed – it's a generated column in Supabase
     overtime_shifts: ot,
     vacations: vac,
     absences: abs,
@@ -1274,14 +1273,11 @@ function aggregateByDept(entries) {
   entries.forEach(e => {
     const d = e.dept_code;
     if (!aggr[d]) return;
-    // Base available = workers * days (without overtime)
     const baseAvail = e.available_shifts || ((e.available_workers||0) * (e.actual_working_days||1));
     aggr[d].available += baseAvail;
-    // all_in and all_out already contain overtime / vacations+stock
     aggr[d].all_in    += e.all_in  || 0;
     aggr[d].all_out   += e.all_out || 0;
 
-    // Needed only from delivery quantities (no stock)
     let needed = 0;
     if (e.gm_model_qtys) {
       let mqs;
