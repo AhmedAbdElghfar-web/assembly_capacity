@@ -1082,16 +1082,15 @@ function openConfirm() {
   const vac   = parseFloat(document.getElementById('f-vac').value) || 0;
   const abs   = parseFloat(document.getElementById('f-abs').value) || 0;
   const workdays = parseFloat(document.getElementById('f-workdays').value) || 0;
-  const stkB  = parseFloat(document.getElementById('f-stk-begin').value) || 0;
-  const stkE  = parseFloat(document.getElementById('f-stk-end').value) || 0;
-
+  
   let delQty = 0, neededWkrs = 0, modelBreakdownHtml = '';
   const deptModels = DEPT_MODELS[dept];
 
   if (deptModels && deptModels.length > 0) {
     const mQtys = getModelQtys();
+    const stockData = getStockData();
     delQty = Object.values(mQtys).reduce((s,v) => s+v, 0);
-    neededWkrs = computeNeededFromModels(dept, mQtys);
+    neededWkrs = computeNeededFromModels(dept, mQtys, stockData.begin, stockData.end);
     const bmRows = deptModels.map(m => {
       const q = mQtys[m.id] || 0;
       return q > 0 ? `<tr><td class="cgm-model">${m.name}</td><td class="cgm-qty">${q}</td></tr>` : '';
@@ -1101,7 +1100,10 @@ function openConfirm() {
     delQty = parseFloat(document.getElementById('f-del-qty').value) || 0;
     neededWkrs = delQty > 0 ? delQty : 0;
   }
-
+    // Get total stock begin/end from per-model data
+  const stockDataForTotal = getStockData();   // call again to get totals (safe)
+  const stkB = Object.values(stockDataForTotal.begin).reduce((s,v) => s+v, 0);
+  const stkE = Object.values(stockDataForTotal.end).reduce((s,v) => s+v, 0);
   const prodQty = delQty + stkE - stkB;
   const deptIn    = inTransfers.reduce((s,t) => s+t.qty, 0);
   const otherIn   = otherInTransfers.reduce((s,t) => s+t.qty, 0);
