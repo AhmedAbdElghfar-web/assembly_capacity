@@ -948,13 +948,20 @@ async function fetchDeliveryQtys(dept, month) {
     }
 
     // Aggregate qty per model ID for this dept
-    const modelQtys = {};
-    let unmapped = 0;
+    // Strategy: MINIMUM across variants (bottleneck logic)
+    // First collect all variant qtys per modelId, then take min
+    const modelVariants = {};  // modelId -> [qty, qty, ...]
     data.forEach(row => {
       const key = `${row.oem}|${row.model}|${row.variant || ''}`;
       const mapping = DELIVERY_MAP[key];
       if (!mapping || mapping.dept !== dept) return;
-      modelQtys[mapping.modelId] = (modelQtys[mapping.modelId] || 0) + (row.qty || 0);
+      if (!modelVariants[mapping.modelId]) modelVariants[mapping.modelId] = [];
+      modelVariants[mapping.modelId].push(row.qty || 0);
+    });
+    // Take minimum variant qty per model
+    const modelQtys = {};
+    Object.entries(modelVariants).forEach(([modelId, qtys]) => {
+      modelQtys[modelId] = Math.min(...qtys);
     });
 
     // Fill inputs
